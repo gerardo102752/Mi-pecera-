@@ -82,9 +82,9 @@ select.inp{cursor:pointer}
 .inp-lbl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 
 /* PHOTO UPLOAD */
-.photo-upload{width:100%;height:150px;border-radius:16px;border:2px dashed rgba(0,196,224,.3);background:var(--glass);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:8px;overflow:hidden;position:relative}
-.photo-upload:active{background:var(--glassh)}
-.photo-upload img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;border-radius:14px;display:block}
+.photo-upload{width:100%;height:150px;border-radius:16px;border:2px dashed rgba(0,196,224,.3);background:var(--glass) center/contain no-repeat;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:8px;overflow:hidden;position:relative;flex-shrink:0}
+.photo-upload:active{opacity:.9}
+.photo-upload img{display:none}
 .photo-upload .overlay{position:absolute;inset:0;background:rgba(6,13,24,.52);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-radius:14px}
 
 /* MULTI-SELECT CHIPS */
@@ -153,8 +153,7 @@ select.inp{cursor:pointer}
 
 .tcard{background:var(--glass);border:1px solid var(--border);border-radius:18px;overflow:hidden;cursor:pointer;transition:all .18s;position:relative;margin-bottom:10px;-webkit-user-select:none;user-select:none}
 .tcard:active{border-color:rgba(0,196,224,.22)}.tcard.sel{border-color:rgba(0,196,224,.38)}
-.tcard-photo-wrap{width:100%;height:140px;overflow:hidden;position:relative;flex-shrink:0}
-.tcard-photo{width:100%;height:100%;object-fit:cover;object-position:center;display:block;background:#091726}
+.tcard-photo{width:100%;height:140px;background:#091726 center/contain no-repeat;display:block;flex-shrink:0}
 .tcard-photo-placeholder{width:100%;height:80px;background:linear-gradient(135deg,rgba(0,196,224,.08),rgba(0,237,212,.04));display:flex;align-items:center;justify-content:center;font-size:36px}
 .tcard-body{padding:14px}.tcard-del{position:absolute;top:10px;right:10px;background:rgba(6,13,24,.7);border:1px solid rgba(255,77,106,.3);border-radius:9px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;z-index:2}
 .tcard-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
@@ -206,11 +205,28 @@ select.inp{cursor:pointer}
 /* SPECIES CARD — with catalog photo */
 .sp-card{background:var(--glass);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:10px}
 .sp-card-img-wrap{width:100%;height:140px;overflow:hidden;position:relative;flex-shrink:0}
-.sp-card-img-wrap img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+.sp-card-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
 .sp-card-img-wrap .sp-fb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px}
 .sp-card-body{padding:13px}
 .sp-photo-btn{position:absolute;bottom:7px;right:7px;background:rgba(6,13,24,.78);border:1px solid rgba(0,196,224,.35);border-radius:9px;padding:5px 9px;font-family:'Space Mono',monospace;font-size:9px;color:var(--cyan);cursor:pointer;-webkit-user-select:none;user-select:none}
-/* TANK FILTER PILLS */
+/* GALLERY CARD */
+.sp-gcard{background:var(--glass);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .18s}
+.sp-gcard:active{border-color:rgba(0,196,224,.3)}
+.sp-gcard-img{width:100%;height:110px;background:#091726 center/contain no-repeat}
+.sp-gcard-body{padding:10px 10px 12px}
+.sp-gcard-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp-gcard-sub{font-size:10px;color:var(--muted);margin-top:2px}
+/* INLINE CATALOG */
+.search-inp{background:var(--glass);border:1px solid rgba(0,196,224,.2);border-radius:13px;padding:12px 15px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--soft);width:100%;outline:none;-webkit-appearance:none;appearance:none}
+.search-inp:focus{border-color:rgba(0,196,224,.5)}
+.inline-cat-card{background:var(--glass);border:1px solid var(--border);border-radius:15px;overflow:hidden;cursor:pointer;transition:all .18s;-webkit-user-select:none;user-select:none}
+.inline-cat-card:active{border-color:var(--cyan);transform:scale(.97)}
+.inline-cat-card-img{width:100%;height:90px;position:relative;overflow:hidden}
+.inline-cat-card-body{padding:8px 10px 10px}
+.inline-cat-card-name{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--soft)}
+.inline-cat-card-sci{font-size:9px;color:var(--muted);font-style:italic;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inline-cat-card-btn{margin-top:7px;width:100%;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:6px;border-radius:8px;border:1px solid rgba(0,196,224,.3);background:rgba(0,196,224,.08);color:var(--cyan);cursor:pointer;-webkit-user-select:none;user-select:none}
+.inline-cat-photo-btn{width:100%;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:6px;border-radius:8px;border:1px solid rgba(157,126,255,.3);background:rgba(157,126,255,.08);color:var(--purple);cursor:pointer;margin-top:5px;-webkit-user-select:none;user-select:none}
 .tank-filter-row{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-shrink:0}
 .tank-filter-row::-webkit-scrollbar{display:none}
 .tank-pill{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:7px 14px;border-radius:20px;cursor:pointer;border:1px solid rgba(0,196,224,.22);background:var(--glass);color:var(--muted);white-space:nowrap;transition:all .18s;-webkit-user-select:none;user-select:none;flex-shrink:0}
@@ -333,12 +349,31 @@ select.inp{cursor:pointer}
         <button class="btn" onclick="openSpeciesChoice()" style="font-size:13px;padding:13px">+ Agregar especie</button>
         <button class="btn2" onclick="openManualSpecies(null)" style="font-size:13px;padding:13px">✏️ Personalizada</button>
       </div>
-      <div id="sp-tank-filter" style="display:none">
-        <div class="slbl">Filtrar por pecera</div>
-        <div class="tank-filter-row" id="sp-tank-pills"></div>
+      <div class="tab-row">
+        <div class="tab on" id="sptab-list" onclick="setSpTab('list')">📋 Lista</div>
+        <div class="tab" id="sptab-gallery" onclick="setSpTab('gallery')">🖼 Galería</div>
+        <div class="tab" id="sptab-catalog" onclick="setSpTab('catalog')">📖 Catálogo</div>
       </div>
-      <div id="sp-list"></div>
-      <div id="sp-empty" class="empty"><div class="eico">🐟</div><div class="etxt">Sin especies</div><div class="esub">Agrega peces del catálogo o manualmente</div></div>
+      <!-- LIST VIEW -->
+      <div id="sp-view-list">
+        <div id="sp-tank-filter" style="display:none">
+          <div class="slbl">Filtrar por pecera</div>
+          <div class="tank-filter-row" id="sp-tank-pills"></div>
+        </div>
+        <div id="sp-list"></div>
+        <div id="sp-empty" class="empty"><div class="eico">🐟</div><div class="etxt">Sin especies</div><div class="esub">Agrega peces del catálogo o manualmente</div></div>
+      </div>
+      <!-- GALLERY VIEW -->
+      <div id="sp-view-gallery" style="display:none">
+        <div id="sp-gallery-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+        <div id="sp-gallery-empty" class="empty"><div class="eico">🐟</div><div class="etxt">Sin peces aún</div><div class="esub">Agrega especies para verlas aquí</div></div>
+      </div>
+      <!-- CATALOG VIEW -->
+      <div id="sp-view-catalog" style="display:none">
+        <button class="btn" onclick="openAddToCatalog(null)" style="font-size:13px;padding:13px">+ Nuevo pez al catálogo</button>
+        <input class="search-inp" id="inline-cat-search" placeholder="🔍 Buscar en catálogo..." oninput="filterInlineCatalog(this.value)" autocomplete="off" style="margin-top:4px">
+        <div id="inline-cat-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:8px"></div>
+      </div>
     </div>
 
     <!-- HEALTH -->
@@ -660,7 +695,7 @@ function tCardHTML(t,sel=true){
   const st=getTankHealth(t.id),log=paramLog[t.id]||[],last=log.length?log[log.length-1]:null;
   const chips=last?`<span class="chip ch-c">🌡 ${last.temp}°C</span><span class="chip ch-a">pH ${last.ph}</span>`:'<span class="chip ch-m">Sin parámetros</span>';
   const filtChips=(t.filtration||[]).map(f=>`<span class="chip ch-purple" style="font-size:9px">⚙ ${f}</span>`).join('');
-  const photoHTML=t.photo?`<div class="tcard-photo-wrap"><img class="tcard-photo" src="${t.photo}" alt="${t.name}"></div>`:`<div class="tcard-photo-placeholder">${t.emoji}</div>`;
+  const photoHTML=t.photo?`<div class="tcard-photo" style="background-image:url(${t.photo})"></div>`:`<div class="tcard-photo-placeholder">${t.emoji}</div>`;
   const isSel=sel&&selTank===t.id?'sel':'';
   const clickFn=sel?`selectTank(${t.id})`:`goTo('params')`;
   return `<div class="tcard ${isSel}" onclick="${clickFn}">
@@ -718,15 +753,12 @@ function handlePhoto(input){
   reader.onload=e=>{
     _photoData=e.target.result;
     const area=document.getElementById('photo-area');if(!area)return;
-    // Remove any existing preview img
-    area.querySelectorAll('img.preview-img').forEach(el=>el.remove());
-    const img=document.createElement('img');
-    img.className='preview-img';
-    img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;border-radius:14px;display:block;z-index:0';
-    img.src=_photoData;
+    area.style.backgroundImage=`url(${_photoData})`;
+    area.style.backgroundSize='contain';
+    area.style.backgroundPosition='center';
+    area.style.borderStyle='solid';
     const ov=document.getElementById('photo-overlay');
-    if(ov){area.insertBefore(img,ov);ov.style.background='rgba(6,13,24,.38)';ov.style.zIndex='1';}
-    else{area.appendChild(img);}
+    if(ov)ov.style.background='rgba(6,13,24,.38)';
   };
   reader.readAsDataURL(file);
 }
@@ -912,9 +944,7 @@ function renderCatalogGrid(list){
   if(!list.length){el.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);font-size:13px">Sin resultados para "${_catQuery}"</div>`;return}
   const diffColor={Fácil:'var(--green)',Medio:'var(--gold)',Difícil:'var(--coral)'};
   el.innerHTML=list.map(f=>`<div class="fish-card ${_selCatFish&&_selCatFish.id===f.id?'sel':''}" onclick="selectCatFish('${f.id}')">
-    <div class="fish-img-wrap" style="background:${f.grad}">
-      <img src="${f.img}" alt="${f.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="fish-fallback" style="display:none;background:${f.grad}">${f.emoji}</div>
+    <div class="fish-img-wrap" style="background:${f.grad} url(${f.img}) center/contain no-repeat">
       <div class="fish-diff"><span class="badge" style="font-size:7px;padding:2px 6px;background:rgba(0,0,0,.5);border:1px solid ${diffColor[f.diff]};color:${diffColor[f.diff]}">${f.diff}</span></div>
     </div>
     <div class="fish-info">
@@ -948,10 +978,7 @@ function openFromCatalog(){
 
     <!-- FISH PREVIEW -->
     <div class="fish-preview">
-      <div style="height:150px;overflow:hidden;background:${f.grad};border-radius:16px 16px 0 0;display:flex;align-items:center;justify-content:center;position:relative">
-        <img src="${f.img}" alt="${f.name}" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:64px;background:${f.grad}">${f.emoji}</div>
-      </div>
+      <div style="height:150px;background:${f.grad} url(${f.img}) center/contain no-repeat;border-radius:16px 16px 0 0;flex-shrink:0"></div>
       <div class="fish-preview-body">
         <div style="font-size:11px;color:var(--muted);font-style:italic;margin-bottom:8px">${f.sci}</div>
         <div style="font-size:12px;color:var(--soft);line-height:1.5;margin-bottom:10px">${f.desc}</div>
@@ -990,17 +1017,16 @@ function saveCatalogFish(){
 // ── MANUAL SPECIES ──
 function openManualSpecies(editIdx){
   if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
-  const tkopts=tanks.map(t=>`<option>${t.emoji} ${t.name}</option>`).join('');
+  const tkopts=tanks.map(t=>`<option value="${t.emoji} ${t.name}">${t.emoji} ${t.name}</option>`).join('');
   const sp=editIdx!=null?species[editIdx]:null;
   _photoData=sp&&sp.customImg?sp.customImg:null;
-  const imgPreview=_photoData?`<img class="preview-img" src="${_photoData}" alt="preview">`:'';
+  const bgStyle=_photoData?`background-image:url(${_photoData});background-size:contain;background-position:center;background-repeat:no-repeat;border-style:solid;`:'';
   showModal(`<div class="modal" onclick="event.stopPropagation()">
     <div class="modal-close" onclick="${sp?'closeModal()':'openSpeciesChoice()'}">←</div>
     <div class="modal-title">${sp?'✏️ Editar especie':'✏️ Especie personalizada'}</div>
     <div>
       <div class="inp-lbl">Foto del pez (opcional)</div>
-      <div class="photo-upload" id="photo-area" onclick="document.getElementById('sp-photo-input').click()">
-        ${imgPreview}
+      <div class="photo-upload" id="photo-area" style="${bgStyle}" onclick="document.getElementById('sp-photo-input').click()">
         <div class="overlay" id="photo-overlay" style="${_photoData?'background:rgba(6,13,24,.38)':''}"><span style="font-size:28px">📷</span><span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">${_photoData?'Cambiar foto':'Foto del pez'}</span></div>
       </div>
       <input type="file" id="sp-photo-input" accept="image/*" style="display:none" onchange="handlePhoto(this)">
@@ -1012,8 +1038,8 @@ function openManualSpecies(editIdx){
       <div><div class="inp-lbl">Cantidad</div><input class="inp" id="sp-ct" type="number" placeholder="5" min="1" inputmode="numeric" value="${sp?sp.count:1}"></div>
       <div><div class="inp-lbl">Dieta</div><select class="inp" id="sp-di"><option${sp&&sp.diet==='Omnívoro'?' selected':''}>Omnívoro</option><option${sp&&sp.diet==='Herbívoro'?' selected':''}>Herbívoro</option><option${sp&&sp.diet==='Carnívoro'?' selected':''}>Carnívoro</option></select></div>
       <div><div class="inp-lbl">Dificultad</div><select class="inp" id="sp-df"><option${!sp||sp.diff==='Fácil'?' selected':''}>Fácil</option><option${sp&&sp.diff==='Medio'?' selected':''}>Medio</option><option${sp&&sp.diff==='Difícil'?' selected':''}>Difícil</option></select></div>
-      <div><div class="inp-lbl">Temp. óptima</div><input class="inp" id="sp-tp" placeholder="24-27°C" maxlength="15" value="${sp?sp.temp||'':''}"></div>
-      <div><div class="inp-lbl">pH óptimo</div><input class="inp" id="sp-ph" placeholder="6.5-7.5" maxlength="15" value="${sp?sp.ph||'':''}"></div>
+      <div><div class="inp-lbl">Temp. óptima</div><input class="inp" id="sp-tp" placeholder="24-27°C" maxlength="15" value="${sp?sp.temp&&sp.temp!=='—'?sp.temp:'':''}"></div>
+      <div><div class="inp-lbl">pH óptimo</div><input class="inp" id="sp-ph" placeholder="6.5-7.5" maxlength="15" value="${sp?sp.ph&&sp.ph!=='—'?sp.ph:'':''}"></div>
       <div><div class="inp-lbl">Compatibilidad</div><select class="inp" id="sp-cp"><option${!sp||sp.compat==='Pacífico'?' selected':''}>Pacífico</option><option${sp&&sp.compat==='Semi-agresivo'?' selected':''}>Semi-agresivo</option><option${sp&&sp.compat==='Agresivo'?' selected':''}>Agresivo</option></select></div>
       <div style="grid-column:1/-1"><div class="inp-lbl">Pecera asignada</div><select class="inp" id="sp-tk">${tkopts}</select></div>
     </div>
@@ -1021,7 +1047,7 @@ function openManualSpecies(editIdx){
     ${sp?`<button class="btn2" onclick="closeModal()">Cancelar</button>`:''}
   </div>`);
   // Set tank select value
-  if(sp&&sp.tank){const s=document.getElementById('sp-tk');for(let o of s.options){if(o.value===sp.tank)o.selected=true}}
+  if(sp&&sp.tank){const s=document.getElementById('sp-tk');for(let o of s.options){if(o.value===sp.tank){o.selected=true;break}}}
 }
 function saveManualSp(editIdx){
   const name=document.getElementById('sp-n').value.trim();
@@ -1075,9 +1101,7 @@ function renderSpecies(){
     const displayImg=s.customImg||s.img;
     const gradBg=s.grad||'linear-gradient(135deg,rgba(0,196,224,.08),rgba(0,237,212,.04))';
     const photoHtml=displayImg
-      ?`<div class="sp-card-img-wrap" style="background:${gradBg}">
-          <img src="${displayImg}" alt="${s.name}" onerror="this.style.display='none';this.nextSibling.style.display='flex'">
-          <div class="sp-fb" style="display:none;background:${gradBg}">${s.emoji}</div>
+      ?`<div class="sp-card-img-wrap" style="background:${gradBg} url(${displayImg}) center/contain no-repeat">
           <div class="sp-photo-btn" onclick="event.stopPropagation();uploadSpPhoto(${i})">📷 Cambiar</div>
         </div>`
       :`<div class="sp-card-img-wrap" style="background:${gradBg}">
@@ -1109,13 +1133,221 @@ function renderSpecies(){
         </div>
         <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:8px">
           <button onclick="openManualSpecies(${i})" style="flex:1;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:8px;border-radius:10px;border:1px solid rgba(0,196,224,.25);background:var(--glass);color:var(--cyan);cursor:pointer">✏️ Editar</button>
-          <button onclick="confirmDelSp(${i})" style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:8px 12px;border-radius:10px;border:1px solid rgba(255,77,106,.25);background:rgba(255,77,106,.05);color:var(--coral);cursor:pointer">🗑 Borrar</button>
+          <button onclick="openManualSpeciesForTank('${s.tank}')" style="flex:1;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:8px;border-radius:10px;border:1px solid rgba(47,238,160,.25);background:rgba(47,238,160,.05);color:var(--green);cursor:pointer">+ Agregar pez</button>
+          <button onclick="confirmDelSp(${i})" style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:8px 12px;border-radius:10px;border:1px solid rgba(255,77,106,.25);background:rgba(255,77,106,.05);color:var(--coral);cursor:pointer">🗑</button>
         </div>
       </div>
     </div>`;
   }).join('');
 }
+function openManualSpeciesForTank(tankName){
+  openManualSpecies(null);
+  setTimeout(()=>{
+    const s=document.getElementById('sp-tk');
+    if(s){for(let o of s.options){if(o.value===tankName){o.selected=true;break}}}
+  },50);
+}
+
 function setSpFilter(tank){_spTankFilter=tank;renderSpecies()}
+
+let _spTab='list';
+function setSpTab(tab){
+  _spTab=tab;
+  ['list','gallery','catalog'].forEach(t=>{
+    const btn=document.getElementById('sptab-'+t);
+    const view=document.getElementById('sp-view-'+t);
+    if(btn)btn.classList.toggle('on',t===tab);
+    if(view)view.style.display=t===tab?'':'none';
+  });
+  if(tab==='gallery')renderSpGallery();
+  if(tab==='catalog'){filterInlineCatalog('');const el=document.getElementById('inline-cat-search');if(el)el.value='';}
+}
+
+function renderSpGallery(){
+  const grid=document.getElementById('sp-gallery-grid');
+  const empty=document.getElementById('sp-gallery-empty');
+  if(!grid)return;
+  if(!species.length){grid.style.display='none';empty.style.display='';return}
+  grid.style.display='grid';empty.style.display='none';
+  grid.innerHTML=species.map((s,i)=>{
+    const img=s.customImg||s.img;
+    const bgStyle=img?`background:${s.grad||'#091726'} url(${img}) center/contain no-repeat`:`background:${s.grad||'#091726'}`;
+    return `<div class="sp-gcard">
+      <div class="sp-gcard-img" style="${bgStyle}"></div>
+      <div class="sp-gcard-body">
+        <div class="sp-gcard-name">${s.emoji} ${s.name}</div>
+        <div class="sp-gcard-sub">×${s.count} · ${s.tank||'—'}</div>
+        <div style="margin-top:6px;display:flex;gap:5px">
+          <button onclick="openManualSpecies(${i})" style="flex:1;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:6px;border-radius:8px;border:1px solid rgba(0,196,224,.25);background:var(--glass);color:var(--cyan);cursor:pointer">✏️</button>
+          <button onclick="document.getElementById('gal-file-${i}').click()" style="flex:1;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:6px;border-radius:8px;border:1px solid rgba(157,126,255,.3);background:rgba(157,126,255,.08);color:var(--purple);cursor:pointer">📷</button>
+          <button onclick="confirmDelSp(${i})" style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:6px 10px;border-radius:8px;border:1px solid rgba(255,77,106,.25);background:rgba(255,77,106,.05);color:var(--coral);cursor:pointer">🗑</button>
+        </div>
+        <input type="file" id="gal-file-${i}" accept="image/*" style="display:none" onchange="applySpPhotoGallery(this,${i})">
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function applySpPhotoGallery(input,i){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{species[i].customImg=e.target.result;species[i].img=e.target.result;toast('📷 Foto actualizada');renderSpGallery();};
+  reader.readAsDataURL(file);
+}
+
+// ── INLINE CATALOG ──
+let _inlineCatQuery='';
+let _catPhotoData=null;
+function filterInlineCatalog(q){
+  _inlineCatQuery=(q||'').toLowerCase();
+  const list=FISH_CATALOG.filter(f=>!_inlineCatQuery||f.name.toLowerCase().includes(_inlineCatQuery)||f.sci.toLowerCase().includes(_inlineCatQuery));
+  const grid=document.getElementById('inline-cat-grid');
+  if(!grid)return;
+  const diffColor={Fácil:'var(--green)',Medio:'var(--gold)',Difícil:'var(--coral)'};
+  grid.innerHTML=list.map(f=>{
+    const img=f.customImg||f.img;
+    const isCustom=!!f._custom;
+    return `<div class="inline-cat-card">
+      <div class="inline-cat-card-img" style="background:${f.grad};position:relative;overflow:hidden">
+        ${img?`<img src="${img}" alt="${f.name}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;display:block">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px">'+f.emoji+'</div>'}
+      </div>
+      <div class="inline-cat-card-body">
+        <div class="inline-cat-card-name">${f.emoji} ${f.name}</div>
+        <div class="inline-cat-card-sci">${f.sci||''}</div>
+        <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">
+          <span style="font-size:9px;font-family:'Space Mono',monospace;color:${diffColor[f.diff]||'var(--muted)'}">${f.diff}</span>
+          ${f.temp?`<span style="font-size:9px;font-family:'Space Mono',monospace;color:var(--muted)">· 🌡${f.temp}</span>`:''}
+        </div>
+        <button class="inline-cat-card-btn" onclick="addFromInlineCatalog('${f.id}')">+ Agregar a pecera</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px">
+          <button class="inline-cat-photo-btn" onclick="openAddToCatalog('${f.id}')">✏️ Editar</button>
+          <label class="inline-cat-photo-btn" style="display:block;text-align:center;cursor:pointer">📷 Foto<input type="file" accept="image/*" style="display:none" onchange="applyCatalogPhoto(this,'${f.id}')"></label>
+        </div>
+        ${isCustom?`<button onclick="deleteCatalogFish('${f.id}')" style="margin-top:5px;width:100%;font-family:'Space Mono',monospace;font-size:9px;padding:5px;border-radius:8px;border:1px solid rgba(255,77,106,.25);background:rgba(255,77,106,.05);color:var(--coral);cursor:pointer">🗑 Eliminar del catálogo</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAddToCatalog(fid){
+  const f=fid?FISH_CATALOG.find(x=>x.id===fid):null;
+  _catPhotoData=f?(f.customImg||f.img||null):null;
+  const bgStyle=_catPhotoData?`background-image:url(${_catPhotoData});background-size:contain;background-position:center;background-repeat:no-repeat;border-style:solid;`:'';
+  const GRADS=['linear-gradient(135deg,#001A40,#003080)','linear-gradient(135deg,#1A0040,#5000A0)','linear-gradient(135deg,#400010,#900030)','linear-gradient(135deg,#402000,#C06000)','linear-gradient(135deg,#0A1A30,#203050)','linear-gradient(135deg,#001A10,#004030)','linear-gradient(135deg,#1A1A00,#404000)'];
+  const gradOpts=GRADS.map((g,i)=>`<option value="${g}" ${f&&f.grad===g?'selected':''}>${['🔵 Azul','🟣 Morado','🔴 Rojo','🟠 Naranja','⚫ Gris','🟢 Verde','🟡 Amarillo'][i]}</option>`).join('');
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div class="modal-title">${f?'✏️ Editar pez del catálogo':'➕ Nuevo pez al catálogo'}</div>
+    <div>
+      <div class="inp-lbl">Foto del pez (opcional)</div>
+      <div class="photo-upload" id="cat-photo-area" style="${bgStyle}" onclick="document.getElementById('cat-photo-file').click()">
+        <div class="overlay" id="cat-photo-overlay" style="${_catPhotoData?'background:rgba(6,13,24,.38)':''}">
+          <span style="font-size:28px">📷</span>
+          <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">${_catPhotoData?'Cambiar foto':'Foto del pez'}</span>
+        </div>
+      </div>
+      <input type="file" id="cat-photo-file" accept="image/*" style="display:none" onchange="handleCatPhoto(this)">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="grid-column:1/-1"><div class="inp-lbl">Nombre común *</div><input class="inp" id="cf-name" placeholder="Ej: Telescopio negro" maxlength="60" value="${f?f.name:''}"></div>
+      <div style="grid-column:1/-1"><div class="inp-lbl">Nombre científico</div><input class="inp" id="cf-sci" placeholder="Ej: Carassius auratus" value="${f?f.sci||'':''}"></div>
+      <div><div class="inp-lbl">Emoji</div><input class="inp" id="cf-emoji" placeholder="🐟" maxlength="4" value="${f?f.emoji:'🐟'}"></div>
+      <div><div class="inp-lbl">Tamaño</div><input class="inp" id="cf-size" placeholder="Ej: 15–20 cm" maxlength="20" value="${f?f.size||'':''}"></div>
+      <div><div class="inp-lbl">Temp. óptima</div><input class="inp" id="cf-temp" placeholder="Ej: 20–26°C" maxlength="15" value="${f?f.temp||'':''}"></div>
+      <div><div class="inp-lbl">pH óptimo</div><input class="inp" id="cf-ph" placeholder="Ej: 6.5–7.5" maxlength="15" value="${f?f.ph||'':''}"></div>
+      <div><div class="inp-lbl">Dieta</div><select class="inp" id="cf-diet">
+        <option${f&&f.diet==='Omnívoro'?' selected':''}>Omnívoro</option>
+        <option${f&&f.diet==='Herbívoro'?' selected':''}>Herbívoro</option>
+        <option${f&&f.diet==='Carnívoro'?' selected':''}>Carnívoro</option>
+      </select></div>
+      <div><div class="inp-lbl">Dificultad</div><select class="inp" id="cf-diff">
+        <option${!f||f.diff==='Fácil'?' selected':''}>Fácil</option>
+        <option${f&&f.diff==='Medio'?' selected':''}>Medio</option>
+        <option${f&&f.diff==='Difícil'?' selected':''}>Difícil</option>
+      </select></div>
+      <div><div class="inp-lbl">Compatibilidad</div><select class="inp" id="cf-compat">
+        <option${!f||f.compat==='Pacífico'?' selected':''}>Pacífico</option>
+        <option${f&&f.compat==='Semi-agresivo'?' selected':''}>Semi-agresivo</option>
+        <option${f&&f.compat==='Agresivo'?' selected':''}>Agresivo</option>
+      </select></div>
+      <div><div class="inp-lbl">Litros mínimos</div><input class="inp" id="cf-min" type="number" placeholder="Ej: 100" min="1" inputmode="numeric" value="${f?f.min||'':''}"></div>
+      <div style="grid-column:1/-1"><div class="inp-lbl">Color de fondo</div><select class="inp" id="cf-grad">${gradOpts}</select></div>
+      <div style="grid-column:1/-1"><div class="inp-lbl">Descripción</div><textarea class="inp" id="cf-desc" placeholder="Comportamiento, cuidados, notas..." maxlength="200" rows="3" style="resize:none">${f?f.desc||'':''}</textarea></div>
+    </div>
+    <button class="btn" onclick="saveFishToCatalog('${fid||''}')">💾 ${f?'Guardar cambios':'Agregar al catálogo'}</button>
+    <button class="btn2" onclick="closeModal()">Cancelar</button>
+  </div>`);
+}
+
+function handleCatPhoto(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    _catPhotoData=e.target.result;
+    const area=document.getElementById('cat-photo-area');if(!area)return;
+    area.style.backgroundImage=`url(${_catPhotoData})`;
+    area.style.backgroundSize='contain';
+    area.style.backgroundPosition='center';
+    area.style.backgroundRepeat='no-repeat';
+    area.style.borderStyle='solid';
+    const ov=document.getElementById('cat-photo-overlay');
+    if(ov)ov.style.background='rgba(6,13,24,.38)';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveFishToCatalog(fid){
+  if(!name){toast('⚠️ Escribe el nombre del pez');return}
+  const data={
+    id:fid||('cu'+Date.now()),
+    _custom:true,
+    name,
+    sci:document.getElementById('cf-sci').value.trim(),
+    emoji:document.getElementById('cf-emoji').value.trim()||'🐟',
+    size:document.getElementById('cf-size').value.trim(),
+    temp:document.getElementById('cf-temp').value.trim()||'—',
+    ph:document.getElementById('cf-ph').value.trim()||'—',
+    diet:document.getElementById('cf-diet').value,
+    diff:document.getElementById('cf-diff').value,
+    compat:document.getElementById('cf-compat').value,
+    min:parseInt(document.getElementById('cf-min').value)||null,
+    grad:document.getElementById('cf-grad').value,
+    desc:document.getElementById('cf-desc').value.trim(),
+    img:_catPhotoData||null,
+    customImg:_catPhotoData||null,
+  };
+  if(fid){
+    const idx=FISH_CATALOG.findIndex(f=>f.id===fid);
+    if(idx>=0){FISH_CATALOG[idx]={...FISH_CATALOG[idx],...data};toast('✅ Pez actualizado en catálogo');}
+    else{FISH_CATALOG.push(data);toast('✅ Pez agregado al catálogo');}
+  } else {
+    FISH_CATALOG.push(data);toast('✅ Pez agregado al catálogo');
+  }
+  _catPhotoData=null;
+  closeModal();
+  filterInlineCatalog(_inlineCatQuery);
+}
+
+function deleteCatalogFish(fid){
+  const idx=FISH_CATALOG.findIndex(f=>f.id===fid);
+  if(idx>=0&&FISH_CATALOG[idx]._custom){FISH_CATALOG.splice(idx,1);toast('🗑 Pez eliminado del catálogo');filterInlineCatalog(_inlineCatQuery);}
+}
+
+function applyCatalogPhoto(input,fid){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const f=FISH_CATALOG.find(x=>x.id===fid);
+    if(f){f.customImg=e.target.result;f.img=e.target.result;toast('📷 Foto actualizada');filterInlineCatalog(_inlineCatQuery);}
+  };
+  reader.readAsDataURL(file);
+}
+
+function addFromInlineCatalog(fid){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
+  _selCatFish=FISH_CATALOG.find(f=>f.id===fid);
+  if(_selCatFish)openFromCatalog();
+}
 function uploadSpPhoto(i){document.getElementById('sp-file-'+i).click()}
 function applySpPhoto(input,i){
   const file=input.files[0];if(!file)return;
