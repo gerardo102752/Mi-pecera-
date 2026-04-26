@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#060D18">
+<title>AquaControl Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060D18;--navy:#091726;
+  --cyan:#00C4E0;--aqua:#00EDD4;--coral:#FF4D6A;--gold:#FFB940;--green:#2FEEA0;--purple:#9D7EFF;
+  --soft:#BAE2F4;--muted:#356070;
+  --glass:rgba(0,196,224,.07);--glassh:rgba(0,196,224,.14);
+  --border:rgba(0,196,224,.12);
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%;background:#060D18}
+body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;overflow:hidden;
+  background-image:radial-gradient(ellipse 80% 30% at 50% 0%,rgba(0,196,224,.08) 0%,transparent 60%)}
+#app{display:flex;flex-direction:column;width:100%;height:100%;background:var(--navy);position:relative;overflow:hidden}
+
+.header{padding:calc(var(--safe-top)+12px) 18px 12px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;border-bottom:1px solid var(--border);background:rgba(9,23,38,.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.eyebrow{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.htitle{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--soft);letter-spacing:-.02em;line-height:1.1}
+.notif-btn{width:40px;height:40px;border-radius:13px;background:var(--glass);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;position:relative;-webkit-user-select:none;user-select:none}
+.notif-btn:active{background:var(--glassh)}
+.notif-badge{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--coral);border:1.5px solid var(--navy)}
+
+.content{flex:1;overflow-y:auto;overflow-x:hidden;padding:16px 15px 10px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.content::-webkit-scrollbar{display:none}
+.sec{display:none;flex-direction:column;gap:12px;padding-bottom:8px}
+.sec.on{display:flex}
+
+.bnav{display:flex;background:rgba(6,13,24,.98);border-top:1px solid var(--border);padding:5px 0 calc(5px + var(--safe-bot));flex-shrink:0;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 1px;-webkit-user-select:none;user-select:none}
+.ni .ico{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--muted);transition:all .18s}
+.ni.on .ico{background:rgba(0,196,224,.18);color:var(--cyan)}
+.ni .lbl{font-family:'Space Mono',monospace;font-size:6.5px;color:var(--muted);transition:color .18s;letter-spacing:.02em;text-align:center}
+.ni.on .lbl{color:var(--cyan);font-weight:700}
+.ni:active .ico{transform:scale(.9)}
+
+.card{background:var(--glass);border:1px solid var(--border);border-radius:18px;padding:16px;transition:background .2s}
+.card:active{background:var(--glassh)}
+
+.badge{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:20px;padding:3px 9px}
+.b-ok{color:var(--aqua);background:rgba(0,237,212,.1);border:1px solid rgba(0,237,212,.28)}
+.b-warn{color:var(--gold);background:rgba(255,185,64,.1);border:1px solid rgba(255,185,64,.28)}
+.b-bad{color:var(--coral);background:rgba(255,77,106,.1);border:1px solid rgba(255,77,106,.28)}
+.b-purple{color:var(--purple);background:rgba(157,126,255,.1);border:1px solid rgba(157,126,255,.25)}
+.b-green{color:var(--green);background:rgba(47,238,160,.1);border:1px solid rgba(47,238,160,.25)}
+
+.chip{font-family:'Space Mono',monospace;font-size:10px;border-radius:8px;padding:3px 8px;display:inline-block}
+.ch-c{color:var(--cyan);background:rgba(0,196,224,.12)}
+.ch-a{color:var(--aqua);background:rgba(0,237,212,.1)}
+.ch-m{color:var(--muted);background:rgba(53,96,112,.18)}
+.ch-gold{color:var(--gold);background:rgba(255,185,64,.1)}
+.ch-purple{color:var(--purple);background:rgba(157,126,255,.1)}
+.ch-green{color:var(--green);background:rgba(47,238,160,.1)}
+.ch-red{color:var(--coral);background:rgba(255,77,106,.1)}
+
+.slbl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 2px}
+
+.btn{background:linear-gradient(135deg,var(--cyan),#0A6080);border-radius:16px;padding:15px;text-align:center;cursor:pointer;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff;border:none;width:100%;transition:opacity .2s,transform .1s;box-shadow:0 4px 18px rgba(0,196,224,.2);-webkit-user-select:none;user-select:none}
+.btn:active{opacity:.88;transform:scale(.98)}
+.btn-red{background:linear-gradient(135deg,#FF4D6A,#8B0020);border-radius:16px;padding:15px;text-align:center;cursor:pointer;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff;border:none;width:100%;-webkit-user-select:none;user-select:none}
+.btn-red:active{opacity:.88;transform:scale(.98)}
+.btn2{background:var(--glass);border:1px solid rgba(0,196,224,.22);border-radius:16px;padding:14px;text-align:center;cursor:pointer;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--cyan);width:100%;transition:background .2s;-webkit-user-select:none;user-select:none}
+.btn2:active{background:var(--glassh)}
+.btn-sm{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:7px 13px;border-radius:10px;border:1px solid rgba(0,196,224,.25);background:var(--glass);color:var(--cyan);cursor:pointer;transition:background .2s}
+.btn-sm:active{background:var(--glassh)}
+
+.inp{background:var(--glass);border:1px solid rgba(0,196,224,.2);border-radius:13px;padding:13px 15px;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--soft);width:100%;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+.inp:focus{border-color:rgba(0,196,224,.52);background:var(--glassh)}
+.inp::placeholder{color:var(--muted)}
+select.inp{cursor:pointer}
+.inp-lbl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+
+/* PHOTO UPLOAD */
+.photo-upload{width:100%;height:130px;border-radius:16px;border:2px dashed rgba(0,196,224,.3);background:var(--glass);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:8px;overflow:hidden;position:relative}
+.photo-upload:active{background:var(--glassh)}
+.photo-upload img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px}
+.photo-upload .overlay{position:absolute;inset:0;background:rgba(6,13,24,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-radius:14px}
+
+/* MULTI-SELECT CHIPS */
+.filt-grid{display:flex;flex-wrap:wrap;gap:7px}
+.filt-chip{font-family:'Space Mono',monospace;font-size:10px;padding:8px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--glass);color:var(--muted);cursor:pointer;transition:all .18s;-webkit-user-select:none;user-select:none}
+.filt-chip.on{border-color:var(--cyan);background:rgba(0,196,224,.14);color:var(--cyan)}
+.filt-chip:active{opacity:.8}
+
+/* ── FISH CATALOG ── */
+.modal-bg{position:fixed;inset:0;background:rgba(6,13,24,.92);z-index:200;display:flex;align-items:flex-end;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.modal{background:var(--navy);border-radius:28px 28px 0 0;border:1px solid rgba(0,196,224,.15);border-bottom:none;padding:24px 18px calc(28px + var(--safe-bot));width:100%;display:flex;flex-direction:column;gap:14px;max-height:92vh;overflow-y:auto;scrollbar-width:none;animation:slideUp .28s cubic-bezier(.2,0,0,1);position:relative}
+.modal::-webkit-scrollbar{display:none}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.modal-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--soft)}
+.modal-close{position:absolute;top:18px;right:18px;background:var(--glass);border:1px solid var(--border);border-radius:11px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--muted);-webkit-user-select:none;user-select:none}
+
+/* SEARCH INPUT */
+.search-inp{background:var(--glass);border:1px solid rgba(0,196,224,.2);border-radius:50px;padding:11px 18px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--soft);width:100%;outline:none;-webkit-appearance:none;appearance:none}
+.search-inp:focus{border-color:rgba(0,196,224,.5)}
+.search-inp::placeholder{color:var(--muted)}
+
+/* FISH CATALOG GRID */
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fish-card{background:var(--glass);border:1.5px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .18s;-webkit-user-select:none;user-select:none}
+.fish-card:active{border-color:var(--cyan);transform:scale(.97)}
+.fish-card.sel{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(0,196,224,.2)}
+.fish-img-wrap{position:relative;height:100px;overflow:hidden}
+.fish-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.fish-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:42px}
+.fish-diff{position:absolute;top:6px;right:6px}
+.fish-info{padding:9px 10px 10px}
+.fish-name{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--soft);line-height:1.2}
+.fish-sci{font-size:9px;color:var(--muted);font-style:italic;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fish-stats{display:flex;gap:3px;flex-wrap:wrap;margin-top:6px}
+.fish-stat{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);background:rgba(53,96,112,.18);border-radius:5px;padding:2px 5px}
+
+/* SELECTED FISH PREVIEW */
+.fish-preview{background:var(--glassh);border:1px solid rgba(0,196,224,.28);border-radius:16px;overflow:hidden}
+.fish-preview-img{width:100%;height:150px;object-fit:cover;display:block}
+.fish-preview-body{padding:13px}
+
+/* PARAM CARDS */
+.pcrd{background:var(--glass);border:1px solid var(--border);border-radius:13px;padding:13px}
+.pcrd.bad{border-color:rgba(255,77,106,.28)}.pcrd.warn{border-color:rgba(255,185,64,.28)}
+.pcrd .pl{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.pcrd .pv{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;line-height:1}
+.pcrd .pu{font-size:10px;color:var(--muted);margin-left:2px}
+.pbar{height:3px;background:rgba(53,96,112,.22);border-radius:2px;margin-top:9px;overflow:hidden}
+.pbf{height:100%;border-radius:2px;transition:width .5s}
+
+.chrt{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:14px}
+.chrt-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.chrt-lbl{font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:var(--soft)}
+.chrt-val{font-family:'Space Mono',monospace;font-size:12px}
+.chrt-days{display:flex;justify-content:space-between;margin-top:4px}
+.chrt-days span{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted)}
+.chrt-tabs{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap}
+.ctab{font-family:'Space Mono',monospace;font-size:9px;padding:5px 10px;border-radius:9px;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--glass);transition:all .18s;-webkit-user-select:none;user-select:none}
+.ctab.on{color:var(--cyan);border-color:var(--cyan);background:rgba(0,196,224,.12)}
+
+.ritem{background:var(--glass);border:1px solid var(--border);border-radius:15px;padding:14px 15px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .18s;-webkit-user-select:none;user-select:none}
+.ritem:active{background:var(--glassh)}.ritem.done{opacity:.45;border-color:rgba(0,237,212,.12)}
+.chkbox{width:24px;height:24px;border-radius:7px;border:2px solid var(--muted);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .18s}
+.chkbox.on{background:var(--aqua);border-color:var(--aqua)}
+.chkbox.on::after{content:'✓';color:#060D18;font-size:13px;font-weight:900}
+
+.tcard{background:var(--glass);border:1px solid var(--border);border-radius:18px;overflow:hidden;cursor:pointer;transition:all .18s;position:relative;margin-bottom:10px;-webkit-user-select:none;user-select:none}
+.tcard:active{border-color:rgba(0,196,224,.22)}.tcard.sel{border-color:rgba(0,196,224,.38)}
+.tcard-photo{width:100%;height:110px;object-fit:cover;display:block}
+.tcard-photo-placeholder{width:100%;height:80px;background:linear-gradient(135deg,rgba(0,196,224,.08),rgba(0,237,212,.04));display:flex;align-items:center;justify-content:center;font-size:36px}
+.tcard-body{padding:14px}.tcard-del{position:absolute;top:10px;right:10px;background:rgba(6,13,24,.7);border:1px solid rgba(255,77,106,.3);border-radius:9px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;z-index:2}
+.tcard-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
+.tcard-meta span{font-size:10px;color:var(--muted)}
+
+.tab-row{display:flex;gap:7px;margin-bottom:2px}
+.tab{flex:1;text-align:center;padding:10px;border-radius:12px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;background:var(--glass);border:1px solid var(--border);color:var(--muted);transition:all .18s;-webkit-user-select:none;user-select:none}
+.tab.on{background:rgba(0,196,224,.16);border-color:var(--cyan);color:var(--cyan)}
+.tab:active{opacity:.8}
+.fcrd{background:var(--glass);border:1px solid var(--border);border-radius:15px;padding:14px 15px;display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.fcrd.done-today{border-color:rgba(0,237,212,.25);background:rgba(0,237,212,.04)}
+.flog-item{background:var(--glass);border:1px solid var(--border);border-radius:13px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+
+.alert-box{background:linear-gradient(135deg,rgba(255,77,106,.12),rgba(255,77,106,.04));border:1px solid rgba(255,77,106,.28);border-left:3px solid var(--coral);border-radius:15px;padding:13px 15px;display:flex;align-items:center;gap:12px}
+.warn-box{background:linear-gradient(135deg,rgba(255,185,64,.1),rgba(255,185,64,.03));border:1px solid rgba(255,185,64,.25);border-left:3px solid var(--gold);border-radius:15px;padding:13px 15px;display:flex;align-items:center;gap:12px}
+.al{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--coral)}
+.wl{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--gold)}
+.as{font-size:11px;color:var(--muted);margin-top:2px}
+
+.dcrd{background:var(--glass);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:10px}
+.dcrd.active{border-color:rgba(255,77,106,.3);background:rgba(255,77,106,.04)}
+.dcrd.quarantine{border-color:rgba(255,185,64,.3);background:rgba(255,185,64,.03)}
+.dcrd.resolved{border-color:rgba(47,238,160,.2);opacity:.65}
+.dcrd-head{padding:14px 15px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.dcrd-body{padding:0 15px 14px;display:flex;flex-direction:column;gap:8px}
+.qbar-wrap{background:rgba(53,96,112,.18);border-radius:4px;height:6px;overflow:hidden;margin-top:4px}
+.qbar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--coral));transition:width .4s}
+
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.scrd{background:var(--glass);border:1px solid var(--border);border-radius:15px;padding:13px 8px;text-align:center}
+.sv{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;line-height:1.1}
+.sl{font-size:10px;color:var(--muted);margin-top:4px}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.health-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block}
+.hd-ok{background:var(--green)}.hd-warn{background:var(--gold)}.hd-bad{background:var(--coral)}.hd-none{background:var(--muted)}
+
+.empty{text-align:center;padding:36px 16px;display:flex;flex-direction:column;align-items:center;gap:9px}
+.eico{font-size:46px;opacity:.28}
+.etxt{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--muted)}
+.esub{font-size:12px;color:var(--muted);opacity:.65}
+.emoji-grid{display:flex;gap:8px;flex-wrap:wrap}
+.emj{font-size:24px;cursor:pointer;padding:7px;border-radius:10px;border:2px solid transparent;transition:border .15s;-webkit-user-select:none;user-select:none}
+.emj.sel{border-color:var(--cyan)}
+.tcard-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
+.tcard-meta span{font-size:10px;color:var(--muted)}
+.toast{position:fixed;bottom:calc(80px + var(--safe-bot));left:50%;transform:translateX(-50%) translateY(8px);background:rgba(9,23,38,.97);border:1px solid rgba(0,196,224,.28);color:var(--soft);font-family:'Space Mono',monospace;font-size:11px;padding:10px 20px;border-radius:22px;white-space:nowrap;z-index:500;pointer-events:none;opacity:0;transition:opacity .25s,transform .25s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* SPECIES CARD — with catalog photo */
+.sp-card{background:var(--glass);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:10px}
+.sp-card-img{width:100%;height:120px;object-fit:cover;display:block}
+.sp-card-fallback{width:100%;height:80px;display:flex;align-items:center;justify-content:center;font-size:40px}
+.sp-card-body{padding:13px}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="header">
+    <div>
+      <div class="eyebrow">AquaControl Pro</div>
+      <div class="htitle" id="htitle">Dashboard</div>
+    </div>
+    <div class="notif-btn" onclick="openAlerts()">
+      🔔<div class="notif-badge" id="alert-badge" style="display:none"></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="sec on" id="s-dash">
+      <div id="dash-alerts-wrap"></div>
+      <div class="sgrid">
+        <div class="scrd"><div class="sv" style="color:var(--cyan)" id="st-t">0</div><div class="sl">Peceras</div></div>
+        <div class="scrd"><div class="sv" style="color:var(--green)" id="st-s">0</div><div class="sl">Especies</div></div>
+        <div class="scrd"><div class="sv" style="color:var(--gold)" id="st-r">0</div><div class="sl">Tareas</div></div>
+      </div>
+      <div class="sgrid">
+        <div class="scrd"><div class="sv" style="color:var(--aqua)" id="st-f">—</div><div class="sl">Alimentado</div></div>
+        <div class="scrd"><div class="sv" style="color:var(--purple)" id="st-ph">—</div><div class="sl">pH prom.</div></div>
+        <div class="scrd"><div class="sv" style="color:var(--coral)" id="st-al">0</div><div class="sl">Alertas</div></div>
+      </div>
+      <div class="slbl">Mis peceras</div>
+      <div id="dash-tanks"></div>
+      <div class="slbl" id="dash-rlbl" style="display:none">Tareas pendientes</div>
+      <div id="dash-routines"></div>
+      <div class="slbl" id="dash-qlbl" style="display:none">⚠️ Cuarentenas activas</div>
+      <div id="dash-quarantine"></div>
+    </div>
+
+    <!-- TANKS -->
+    <div class="sec" id="s-tanks">
+      <div class="card" style="border:1.5px dashed rgba(0,196,224,.32);text-align:center;cursor:pointer;padding:22px" onclick="openAddTank()">
+        <div style="font-size:30px;margin-bottom:6px">🐟</div>
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--cyan)">Agregar pecera</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">Con foto · Filtración múltiple</div>
+      </div>
+      <div id="tank-list"></div>
+    </div>
+
+    <!-- PARAMS -->
+    <div class="sec" id="s-params">
+      <div id="p-tabs" style="display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch"></div>
+      <div id="p-status" style="display:flex;justify-content:space-between;align-items:center;min-height:28px"></div>
+      <div class="pgrid" id="p-grid"></div>
+      <div class="chrt" id="chart-block" style="display:none">
+        <div class="chrt-tabs">
+          <div class="ctab on" onclick="selChart(this,'ph')">pH</div>
+          <div class="ctab" onclick="selChart(this,'temp')">Temp</div>
+          <div class="ctab" onclick="selChart(this,'nh3')">NH₃</div>
+          <div class="ctab" onclick="selChart(this,'no2')">NO₂</div>
+          <div class="ctab" onclick="selChart(this,'no3')">NO₃</div>
+        </div>
+        <div class="chrt-hdr">
+          <span class="chrt-lbl" id="chart-lbl">pH</span>
+          <span class="chrt-val" id="chart-last" style="color:var(--cyan)">—</span>
+        </div>
+        <svg width="100%" height="54" viewBox="0 0 100 54" preserveAspectRatio="none">
+          <defs><linearGradient id="gc1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#00C4E0" stop-opacity=".28"/>
+            <stop offset="100%" stop-color="#00C4E0" stop-opacity="0"/>
+          </linearGradient></defs>
+          <polygon id="c-area" fill="url(#gc1)"/>
+          <polyline id="c-line" fill="none" stroke="#00C4E0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle id="c-dot" r="3" fill="#00C4E0"/>
+        </svg>
+        <div class="chrt-days"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span></div>
+      </div>
+      <button class="btn" onclick="openLogParams()">+ Registrar parámetros</button>
+    </div>
+
+    <!-- ROUTINES -->
+    <div class="sec" id="s-routines">
+      <button class="btn2" onclick="openAddRoutine()">+ Nueva tarea</button>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--muted)" id="prog-lbl">0/0 completadas</span>
+        <button class="btn-sm" onclick="resetRoutines()">↺ Reiniciar</button>
+      </div>
+      <div style="height:5px;background:rgba(53,96,112,.22);border-radius:3px;overflow:hidden">
+        <div id="prog-bar" style="height:100%;background:linear-gradient(90deg,var(--cyan),var(--aqua));border-radius:3px;transition:width .4s;width:0%"></div>
+      </div>
+      <div id="r-list"></div>
+      <div id="r-empty" class="empty"><div class="eico">✅</div><div class="etxt">Sin tareas</div><div class="esub">Agrega tareas de mantenimiento</div></div>
+    </div>
+
+    <!-- FEEDING -->
+    <div class="sec" id="s-feed">
+      <div class="tab-row">
+        <div class="tab on" id="ftab-sched" onclick="setFeedTab('sched')">📅 Horarios</div>
+        <div class="tab" id="ftab-log" onclick="setFeedTab('log')">📋 Historial</div>
+      </div>
+      <div id="fv-sched">
+        <button class="btn2" onclick="openAddSchedule()">+ Agregar horario</button>
+        <div id="feed-sched-list"></div>
+        <div id="feed-sched-empty" class="empty"><div class="eico">🍽</div><div class="etxt">Sin horarios</div><div class="esub">Programa la alimentación diaria</div></div>
+      </div>
+      <div id="fv-log" style="display:none">
+        <button class="btn" onclick="openLogFeeding()">+ Registrar alimentación</button>
+        <div id="feed-log-list"></div>
+        <div id="feed-log-empty" class="empty"><div class="eico">📝</div><div class="etxt">Sin registros</div></div>
+      </div>
+    </div>
+
+    <!-- SPECIES -->
+    <div class="sec" id="s-species">
+      <button class="btn" onclick="openSpeciesChoice()">+ Agregar especie</button>
+      <div id="sp-list"></div>
+      <div id="sp-empty" class="empty"><div class="eico">🐟</div><div class="etxt">Sin especies</div><div class="esub">Agrega peces del catálogo o manualmente</div></div>
+    </div>
+
+    <!-- HEALTH -->
+    <div class="sec" id="s-health">
+      <div class="card" style="background:rgba(255,77,106,.05);border-color:rgba(255,77,106,.2)">
+        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--coral);margin-bottom:4px">🏥 Centro de salud</div>
+        <div style="font-size:11px;color:var(--muted)">Registra enfermedades, síntomas y cuarentenas. El contador se actualiza automáticamente.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <button class="btn-red" onclick="openAddDisease()" style="padding:13px;font-size:13px">🦠 Nueva enfermedad</button>
+        <button class="btn2" onclick="openAddQuarantine()" style="border-color:rgba(255,185,64,.4);color:var(--gold);font-size:13px;padding:13px">🔒 Cuarentena</button>
+      </div>
+      <div id="health-list"></div>
+      <div id="health-empty" class="empty"><div class="eico">🏥</div><div class="etxt">Sin registros de salud</div><div class="esub">Registra enfermedades y cuarentenas</div></div>
+    </div>
+
+  </div>
+
+  <nav class="bnav">
+    <div class="ni on" data-s="dash"     onclick="nav(this)"><div class="ico">◈</div><span class="lbl">Inicio</span></div>
+    <div class="ni"    data-s="tanks"    onclick="nav(this)"><div class="ico">⬡</div><span class="lbl">Peceras</span></div>
+    <div class="ni"    data-s="params"   onclick="nav(this)"><div class="ico">〜</div><span class="lbl">Params</span></div>
+    <div class="ni"    data-s="routines" onclick="nav(this)"><div class="ico">✓</div><span class="lbl">Tareas</span></div>
+    <div class="ni"    data-s="feed"     onclick="nav(this)"><div class="ico">🍽</div><span class="lbl">Comida</span></div>
+    <div class="ni"    data-s="species"  onclick="nav(this)"><div class="ico">❋</div><span class="lbl">Especies</span></div>
+    <div class="ni"    data-s="health"   onclick="nav(this)"><div class="ico">🏥</div><span class="lbl">Salud</span></div>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+  <div id="mroot"></div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════
+//  FISH CATALOG — 26 peces de agua dulce
+// ════════════════════════════════════════════════════
+const FISH_CATALOG = [
+  {id:'f01',name:'Neon Tetra',sci:'Paracheirodon innesi',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Neontetra.jpg/320px-Neontetra.jpg',
+   grad:'linear-gradient(135deg,#001A40,#003080)',
+   temp:'20–26°C',ph:'5.5–7.0',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'3–4 cm',min:30,
+   desc:'Pez de cardumen (6+). Franja azul-roja característica. Ideal para principiantes.'},
+
+  {id:'f02',name:'Guppy',sci:'Poecilia reticulata',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Guppy_06.jpg/320px-Guppy_06.jpg',
+   grad:'linear-gradient(135deg,#1A0040,#5000A0)',
+   temp:'22–28°C',ph:'6.8–7.8',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'3–6 cm',min:20,
+   desc:'Muy resistente, vivíparo. Gran variedad de colores. Perfecto para principiantes.'},
+
+  {id:'f03',name:'Betta / Pez de pelea',sci:'Betta splendens',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Betta_fish_%28Betta_splendens%29_2.jpg/320px-Betta_fish_%28Betta_splendens%29_2.jpg',
+   grad:'linear-gradient(135deg,#400010,#900030)',
+   temp:'24–30°C',ph:'6.0–7.5',diet:'Carnívoro',diff:'Fácil',compat:'Semi-agresivo',size:'6–7 cm',min:20,
+   desc:'No mezclar dos machos. Puede vivir solo. Necesita acceso al aire.'},
+
+  {id:'f04',name:'Goldfish / Carpa dorada',sci:'Carassius auratus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Goldfish1.jpg/320px-Goldfish1.jpg',
+   grad:'linear-gradient(135deg,#402000,#C06000)',
+   temp:'18–24°C',ph:'6.5–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'15–30 cm',min:100,
+   desc:'Produce mucho desecho. Requiere buena filtración. No mezclar con peces tropicales.'},
+
+  {id:'f05',name:'Pez Ángel / Escalar',sci:'Pterophyllum scalare',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Pterophyllum_scalare2.jpg/320px-Pterophyllum_scalare2.jpg',
+   grad:'linear-gradient(135deg,#0A1A30,#203050)',
+   temp:'24–30°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Medio',compat:'Semi-agresivo',size:'12–15 cm',min:100,
+   desc:'Pecera alta recomendada. Puede comer peces pequeños. Majestuoso nadador.'},
+
+  {id:'f06',name:'Disco / Discus',sci:'Symphysodon aequifasciatus',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Discus_fish.jpg/320px-Discus_fish.jpg',
+   grad:'linear-gradient(135deg,#001A20,#004060)',
+   temp:'27–31°C',ph:'5.5–6.5',diet:'Omnívoro',diff:'Difícil',compat:'Pacífico',size:'15–20 cm',min:200,
+   desc:'El rey del acuario. Requiere agua muy blanda y caliente. Para expertos.'},
+
+  {id:'f07',name:'Corydoras',sci:'Corydoras paleatus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Corydoras_paleatus2.jpg/320px-Corydoras_paleatus2.jpg',
+   grad:'linear-gradient(135deg,#202020,#504030)',
+   temp:'22–26°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'5–7 cm',min:50,
+   desc:'Limpiador de fondo. Vive en grupos de 3+. Compatible con casi todos.'},
+
+  {id:'f08',name:'Pleco / Pez diablo',sci:'Hypostomus plecostomus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Hypostomus_plecostomus2.jpg/320px-Hypostomus_plecostomus2.jpg',
+   grad:'linear-gradient(135deg,#1A1200,#403000)',
+   temp:'22–28°C',ph:'6.5–7.5',diet:'Herbívoro',diff:'Fácil',compat:'Pacífico',size:'30–50 cm',min:200,
+   desc:'Raspa algas del cristal. Crece mucho. Nocturno.'},
+
+  {id:'f09',name:'Molly',sci:'Poecilia sphenops',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Poecilia_sphenops.jpg/320px-Poecilia_sphenops.jpg',
+   grad:'linear-gradient(135deg,#001510,#003025)',
+   temp:'22–28°C',ph:'7.0–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'6–10 cm',min:40,
+   desc:'Vivíparo prolífico. Tolera algo de sal. Varias variedades de color.'},
+
+  {id:'f10',name:'Platy',sci:'Xiphophorus maculatus',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Platy_fish.jpg/320px-Platy_fish.jpg',
+   grad:'linear-gradient(135deg,#300010,#700030)',
+   temp:'20–26°C',ph:'7.0–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'4–6 cm',min:30,
+   desc:'Vivíparo. Gran variedad de colores. Muy resistente, ideal para principiantes.'},
+
+  {id:'f11',name:'Pez Espada',sci:'Xiphophorus helleri',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Swordtail_Fish.jpg/320px-Swordtail_Fish.jpg',
+   grad:'linear-gradient(135deg,#200A00,#600010)',
+   temp:'22–28°C',ph:'7.0–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'10–12 cm',min:50,
+   desc:'Macho con prolongación caudal en forma de espada. Vivo y activo.'},
+
+  {id:'f12',name:'Pez Cebra',sci:'Danio rerio',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Zebrafish.jpg/320px-Zebrafish.jpg',
+   grad:'linear-gradient(135deg,#001030,#003060)',
+   temp:'18–26°C',ph:'6.5–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'4–5 cm',min:30,
+   desc:'Muy resistente. Activo nadador. Tolera variaciones de temperatura.'},
+
+  {id:'f13',name:'Oscar',sci:'Astronotus ocellatus',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Astronotus_ocellatus.jpg/320px-Astronotus_ocellatus.jpg',
+   grad:'linear-gradient(135deg,#1A0000,#500010)',
+   temp:'23–28°C',ph:'6.0–8.0',diet:'Carnívoro',diff:'Medio',compat:'Agresivo',size:'25–35 cm',min:300,
+   desc:'Pez muy inteligente. Necesita pecera grande. Come peces pequeños.'},
+
+  {id:'f14',name:'Koi',sci:'Cyprinus rubrofuscus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Koi_fish.jpg/320px-Koi_fish.jpg',
+   grad:'linear-gradient(135deg,#200A00,#C04000)',
+   temp:'15–25°C',ph:'6.8–7.5',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'30–90 cm',min:1000,
+   desc:'Carpa ornamental japonesa. Para estanques. Longevos (hasta 30 años).'},
+
+  {id:'f15',name:'Barbo Tigre',sci:'Puntigrus tetrazona',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Tiger_barb.jpg/320px-Tiger_barb.jpg',
+   grad:'linear-gradient(135deg,#301500,#905000)',
+   temp:'22–28°C',ph:'6.0–7.0',diet:'Omnívoro',diff:'Fácil',compat:'Semi-agresivo',size:'5–7 cm',min:50,
+   desc:'Mordedor de aletas. Mejor en grupos de 6+. No mezclar con peces de aletas largas.'},
+
+  {id:'f16',name:'Barbo Cereza',sci:'Pethia titteya',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Puntius_titteya.jpg/320px-Puntius_titteya.jpg',
+   grad:'linear-gradient(135deg,#300010,#800020)',
+   temp:'22–27°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'4–5 cm',min:40,
+   desc:'Colorido y tranquilo. Macho de color rojo intenso. Buen pez de cardumen.'},
+
+  {id:'f17',name:'Clown Loach',sci:'Chromobotia macracanthus',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Chromobotia_macracanthus.jpg/320px-Chromobotia_macracanthus.jpg',
+   grad:'linear-gradient(135deg,#201000,#704000)',
+   temp:'24–30°C',ph:'5.5–7.0',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'20–30 cm',min:200,
+   desc:'Excelente contra caracoles. Social, en grupos de 3+. Crece lentamente.'},
+
+  {id:'f18',name:'Ramirezi / Ram',sci:'Mikrogeophagus ramirezi',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Mikrogeophagus_ramirezi.jpg/320px-Mikrogeophagus_ramirezi.jpg',
+   grad:'linear-gradient(135deg,#001A30,#0050A0)',
+   temp:'25–29°C',ph:'5.5–7.0',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'5–7 cm',min:60,
+   desc:'Cíclido enano muy colorido. Aguas blandas. Pareja estable.'},
+
+  {id:'f19',name:'Pez Arco Iris',sci:'Melanotaenia boesemani',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Melanotaenia_boesemani.jpg/320px-Melanotaenia_boesemani.jpg',
+   grad:'linear-gradient(135deg,#001A20,#005050)',
+   temp:'24–28°C',ph:'7.0–8.0',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'9–12 cm',min:100,
+   desc:'Espectacular coloración. Activo nadador. En cardumen de 6+.'},
+
+  {id:'f20',name:'Rasbora Arlequín',sci:'Trigonostigma heteromorpha',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Trigonostigma_heteromorpha.jpg/320px-Trigonostigma_heteromorpha.jpg',
+   grad:'linear-gradient(135deg,#201000,#703000)',
+   temp:'22–27°C',ph:'5.5–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'4–5 cm',min:40,
+   desc:'Mancha triangular negra característica. Cardumen de 8+. Tranquilo.'},
+
+  {id:'f21',name:'Gurami Perlado',sci:'Trichopodus leerii',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Pearl_gourami.jpg/320px-Pearl_gourami.jpg',
+   grad:'linear-gradient(135deg,#001020,#204060)',
+   temp:'24–28°C',ph:'6.5–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'10–12 cm',min:80,
+   desc:'Patrón de perlas blancas. Tranquilo y elegante. Laberíntico (sale a respirar).'},
+
+  {id:'f22',name:'Tetra de Buenos Aires',sci:'Hyphessobrycon anisitsi',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Buenos_Aires_tetra.jpg/320px-Buenos_Aires_tetra.jpg',
+   grad:'linear-gradient(135deg,#101A00,#405000)',
+   temp:'18–26°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Semi-agresivo',size:'6–8 cm',min:60,
+   desc:'Tolera aguas frescas. Come plantas. Cardumen activo.'},
+
+  {id:'f23',name:'Pez Globo Enano',sci:'Carinotetraodon travancoricus',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Dwarf_Puffer.jpg/320px-Dwarf_Puffer.jpg',
+   grad:'linear-gradient(135deg,#002010,#005020)',
+   temp:'23–28°C',ph:'7.0–8.0',diet:'Carnívoro',diff:'Medio',compat:'Semi-agresivo',size:'2–3 cm',min:40,
+   desc:'Más pequeño pez globo. Devora caracoles. Personalidad enorme. No comunal.'},
+
+  {id:'f24',name:'Ancistrus / Pleco enano',sci:'Ancistrus cirrhosus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Ancistrus_sp._(2).jpg/320px-Ancistrus_sp._(2).jpg',
+   grad:'linear-gradient(135deg,#1A1000,#402800)',
+   temp:'22–27°C',ph:'6.0–7.5',diet:'Herbívoro',diff:'Fácil',compat:'Pacífico',size:'10–15 cm',min:80,
+   desc:'Pleco enano ideal. Raspa algas. No crece tanto como el común.'},
+
+  {id:'f25',name:'Killifish',sci:'Fundulopanchax gardneri',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Fundulopanchax_gardneri.jpg/320px-Fundulopanchax_gardneri.jpg',
+   grad:'linear-gradient(135deg,#001A00,#004000)',
+   temp:'22–26°C',ph:'6.0–7.5',diet:'Carnívoro',diff:'Medio',compat:'Semi-agresivo',size:'5–6 cm',min:40,
+   desc:'Colores impresionantes. Macho muy colorido. Puede saltar, tapa necesaria.'},
+
+  {id:'f26',name:'Pez Paraíso',sci:'Macropodus opercularis',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Macropodus_opercularis_-_front_%28aka%29.jpg/320px-Macropodus_opercularis_-_front_%28aka%29.jpg',
+   grad:'linear-gradient(135deg,#200A00,#800020)',
+   temp:'16–26°C',ph:'6.0–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Semi-agresivo',size:'8–10 cm',min:60,
+   desc:'Tolerante al frío. Agresivo con peces de aletas largas. Laberíntico.'},
+];
+
+// ════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════
+let tanks=[], species=[], routines=[], feedSchedule=[], feedLog=[], diseases=[];
+let paramLog={}, routineDone={};
+let selTank=null, selChartParam='ph', selFeedTab='sched';
+let _tid=1,_rid=1,_sid=1,_fschid=1,_flogid=1,_did=1,_emj='🐟';
+let _filtSel=new Set(), _photoData=null, _treatSel=new Set();
+let _selCatFish=null;
+
+const TITLES={dash:'Dashboard',tanks:'Peceras',params:'Parámetros',routines:'Tareas',feed:'Alimentación',species:'Especies',health:'Salud & Cuarentena'};
+const EMOJIS=['🐟','🐠','🐡','🦈','🐙','🦑','🦞','🦀','🦭','🪸','🌿','💧','🐢','🦐','🐸'];
+const FOOD_TYPES=['Pellets','Hojuelas','Congelado','Vivo','Vegetales','Liofilizado','Tabletas'];
+const FILTRATIONS=['Filtro externo','Filtro HOB','Filtro interno','Esponja/Matten','Sump','Cascada','Sin filtro'];
+const LIGHTING=['LED','Fluorescente','Metal haluro','Natural','Sin luz'];
+const COMPAT=['Pacífico','Semi-agresivo','Agresivo'];
+const FEED_TIMES=['Mañana (8:00)','Tarde (14:00)','Noche (20:00)'];
+const FREQ=['Diaria','Semanal','Mensual'];
+const DISEASES_LIST=['Ich / Puntos blancos','Fin rot / Podredumbre de aletas','Hidropesía','Columnaris','Velvet / Terciopelo','Anchor worm','Bacterial infection','Fungal infection','Parasitos externos','Otra'];
+const SYMPTOMS_LIST=['Puntos blancos','Aletas raídas','Abdomen hinchado','Pérdida de color','Letargia','Sin apetito','Raspado objetos','Manchas grises','Ulceras','Hemorragias'];
+const TREATMENTS=['Sal acuario','Metileno azul','Formol','Cobre sulfato','Antibiótico','Antifúngico','Antiparasitario','Sube temperatura','Agua limpia + reposo'];
+const CHART_CFG={
+  ph:{lbl:'pH',col:'#00C4E0',mn:5.5,mx:8.5,fmt:v=>v.toFixed(2)},
+  temp:{lbl:'Temperatura',col:'#FF4D6A',mn:18,mx:34,fmt:v=>v.toFixed(1)+'°C'},
+  nh3:{lbl:'NH₃ Amoniaco',col:'#00EDD4',mn:0,mx:1,fmt:v=>v.toFixed(3)+' ppm'},
+  no2:{lbl:'NO₂ Nitritos',col:'#9D7EFF',mn:0,mx:2,fmt:v=>v.toFixed(3)+' ppm'},
+  no3:{lbl:'NO₃ Nitratos',col:'#FFB940',mn:0,mx:50,fmt:v=>v.toFixed(1)+' ppm'}
+};
+
+// ─── NAV ───
+function nav(el){
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  el.classList.add('on');
+  const id=el.dataset.s;
+  document.getElementById('s-'+id).classList.add('on');
+  document.getElementById('htitle').textContent=TITLES[id]||id;
+  document.querySelector('.content').scrollTop=0;
+  ({dash:renderDash,tanks:renderTankList,params:renderParams,routines:renderRoutines,feed:renderFeed,species:renderSpecies,health:renderHealth}[id]||function(){})();
+}
+function goTo(s){const ni=document.querySelector(`.ni[data-s="${s}"]`);if(ni)nav(ni)}
+
+// ─── TOAST & MODAL ───
+let _tt;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2400)}
+function showModal(html){document.getElementById('mroot').innerHTML=`<div class="modal-bg" id="mbg" onclick="if(event.target.id==='mbg')closeModal()">${html}</div>`}
+function closeModal(){document.getElementById('mroot').innerHTML='';_photoData=null;_filtSel=new Set();_treatSel=new Set();_selCatFish=null}
+
+// ─── ALERTS ───
+function getTankHealth(id){
+  const log=paramLog[id]||[];if(!log.length)return'none';
+  const l=log[log.length-1];
+  if(l.nh3>0.3||(l.no2||0)>1.0||l.no3>50||l.ph<5.8||l.ph>8.8||l.temp<18||l.temp>33)return'bad';
+  if(l.nh3>0.1||(l.no2||0)>0.3||l.no3>25||l.ph<6.4||l.ph>8.0||l.temp<22||l.temp>30)return'warn';
+  return'ok';
+}
+function getAlerts(){
+  const alerts=[];
+  tanks.forEach(t=>{
+    const log=paramLog[t.id]||[];if(!log.length)return;const l=log[log.length-1];
+    if(l.nh3>0.3)alerts.push({type:'bad',tank:t.name,msg:`NH₃ peligroso: ${l.nh3} ppm`});
+    else if(l.nh3>0.1)alerts.push({type:'warn',tank:t.name,msg:`NH₃ elevado: ${l.nh3} ppm`});
+    if((l.no2||0)>1.0)alerts.push({type:'bad',tank:t.name,msg:`NO₂ peligroso: ${l.no2} ppm`});
+    else if((l.no2||0)>0.3)alerts.push({type:'warn',tank:t.name,msg:`NO₂ elevado: ${l.no2} ppm`});
+    if(l.no3>40)alerts.push({type:'warn',tank:t.name,msg:`NO₃ alto: ${l.no3} ppm`});
+    if(l.ph<6.4||l.ph>8.0)alerts.push({type:'warn',tank:t.name,msg:`pH fuera de rango: ${l.ph}`});
+    if(l.temp<22||l.temp>30)alerts.push({type:'warn',tank:t.name,msg:`Temperatura: ${l.temp}°C`});
+  });
+  const pend=routines.filter(r=>!routineDone[r.id]).length;
+  if(pend)alerts.push({type:'warn',tank:'General',msg:`${pend} tarea(s) pendiente(s)`});
+  const activeD=diseases.filter(d=>d.status==='active');
+  if(activeD.length)alerts.push({type:'bad',tank:'Salud',msg:`${activeD.length} enfermedad(es) activa(s)`});
+  return alerts;
+}
+function updateAlertBadge(){document.getElementById('alert-badge').style.display=getAlerts().length?'':'none'}
+function openAlerts(){
+  const alerts=getAlerts();
+  const body=alerts.length?alerts.map(a=>`<div class="${a.type==='bad'?'alert-box':'warn-box'}"><span style="font-size:20px">${a.type==='bad'?'🚨':'⚠️'}</span><div><div class="${a.type==='bad'?'al':'wl'}">${a.tank}</div><div class="as">${a.msg}</div></div></div>`).join('')
+    :`<div class="empty"><div class="eico">✅</div><div class="etxt">Sin alertas</div><div class="esub">Todo en orden</div></div>`;
+  showModal(`<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">🔔 Alertas</div>${body}</div>`);
+}
+function bc(s){return s==='ok'?'b-ok':s==='warn'?'b-warn':s==='bad'?'b-bad':'b-purple'}
+function bl(s){return s==='ok'?'Óptimo':s==='warn'?'Atención':s==='bad'?'Alerta':'Sin datos'}
+function daysBetween(a,b){return Math.ceil((new Date(b)-new Date(a))/86400000)}
+
+// ─── DASHBOARD ───
+function renderDash(){
+  document.getElementById('st-t').textContent=tanks.length;
+  document.getElementById('st-s').textContent=species.reduce((a,s)=>a+s.count,0);
+  document.getElementById('st-r').textContent=routines.filter(r=>!routineDone[r.id]).length;
+  const todayFeeds=feedSchedule.filter(f=>f.doneToday).length;
+  document.getElementById('st-f').textContent=todayFeeds?`${todayFeeds}✓`:'—';
+  let phVals=[];tanks.forEach(t=>{const log=paramLog[t.id]||[];if(log.length)phVals.push(log[log.length-1].ph)});
+  document.getElementById('st-ph').textContent=phVals.length?(phVals.reduce((a,b)=>a+b,0)/phVals.length).toFixed(1):'—';
+  const alerts=getAlerts();
+  document.getElementById('st-al').textContent=alerts.length;
+  document.getElementById('st-al').style.color=alerts.some(a=>a.type==='bad')?'var(--coral)':alerts.length?'var(--gold)':'var(--green)';
+  updateAlertBadge();
+  const aw=document.getElementById('dash-alerts-wrap');
+  const badT=tanks.filter(t=>getTankHealth(t.id)==='bad'),warnT=tanks.filter(t=>getTankHealth(t.id)==='warn');
+  const activeD=diseases.filter(d=>d.status==='active');
+  if(activeD.length)aw.innerHTML=`<div class="alert-box"><span style="font-size:22px">🦠</span><div><div class="al">${activeD[0].diseaseName} — ${activeD[0].fishName}</div><div class="as">Enfermedad activa · Ve a Salud</div></div></div>`;
+  else if(badT.length)aw.innerHTML=`<div class="alert-box"><span style="font-size:22px">🚨</span><div><div class="al">${badT[0].name} — Alerta crítica</div><div class="as">Parámetros en rango peligroso</div></div></div>`;
+  else if(warnT.length)aw.innerHTML=`<div class="warn-box"><span style="font-size:22px">⚠️</span><div><div class="wl">${warnT[0].name} — Requiere atención</div><div class="as">Revisa los parámetros del agua</div></div></div>`;
+  else aw.innerHTML='';
+  const dt=document.getElementById('dash-tanks');
+  dt.innerHTML=tanks.length?tanks.map(t=>tCardHTML(t,false)).join(''):`<div class="empty"><div class="eico">🐟</div><div class="etxt">Sin peceras</div><div class="esub">Ve a Peceras para agregar la tuya</div></div>`;
+  const pr=routines.filter(r=>!routineDone[r.id]).slice(0,3);
+  const rlbl=document.getElementById('dash-rlbl'),dr=document.getElementById('dash-routines');
+  if(pr.length){rlbl.style.display='';dr.innerHTML=pr.map(r=>rItemHTML(r)).join('')}else{rlbl.style.display='none';dr.innerHTML=''}
+  const quarantine=diseases.filter(d=>d.status==='quarantine'&&d.qEndDate&&new Date(d.qEndDate)>new Date()).slice(0,2);
+  const qlbl=document.getElementById('dash-qlbl'),dq=document.getElementById('dash-quarantine');
+  if(quarantine.length){
+    qlbl.style.display='';
+    dq.innerHTML=quarantine.map(d=>{
+      const total=Math.max(1,daysBetween(d.qStartDate,d.qEndDate)),elapsed=Math.max(0,daysBetween(d.qStartDate,new Date())),rem=Math.max(0,daysBetween(new Date(),d.qEndDate)),pct=Math.min(100,Math.round((elapsed/total)*100));
+      return `<div class="dcrd quarantine" style="margin-bottom:0"><div class="dcrd-head"><div><div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--soft)">🔒 ${d.fishName}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">${d.diseaseName} · Faltan ${rem} días</div></div><span class="badge b-warn">CUARENTENA</span></div><div class="dcrd-body"><div class="qbar-wrap"><div class="qbar" style="width:${pct}%"></div></div></div></div>`;
+    }).join('');
+  }else{qlbl.style.display='none';dq.innerHTML=''}
+}
+
+// ─── TANKS ───
+function tCardHTML(t,sel=true){
+  const st=getTankHealth(t.id),log=paramLog[t.id]||[],last=log.length?log[log.length-1]:null;
+  const chips=last?`<span class="chip ch-c">🌡 ${last.temp}°C</span><span class="chip ch-a">pH ${last.ph}</span>`:'<span class="chip ch-m">Sin parámetros</span>';
+  const filtChips=(t.filtration||[]).map(f=>`<span class="chip ch-purple" style="font-size:9px">⚙ ${f}</span>`).join('');
+  const photoHTML=t.photo?`<img class="tcard-photo" src="${t.photo}" alt="${t.name}">`:`<div class="tcard-photo-placeholder">${t.emoji}</div>`;
+  const isSel=sel&&selTank===t.id?'sel':'';
+  const clickFn=sel?`selectTank(${t.id})`:`goTo('params')`;
+  return `<div class="tcard ${isSel}" onclick="${clickFn}">
+    ${photoHTML}
+    <div class="tcard-del" onclick="event.stopPropagation();delTank(${t.id})">🗑</div>
+    <div class="tcard-body">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--soft)">${t.emoji} ${t.name}</div>
+          <div class="tcard-meta"><span>🌿 Dulce</span><span>·</span><span>${t.liters}L</span>${t.tempTarget?`<span>·</span><span>🌡${t.tempTarget}°C</span>`:''}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+          <span class="badge ${bc(st)}">${bl(st)}</span>
+          <div style="display:flex;align-items:center;gap:4px"><div class="health-dot ${st==='ok'?'hd-ok':st==='warn'?'hd-warn':st==='bad'?'hd-bad':'hd-none'}"></div><span style="font-size:9px;color:var(--muted)">Salud</span></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:9px">${chips}${filtChips}</div>
+    </div>
+  </div>`;
+}
+function renderTankList(){document.getElementById('tank-list').innerHTML=tanks.map(t=>tCardHTML(t,true)).join('')}
+function selectTank(id){selTank=id;goTo('params')}
+function delTank(id){if(!confirm('¿Eliminar esta pecera y sus datos?'))return;tanks=tanks.filter(t=>t.id!==id);delete paramLog[id];if(selTank===id)selTank=tanks.length?tanks[0].id:null;renderTankList();renderDash();toast('🗑 Pecera eliminada')}
+function openAddTank(){
+  _filtSel=new Set();_photoData=null;
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div class="modal-title">Nueva pecera</div>
+    <div>
+      <div class="inp-lbl">Foto de la pecera (opcional)</div>
+      <div class="photo-upload" id="photo-area" onclick="document.getElementById('photo-input').click()">
+        <div class="overlay" id="photo-overlay"><span style="font-size:32px">📷</span><span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">Toca para agregar foto</span></div>
+      </div>
+      <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhoto(this)">
+    </div>
+    <div><div class="inp-lbl">Emoji</div><div class="emoji-grid">${EMOJIS.map((e,i)=>`<div class="emj${i===0?' sel':''}" onclick="pickEmoji(this,'${e}')">${e}</div>`).join('')}</div></div>
+    <div><div class="inp-lbl">Nombre</div><input class="inp" id="tn" placeholder="Mi pecera principal" maxlength="40"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><div class="inp-lbl">Litros</div><input class="inp" id="tl" type="number" placeholder="100" min="1" inputmode="numeric"></div>
+      <div><div class="inp-lbl">Temp. objetivo °C</div><input class="inp" id="ttp" type="number" placeholder="26" min="18" max="35" inputmode="numeric"></div>
+    </div>
+    <div>
+      <div class="inp-lbl">Filtración (selecciona todos los que aplican)</div>
+      <div class="filt-grid">${FILTRATIONS.map(f=>`<div class="filt-chip" onclick="toggleFilt(this,'${f}')">${f}</div>`).join('')}</div>
+    </div>
+    <div><div class="inp-lbl">Iluminación</div><select class="inp" id="tlight">${LIGHTING.map(l=>`<option>${l}</option>`).join('')}</select></div>
+    <div><div class="inp-lbl">Notas (opcional)</div><input class="inp" id="tnotes" placeholder="Observaciones..." maxlength="80"></div>
+    <button class="btn" onclick="saveTank()">Guardar pecera</button>
+  </div>`);
+  _emj=EMOJIS[0];
+}
+function handlePhoto(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    _photoData=e.target.result;
+    const area=document.getElementById('photo-area');
+    const old=area.querySelector('img');if(old)old.remove();
+    const img=document.createElement('img');
+    img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px';
+    img.src=_photoData;area.appendChild(img);
+    const ov=document.getElementById('photo-overlay');if(ov)ov.style.background='rgba(6,13,24,.35)';
+  };
+  reader.readAsDataURL(file);
+}
+function toggleFilt(el,name){if(_filtSel.has(name)){_filtSel.delete(name);el.classList.remove('on')}else{_filtSel.add(name);el.classList.add('on')}}
+function pickEmoji(el,e){document.querySelectorAll('.emj').forEach(d=>d.classList.remove('sel'));el.classList.add('sel');_emj=e}
+function saveTank(){
+  const name=document.getElementById('tn').value.trim();
+  if(!name){toast('⚠️ Escribe el nombre');return}
+  tanks.push({id:_tid++,name,liters:parseInt(document.getElementById('tl').value)||50,tempTarget:parseFloat(document.getElementById('ttp').value)||null,filtration:[..._filtSel],lighting:document.getElementById('tlight').value,notes:document.getElementById('tnotes').value.trim(),emoji:_emj,photo:_photoData||null});
+  if(!selTank)selTank=tanks[tanks.length-1].id;
+  closeModal();toast('✅ Pecera agregada');renderTankList();renderDash();
+}
+
+// ─── PARAMS ───
+function renderParams(){
+  const tabs=document.getElementById('p-tabs'),statusEl=document.getElementById('p-status'),grid=document.getElementById('p-grid'),cb=document.getElementById('chart-block');
+  if(!tanks.length){tabs.innerHTML='';statusEl.innerHTML='';grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="eico">〜</div><div class="etxt">Sin peceras</div><div class="esub">Agrega una pecera primero</div></div>`;cb.style.display='none';return}
+  if(!selTank)selTank=tanks[0].id;
+  tabs.innerHTML=tanks.map(t=>`<div onclick="selPTank(${t.id})" style="flex-shrink:0;padding:8px 14px;border-radius:20px;cursor:pointer;background:${selTank===t.id?'var(--cyan)':'var(--glass)'};color:${selTank===t.id?'#060D18':'var(--muted)'};border:1px solid rgba(0,196,224,.22);font-family:'Space Mono',monospace;font-size:11px;font-weight:700;transition:all .2s;-webkit-user-select:none;user-select:none">${t.emoji} ${t.name}</div>`).join('');
+  const log=paramLog[selTank]||[],last=log.length?log[log.length-1]:null,st=getTankHealth(selTank);
+  statusEl.innerHTML=`<span class="badge ${bc(st)}">${bl(st)}</span><span style="font-size:10px;color:var(--muted)">${last?new Date(last.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'Sin datos aún'}</span>`;
+  if(!last){grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="eico">📊</div><div class="etxt">Sin parámetros</div><div class="esub">Registra el primer dato</div></div>`;cb.style.display='none';return}
+  function pct(v,mn,mx){return Math.min(100,Math.max(0,((v-mn)/(mx-mn))*100))}
+  function pcrd(lbl,val,unit,mn,mx,col,warnV,badV){const p=pct(val,mn,mx),isBad=val>=badV,isWarn=val>=warnV&&!isBad,c=isBad?'var(--coral)':isWarn?'var(--gold)':col;return `<div class="pcrd ${isBad?'bad':isWarn?'warn':''}"><div class="pl">${lbl}</div><div class="pv" style="color:${c}">${val}<span class="pu">${unit}</span></div><div class="pbar"><div class="pbf" style="width:${p}%;background:${c}"></div></div></div>`}
+  grid.innerHTML=pcrd('Temperatura',last.temp,'°C',18,34,'var(--coral)',28,31)+pcrd('pH',last.ph,'',6,8,'var(--cyan)',7.6,8.1)+pcrd('NH₃',last.nh3,'ppm',0,1,'var(--aqua)',0.1,0.25)+pcrd('NO₂',(last.no2||0),'ppm',0,2,'var(--purple)',0.3,0.8)+pcrd('NO₃',last.no3,'ppm',0,50,'var(--gold)',20,40);
+  cb.style.display='';drawParamChart(selChartParam);
+}
+function selPTank(id){selTank=id;renderParams()}
+function selChart(el,p){document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('on'));el.classList.add('on');selChartParam=p;drawParamChart(p)}
+function drawParamChart(p){
+  const cfg=CHART_CFG[p];
+  document.getElementById('chart-lbl').textContent=cfg.lbl;document.getElementById('chart-last').style.color=cfg.col;
+  document.getElementById('c-dot').setAttribute('fill',cfg.col);document.getElementById('c-line').setAttribute('stroke',cfg.col);
+  document.querySelector('#gc1 stop:first-child').setAttribute('stop-color',cfg.col);
+  const log=paramLog[selTank]||[];
+  if(!log.length){['c-area','c-line'].forEach(id=>document.getElementById(id).setAttribute('points',''));document.getElementById('chart-last').textContent='—';return}
+  const data=log.slice(-7).map(l=>p==='no2'?(l.no2||0):l[p]);
+  document.getElementById('chart-last').textContent=cfg.fmt(data[data.length-1]);
+  const h=54,w=100,rng=(cfg.mx-cfg.mn)||1;
+  const pts=data.map((v,i)=>{const x=data.length===1?50:(i/(data.length-1))*w;const y=h-((v-cfg.mn)/rng)*(h-6)-3;return`${x},${y}`});
+  const s=pts.join(' '),lp=pts[pts.length-1].split(',');
+  document.getElementById('c-area').setAttribute('points',`0,${h} ${s} ${w},${h}`);
+  document.getElementById('c-line').setAttribute('points',s);document.getElementById('c-dot').setAttribute('cx',lp[0]);document.getElementById('c-dot').setAttribute('cy',lp[1]);
+}
+function openLogParams(){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
+  showModal(`<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">Registrar parámetros</div>
+    <div><div class="inp-lbl">Pecera</div><select class="inp" id="lp-t">${tanks.map(t=>`<option value="${t.id}" ${t.id===selTank?'selected':''}>${t.emoji} ${t.name}</option>`).join('')}</select></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><div class="inp-lbl">Temperatura °C</div><input class="inp" id="lp-temp" type="number" step="0.1" placeholder="26.0" inputmode="decimal"></div>
+      <div><div class="inp-lbl">pH</div><input class="inp" id="lp-ph" type="number" step="0.01" placeholder="7.0" inputmode="decimal"></div>
+      <div><div class="inp-lbl">NH₃ ppm</div><input class="inp" id="lp-nh3" type="number" step="0.001" placeholder="0.000" inputmode="decimal"></div>
+      <div><div class="inp-lbl">NO₂ ppm</div><input class="inp" id="lp-no2" type="number" step="0.001" placeholder="0.000" inputmode="decimal"></div>
+      <div style="grid-column:1/-1"><div class="inp-lbl">NO₃ ppm</div><input class="inp" id="lp-no3" type="number" step="0.1" placeholder="5.0" inputmode="decimal"></div>
+    </div>
+    <button class="btn" onclick="saveParams()">Guardar parámetros</button>
+  </div>`);
+}
+function saveParams(){
+  const id=parseInt(document.getElementById('lp-t').value);
+  const temp=parseFloat(document.getElementById('lp-temp').value),ph=parseFloat(document.getElementById('lp-ph').value);
+  if(isNaN(temp)||isNaN(ph)){toast('⚠️ Completa temperatura y pH');return}
+  if(!paramLog[id])paramLog[id]=[];
+  paramLog[id].push({date:new Date(),temp,ph,nh3:parseFloat(document.getElementById('lp-nh3').value)||0,no2:parseFloat(document.getElementById('lp-no2').value)||0,no3:parseFloat(document.getElementById('lp-no3').value)||0});
+  selTank=id;closeModal();toast('📊 Parámetros guardados');renderParams();renderDash();
+}
+
+// ─── ROUTINES ───
+function rItemHTML(r){
+  const done=!!routineDone[r.id],pc={high:'var(--coral)',medium:'var(--gold)',low:'var(--aqua)'}[r.priority]||'var(--muted)';
+  return `<div class="ritem ${done?'done':''}" onclick="toggleR(${r.id})"><div class="chkbox ${done?'on':''}"></div><div style="flex:1;min-width:0"><div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--soft);${done?'text-decoration:line-through':''}">${r.task}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${r.tank} · ${r.freq||'Una vez'}</div></div><div style="text-align:right;flex-shrink:0"><div style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:${pc}">${r.due}</div><div onclick="event.stopPropagation();delR(${r.id})" style="color:rgba(255,77,106,.4);font-size:13px;margin-top:5px;cursor:pointer;padding:2px 4px">✕</div></div></div>`;
+}
+function renderRoutines(){
+  const done=routines.filter(r=>routineDone[r.id]).length;
+  document.getElementById('prog-lbl').textContent=`${done}/${routines.length} completadas`;
+  document.getElementById('prog-bar').style.width=routines.length?`${(done/routines.length)*100}%`:'0%';
+  const el=document.getElementById('r-list'),empty=document.getElementById('r-empty');
+  if(!routines.length){el.innerHTML='';empty.style.display='';return}
+  empty.style.display='none';el.innerHTML=routines.map(r=>rItemHTML(r)).join('');
+}
+function toggleR(id){routineDone[id]=!routineDone[id];renderRoutines();renderDash();updateAlertBadge()}
+function delR(id){routines=routines.filter(r=>r.id!==id);delete routineDone[id];renderRoutines();renderDash();updateAlertBadge();toast('🗑 Tarea eliminada')}
+function resetRoutines(){routineDone={};renderRoutines();renderDash();toast('↺ Tareas reiniciadas')}
+function openAddRoutine(){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
+  showModal(`<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">Nueva tarea</div>
+    <div><div class="inp-lbl">Pecera</div><select class="inp" id="rt-t">${tanks.map(t=>`<option>${t.emoji} ${t.name}</option>`).join('')}</select></div>
+    <div><div class="inp-lbl">Tarea</div><input class="inp" id="rt-task" placeholder="Ej: Cambio de agua 30%" maxlength="60"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><div class="inp-lbl">Frecuencia</div><select class="inp" id="rt-freq">${FREQ.map(f=>`<option>${f}</option>`).join('')}</select></div>
+      <div><div class="inp-lbl">Prioridad</div><select class="inp" id="rt-pri"><option value="high">Alta 🔴</option><option value="medium" selected>Media 🟡</option><option value="low">Baja 🟢</option></select></div>
+    </div>
+    <div><div class="inp-lbl">Vencimiento</div><input class="inp" id="rt-due" placeholder="Hoy / Mañana"></div>
+    <button class="btn" onclick="saveRoutine()">Guardar tarea</button>
+  </div>`);
+}
+function saveRoutine(){
+  const task=document.getElementById('rt-task').value.trim();
+  if(!task){toast('⚠️ Escribe la tarea');return}
+  routines.push({id:_rid++,tank:document.getElementById('rt-t').value,task,due:document.getElementById('rt-due').value.trim()||'Hoy',priority:document.getElementById('rt-pri').value,freq:document.getElementById('rt-freq').value});
+  closeModal();toast('✅ Tarea agregada');renderRoutines();renderDash();
+}
+
+// ─── FEEDING ───
+function setFeedTab(tab){
+  selFeedTab=tab;
+  ['sched','log'].forEach(t=>{document.getElementById(`ftab-${t}`).classList.toggle('on',t===tab);document.getElementById(`fv-${t}`).style.display=t===tab?'':'none'});
+  renderFeed();
+}
+function renderFeed(){renderFeedSchedule();renderFeedLog()}
+function renderFeedSchedule(){
+  const el=document.getElementById('feed-sched-list'),empty=document.getElementById('feed-sched-empty');
+  if(!feedSchedule.length){el.innerHTML='';empty.style.display='';return}
+  empty.style.display='none';
+  el.innerHTML=feedSchedule.map(f=>`<div class="fcrd ${f.doneToday?'done-today':''}"><div style="font-size:24px">${f.emoji||'🐟'}</div><div style="flex:1"><div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--soft)">${f.tankName}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${f.time} · <span class="chip ch-gold" style="font-size:9px;padding:2px 7px">${f.foodType}</span></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div onclick="toggleFeedDone(${f.id})" style="width:36px;height:36px;border-radius:11px;background:${f.doneToday?'var(--aqua)':'var(--glass)'};border:2px solid ${f.doneToday?'var(--aqua)':'var(--muted)'};display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .2s;-webkit-user-select:none;user-select:none">${f.doneToday?'✓':'○'}</div><div onclick="delFeedSched(${f.id})" style="color:rgba(255,77,106,.4);font-size:11px;cursor:pointer">✕</div></div></div>`).join('');
+}
+function renderFeedLog(){
+  const el=document.getElementById('feed-log-list'),empty=document.getElementById('feed-log-empty');
+  if(!feedLog.length){el.innerHTML='';empty.style.display='';return}
+  empty.style.display='none';
+  el.innerHTML=feedLog.slice().reverse().map(l=>`<div class="flog-item"><div><div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--soft)">${l.tankName}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${new Date(l.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>${l.notes?`<div style="font-size:10px;color:var(--muted);margin-top:2px;font-style:italic">${l.notes}</div>`:''}</div><div style="text-align:right"><span class="chip ch-gold" style="font-size:9px">${l.foodType}</span>${l.amount?`<div style="font-size:10px;color:var(--muted);margin-top:3px">${l.amount}</div>`:''}<div onclick="delFeedLog(${l.id})" style="color:rgba(255,77,106,.4);font-size:11px;cursor:pointer;margin-top:5px">✕</div></div></div>`).join('');
+}
+function toggleFeedDone(id){const f=feedSchedule.find(x=>x.id===id);if(f){f.doneToday=!f.doneToday;renderFeedSchedule();renderDash();toast(f.doneToday?'✅ ¡Alimentación completada!':'↩ Pendiente')}}
+function delFeedSched(id){feedSchedule=feedSchedule.filter(f=>f.id!==id);renderFeedSchedule();renderDash();toast('🗑 Horario eliminado')}
+function delFeedLog(id){feedLog=feedLog.filter(l=>l.id!==id);renderFeedLog();toast('🗑 Registro eliminado')}
+function openAddSchedule(){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
+  showModal(`<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">Nuevo horario de alimentación</div>
+    <div><div class="inp-lbl">Pecera</div><select class="inp" id="fs-t">${tanks.map(t=>`<option value="${t.id}">${t.emoji} ${t.name}</option>`).join('')}</select></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><div class="inp-lbl">Horario</div><select class="inp" id="fs-time">${FEED_TIMES.map(t=>`<option>${t}</option>`).join('')}</select></div>
+      <div><div class="inp-lbl">Tipo de alimento</div><select class="inp" id="fs-food">${FOOD_TYPES.map(f=>`<option>${f}</option>`).join('')}</select></div>
+    </div>
+    <button class="btn" onclick="saveFeedSched()">Guardar horario</button>
+  </div>`);
+}
+function saveFeedSched(){const sel=document.getElementById('fs-t'),tankId=parseInt(sel.value),tank=tanks.find(t=>t.id===tankId)||{name:'—',emoji:'🐟'};feedSchedule.push({id:_fschid++,tankId,tankName:tank.name,emoji:tank.emoji,time:document.getElementById('fs-time').value,foodType:document.getElementById('fs-food').value,doneToday:false});closeModal();toast('✅ Horario agregado');renderFeedSchedule();renderDash()}
+function openLogFeeding(){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
+  showModal(`<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">Registrar alimentación manual</div>
+    <div><div class="inp-lbl">Pecera</div><select class="inp" id="fl-t">${tanks.map(t=>`<option value="${t.id}">${t.emoji} ${t.name}</option>`).join('')}</select></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><div class="inp-lbl">Tipo de alimento</div><select class="inp" id="fl-food">${FOOD_TYPES.map(f=>`<option>${f}</option>`).join('')}</select></div>
+      <div><div class="inp-lbl">Cantidad (opcional)</div><input class="inp" id="fl-amount" placeholder="Ej: 5 pellets"></div>
+    </div>
+    <div><div class="inp-lbl">Notas (opcional)</div><input class="inp" id="fl-notes" placeholder="Observaciones..." maxlength="80"></div>
+    <button class="btn" onclick="saveFeedLog()">Guardar registro</button>
+  </div>`);
+}
+function saveFeedLog(){const tankId=parseInt(document.getElementById('fl-t').value),tank=tanks.find(t=>t.id===tankId)||{name:'—'};feedLog.push({id:_flogid++,tankId,tankName:tank.name,date:new Date(),foodType:document.getElementById('fl-food').value,amount:document.getElementById('fl-amount').value.trim(),notes:document.getElementById('fl-notes').value.trim()});closeModal();toast('✅ Alimentación registrada');renderFeedLog();renderDash()}
+
+// ══════════════════════════════════════════════════════
+//  SPECIES — con catálogo de peces
+// ══════════════════════════════════════════════════════
+
+function openSpeciesChoice(){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div class="modal-title">Agregar especie</div>
+    <div style="font-size:13px;color:var(--muted)">¿Cómo quieres agregar el pez?</div>
+    <button class="btn" onclick="openCatalog()" style="display:flex;align-items:center;justify-content:center;gap:10px">
+      <span style="font-size:20px">📖</span> Elegir del catálogo
+    </button>
+    <button class="btn2" onclick="openManualSpecies()">✏️ Agregar manualmente</button>
+  </div>`);
+}
+
+// ── CATÁLOGO ──
+let _catQuery='';
+function openCatalog(){
+  _selCatFish=null;_catQuery='';
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div class="modal-title">📖 Catálogo de peces</div>
+    <input class="search-inp" id="cat-search" placeholder="🔍 Buscar pez..." oninput="filterCatalog(this.value)" autocomplete="off">
+    <div class="cat-grid" id="cat-grid"></div>
+    <button class="btn" id="cat-btn" onclick="openFromCatalog()" style="display:none">Ver ficha y agregar</button>
+  </div>`);
+  renderCatalogGrid(FISH_CATALOG);
+}
+
+function filterCatalog(q){
+  _catQuery=q.toLowerCase();
+  const filtered=FISH_CATALOG.filter(f=>f.name.toLowerCase().includes(_catQuery)||f.sci.toLowerCase().includes(_catQuery)||f.diet.toLowerCase().includes(_catQuery)||f.diff.toLowerCase().includes(_catQuery));
+  renderCatalogGrid(filtered);
+}
+
+function renderCatalogGrid(list){
+  const el=document.getElementById('cat-grid');
+  if(!list.length){el.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);font-size:13px">Sin resultados para "${_catQuery}"</div>`;return}
+  const diffColor={Fácil:'var(--green)',Medio:'var(--gold)',Difícil:'var(--coral)'};
+  el.innerHTML=list.map(f=>`<div class="fish-card ${_selCatFish&&_selCatFish.id===f.id?'sel':''}" onclick="selectCatFish('${f.id}')">
+    <div class="fish-img-wrap" style="background:${f.grad}">
+      <img src="${f.img}" alt="${f.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fish-fallback" style="display:none;background:${f.grad}">${f.emoji}</div>
+      <div class="fish-diff"><span class="badge" style="font-size:7px;padding:2px 6px;background:rgba(0,0,0,.5);border:1px solid ${diffColor[f.diff]};color:${diffColor[f.diff]}">${f.diff}</span></div>
+    </div>
+    <div class="fish-info">
+      <div class="fish-name">${f.name}</div>
+      <div class="fish-sci">${f.sci}</div>
+      <div class="fish-stats">
+        <span class="fish-stat">🌡 ${f.temp}</span>
+        <span class="fish-stat">pH ${f.ph}</span>
+        <span class="fish-stat">${f.size}</span>
+      </div>
+    </div>
+  </div>`).join('');
+}
+
+function selectCatFish(id){
+  _selCatFish=FISH_CATALOG.find(f=>f.id===id);
+  // Re-render with selection
+  const q=document.getElementById('cat-search').value;
+  filterCatalog(q||'');
+  const btn=document.getElementById('cat-btn');
+  if(btn)btn.style.display='';
+}
+
+function openFromCatalog(){
+  if(!_selCatFish){toast('⚠️ Selecciona un pez primero');return}
+  const f=_selCatFish;
+  const tkopts=tanks.map(t=>`<option>${t.emoji} ${t.name}</option>`).join('');
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="openCatalog()">←</div>
+    <div class="modal-title">${f.emoji} ${f.name}</div>
+
+    <!-- FISH PREVIEW -->
+    <div class="fish-preview">
+      <div style="height:150px;overflow:hidden;background:${f.grad};border-radius:16px 16px 0 0;display:flex;align-items:center;justify-content:center;position:relative">
+        <img src="${f.img}" alt="${f.name}" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:64px;background:${f.grad}">${f.emoji}</div>
+      </div>
+      <div class="fish-preview-body">
+        <div style="font-size:11px;color:var(--muted);font-style:italic;margin-bottom:8px">${f.sci}</div>
+        <div style="font-size:12px;color:var(--soft);line-height:1.5;margin-bottom:10px">${f.desc}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <span class="chip ch-c">🌡 ${f.temp}</span>
+          <span class="chip ch-a">pH ${f.ph}</span>
+          <span class="chip ch-gold">${f.diet}</span>
+          <span class="chip ch-m">📏 ${f.size}</span>
+          <span class="chip ch-m">🪣 mín. ${f.min}L</span>
+          <span class="chip ${f.compat==='Pacífico'?'ch-green':f.compat==='Semi-agresivo'?'ch-gold':'ch-red'}">${f.compat}</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:13px">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Personalizar antes de agregar</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><div class="inp-lbl">Cantidad</div><input class="inp" id="cat-ct" type="number" value="1" min="1" inputmode="numeric"></div>
+        <div><div class="inp-lbl">Pecera</div><select class="inp" id="cat-tk">${tkopts}</select></div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="saveCatalogFish()">+ Agregar ${f.name} a mi pecera</button>
+    <button class="btn2" onclick="openCatalog()">← Volver al catálogo</button>
+  </div>`);
+}
+
+function saveCatalogFish(){
+  const f=_selCatFish;
+  const count=parseInt(document.getElementById('cat-ct').value)||1;
+  const tank=document.getElementById('cat-tk').value;
+  species.push({id:_sid++,name:f.name,sci:f.sci,emoji:f.emoji,count,diet:f.diet,diff:f.diff,temp:f.temp,ph:f.ph,compat:f.compat,tank,img:f.img,grad:f.grad,desc:f.desc,size:f.size,minTank:f.min});
+  closeModal();toast(`✅ ${f.name} agregado a ${tank}`);renderSpecies();renderDash();
+}
+
+// ── MANUAL SPECIES ──
+function openManualSpecies(){
+  const tkopts=tanks.map(t=>`<option>${t.emoji} ${t.name}</option>`).join('');
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="openSpeciesChoice()">←</div>
+    <div class="modal-title">✏️ Especie personalizada</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="grid-column:1/-1"><div class="inp-lbl">Nombre común</div><input class="inp" id="sp-n" placeholder="Ej: Neon Tetra" maxlength="50"></div>
+      <div style="grid-column:1/-1"><div class="inp-lbl">Nombre científico (opcional)</div><input class="inp" id="sp-sc" placeholder="Ej: Paracheirodon innesi"></div>
+      <div><div class="inp-lbl">Emoji</div><input class="inp" id="sp-em" placeholder="🐟" maxlength="4"></div>
+      <div><div class="inp-lbl">Cantidad</div><input class="inp" id="sp-ct" type="number" placeholder="5" min="1" inputmode="numeric"></div>
+      <div><div class="inp-lbl">Dieta</div><select class="inp" id="sp-di"><option>Omnívoro</option><option>Herbívoro</option><option>Carnívoro</option></select></div>
+      <div><div class="inp-lbl">Dificultad</div><select class="inp" id="sp-df"><option>Fácil</option><option>Medio</option><option>Difícil</option></select></div>
+      <div><div class="inp-lbl">Temp. óptima</div><input class="inp" id="sp-tp" placeholder="24-27°C" maxlength="15"></div>
+      <div><div class="inp-lbl">pH óptimo</div><input class="inp" id="sp-ph" placeholder="6.5-7.5" maxlength="15"></div>
+      <div><div class="inp-lbl">Compatibilidad</div><select class="inp" id="sp-cp">${COMPAT.map(c=>`<option>${c}</option>`).join('')}</select></div>
+      <div style="grid-column:1/-1"><div class="inp-lbl">Pecera asignada</div><select class="inp" id="sp-tk">${tkopts}</select></div>
+    </div>
+    <button class="btn" onclick="saveManualSp()">Guardar especie</button>
+  </div>`);
+}
+function saveManualSp(){
+  const name=document.getElementById('sp-n').value.trim();
+  if(!name){toast('⚠️ Escribe el nombre');return}
+  species.push({id:_sid++,name,sci:document.getElementById('sp-sc').value.trim(),emoji:document.getElementById('sp-em').value.trim()||'🐟',count:parseInt(document.getElementById('sp-ct').value)||1,diet:document.getElementById('sp-di').value,diff:document.getElementById('sp-df').value,temp:document.getElementById('sp-tp').value||'—',ph:document.getElementById('sp-ph').value||'—',compat:document.getElementById('sp-cp').value,tank:document.getElementById('sp-tk').value,img:null});
+  closeModal();toast('✅ Especie registrada');renderSpecies();renderDash();
+}
+
+// ── RENDER SPECIES LIST ──
+function renderSpecies(){
+  const el=document.getElementById('sp-list'),empty=document.getElementById('sp-empty');
+  if(!species.length){el.innerHTML='';empty.style.display='';return}
+  empty.style.display='none';
+  const diffColor={Fácil:'b-ok',Medio:'b-warn',Difícil:'b-bad'};
+  const compatColor={Pacífico:'b-ok','Semi-agresivo':'b-warn',Agresivo:'b-bad'};
+  el.innerHTML=species.map((s,i)=>{
+    const photoHtml=s.img
+      ?`<div style="height:120px;overflow:hidden;position:relative;background:${s.grad||'var(--glass)'}"><img src="${s.img}" alt="${s.name}" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px;background:${s.grad||'var(--glass)'}">${s.emoji}</div></div>`
+      :`<div style="height:70px;background:var(--glass);display:flex;align-items:center;justify-content:center;font-size:40px">${s.emoji}</div>`;
+    return `<div class="sp-card">
+      ${photoHtml}
+      <div class="sp-card-body">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div style="flex:1;min-width:0">
+            <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--soft)">${s.emoji} ${s.name}</div>
+            <div style="font-size:11px;color:var(--muted);font-style:italic;margin-top:1px">${s.sci||''}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px">
+            <span class="badge ${diffColor[s.diff]||'b-purple'}">${s.diff}</span>
+            <span class="badge ${compatColor[s.compat]||'b-purple'}" style="font-size:8px">${s.compat||'—'}</span>
+          </div>
+        </div>
+        ${s.desc?`<div style="font-size:11px;color:var(--muted);margin-top:7px;line-height:1.5">${s.desc}</div>`:''}
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:10px">
+          <span class="chip ch-c">×${s.count}</span>
+          <span class="chip ch-m">🌡 ${s.temp}</span>
+          <span class="chip ch-a">pH ${s.ph}</span>
+          <span class="chip ch-gold">${s.diet}</span>
+          ${s.size?`<span class="chip ch-m">📏 ${s.size}</span>`:''}
+          ${s.minTank?`<span class="chip ch-m">🪣 ${s.minTank}L</span>`:''}
+          <span class="chip ch-m">${s.tank}</span>
+        </div>
+        <div style="margin-top:10px;text-align:right">
+          <span onclick="delSp(${i})" style="font-size:11px;color:rgba(255,77,106,.35);cursor:pointer;padding:4px">✕ eliminar</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function delSp(i){species.splice(i,1);renderSpecies();renderDash();toast('🗑 Especie eliminada')}
+
+// ─── HEALTH / QUARANTINE ───
+function renderHealth(){
+  const el=document.getElementById('health-list'),empty=document.getElementById('health-empty');
+  if(!diseases.length){el.innerHTML='';empty.style.display='';return}
+  empty.style.display='none';
+  el.innerHTML=diseases.slice().reverse().map(d=>{
+    const isQ=d.status==='quarantine',isA=d.status==='active',isR=d.status==='resolved';
+    let qInfo='';
+    if(isQ&&d.qStartDate&&d.qEndDate){
+      const total=Math.max(1,daysBetween(d.qStartDate,d.qEndDate)),elapsed=Math.max(0,daysBetween(d.qStartDate,new Date())),rem=Math.max(0,daysBetween(new Date(),d.qEndDate)),pct=Math.min(100,Math.round((elapsed/total)*100));
+      qInfo=`<div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--gold)">🔒 Día ${elapsed} de ${total}</span><span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--gold)">Faltan ${rem}d</span></div><div class="qbar-wrap"><div class="qbar" style="width:${pct}%"></div></div></div>`;
+    }
+    const stBadge=isA?'<span class="badge b-bad">ACTIVO</span>':isQ?'<span class="badge b-warn">CUARENTENA</span>':'<span class="badge b-green">RESUELTO</span>';
+    const symptoms=(d.symptoms||[]).map(s=>`<span class="chip ch-red" style="font-size:9px">${s}</span>`).join('');
+    const treats=(d.treatments||[]).map(t=>`<span class="chip ch-purple" style="font-size:9px">💊 ${t}</span>`).join('');
+    return `<div class="dcrd ${isA?'active':isQ?'quarantine':isR?'resolved':''}">
+      <div class="dcrd-head"><div style="flex:1;min-width:0">
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--soft)">${d.diseaseName}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">🐟 ${d.fishName} · ${d.tank||'—'}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:1px">📅 ${new Date(d.startDate).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'})}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">${stBadge}
+        <div onclick="cycleStatus(${d.id})" style="font-family:'Space Mono',monospace;font-size:8px;color:var(--cyan);cursor:pointer;padding:3px 8px;border:1px solid rgba(0,196,224,.2);border-radius:7px;-webkit-user-select:none;user-select:none">Cambiar estado</div>
+      </div></div>
+      ${symptoms||treats||qInfo?`<div class="dcrd-body">
+        ${symptoms?`<div><div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Síntomas</div><div style="display:flex;gap:4px;flex-wrap:wrap">${symptoms}</div></div>`:''}
+        ${treats?`<div><div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Tratamiento</div><div style="display:flex;gap:4px;flex-wrap:wrap">${treats}</div></div>`:''}
+        ${d.notes?`<div style="font-size:11px;color:var(--muted);font-style:italic">${d.notes}</div>`:''}
+        ${qInfo}
+      </div>`:''}
+      <div style="padding:0 15px 12px;text-align:right"><span onclick="delDisease(${d.id})" style="font-size:11px;color:rgba(255,77,106,.35);cursor:pointer">✕ eliminar</span></div>
+    </div>`;
+  }).join('');
+}
+function cycleStatus(id){
+  const d=diseases.find(x=>x.id===id);if(!d)return;
+  const cycle={active:'quarantine',quarantine:'resolved',resolved:'active'};
+  d.status=cycle[d.status]||'active';
+  renderHealth();renderDash();updateAlertBadge();
+  toast(d.status==='quarantine'?'🔒 En cuarentena':d.status==='resolved'?'✅ Resuelto':'🦠 Activo');
+}
+function delDisease(id){if(!confirm('¿Eliminar este registro?'))return;diseases=diseases.filter(d=>d.id!==id);renderHealth();renderDash();updateAlertBadge();toast('🗑 Eliminado')}
+function openAddDisease(){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
+  _filtSel=new Set();_treatSel=new Set();
+  showModal(`<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">🦠 Registrar enfermedad</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="grid-column:1/-1"><div class="inp-lbl">Diagnóstico</div><select class="inp" id="d-dis">${DISEASES_LIST.map(d=>`<option>${d}</option>`).join('')}</select></div>
+      <div style="grid-column:1/-1"><div class="inp-lbl">Pez(ces) afectados</div><input class="inp" id="d-fish" placeholder="Ej: Neon Tetra 2, Guppy hembra" maxlength="60"></div>
+      <div style="grid-column:1/-1"><div class="inp-lbl">Pecera</div><select class="inp" id="d-tk">${tanks.map(t=>`<option>${t.emoji} ${t.name}</option>`).join('')}</select></div>
+    </div>
+    <div><div class="inp-lbl">Síntomas observados</div><div class="filt-grid" id="symp-grid">${SYMPTOMS_LIST.map(s=>`<div class="filt-chip" onclick="toggleFilt(this,'${s}')">${s}</div>`).join('')}</div></div>
+    <div><div class="inp-lbl">Tratamiento(s)</div><div class="filt-grid">${TREATMENTS.map(t=>`<div class="filt-chip" onclick="toggleTreat(this,'${t}')">${t}</div>`).join('')}</div></div>
+    <div><div class="inp-lbl">Fecha de inicio</div><input class="inp" id="d-date" type="date" value="${new Date().toISOString().split('T')[0]}"></div>
+    <div><div class="inp-lbl">Notas</div><input class="inp" id="d-notes" placeholder="Observaciones, evolución..." maxlength="100"></div>
+    <button class="btn-red" onclick="saveDisease()">Registrar enfermedad</button>
+  </div>`);
+}
+function toggleTreat(el,name){if(_treatSel.has(name)){_treatSel.delete(name);el.classList.remove('on')}else{_treatSel.add(name);el.classList.add('on')}}
+function saveDisease(){
+  const fishName=document.getElementById('d-fish').value.trim();
+  if(!fishName){toast('⚠️ Indica qué pez está afectado');return}
+  diseases.push({id:_did++,diseaseName:document.getElementById('d-dis').value,fishName,tank:document.getElementById('d-tk').value,symptoms:[..._filtSel],treatments:[..._treatSel],startDate:document.getElementById('d-date').value,notes:document.getElementById('d-notes').value.trim(),status:'active',qStartDate:null,qEndDate:null});
+  closeModal();toast('🦠 Enfermedad registrada');renderHealth();renderDash();updateAlertBadge();
+}
+function openAddQuarantine(){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
+  const today=new Date().toISOString().split('T')[0];
+  const end=new Date();end.setDate(end.getDate()+14);const endStr=end.toISOString().split('T')[0];
+  showModal(`<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">🔒 Iniciar cuarentena</div>
+    <div style="background:rgba(255,185,64,.06);border:1px solid rgba(255,185,64,.2);border-radius:14px;padding:13px"><div style="font-size:12px;color:var(--gold)">⚠️ La cuarentena aísla al pez para evitar contagio. Mínimo recomendado: 14 días.</div></div>
+    <div><div class="inp-lbl">Pez(ces) en cuarentena</div><input class="inp" id="q-fish" placeholder="Ej: Guppy macho, 3 Neon Tetra" maxlength="60"></div>
+    <div><div class="inp-lbl">Motivo</div><select class="inp" id="q-dis">${DISEASES_LIST.map(d=>`<option>${d}</option>`).join('')}</select></div>
+    <div><div class="inp-lbl">Pecera de origen</div><select class="inp" id="q-tk">${tanks.map(t=>`<option>${t.emoji} ${t.name}</option>`).join('')}</select></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><div class="inp-lbl">Inicio</div><input class="inp" id="q-start" type="date" value="${today}"></div>
+      <div><div class="inp-lbl">Fin estimado</div><input class="inp" id="q-end" type="date" value="${endStr}"></div>
+    </div>
+    <div><div class="inp-lbl">Notas</div><input class="inp" id="q-notes" placeholder="Medicamentos, observaciones..." maxlength="100"></div>
+    <button class="btn" style="background:linear-gradient(135deg,var(--gold),#805000)" onclick="saveQuarantine()">🔒 Iniciar cuarentena</button>
+  </div>`);
+}
+function saveQuarantine(){
+  const fishName=document.getElementById('q-fish').value.trim();
+  if(!fishName){toast('⚠️ Indica qué pez va a cuarentena');return}
+  const qStart=document.getElementById('q-start').value,qEnd=document.getElementById('q-end').value;
+  if(new Date(qEnd)<=new Date(qStart)){toast('⚠️ La fecha fin debe ser posterior');return}
+  diseases.push({id:_did++,diseaseName:document.getElementById('q-dis').value,fishName,tank:document.getElementById('q-tk').value,symptoms:[],treatments:[],startDate:qStart,notes:document.getElementById('q-notes').value.trim(),status:'quarantine',qStartDate:qStart,qEndDate:qEnd});
+  closeModal();toast('🔒 Cuarentena iniciada');renderHealth();renderDash();updateAlertBadge();
+}
+
+renderDash();
+</script>
+</body>
+</html>
