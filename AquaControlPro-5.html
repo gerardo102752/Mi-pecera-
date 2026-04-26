@@ -1335,10 +1335,34 @@ function saveFishDied(i){
 }
 
 // ─── RECOMENDACIONES IA ───
+function getApiKey(){return localStorage.getItem('aquacontrol_apikey')||''}
+function saveApiKey(k){localStorage.setItem('aquacontrol_apikey',k.trim())}
+
+function openApiKeyModal(onSave){
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div class="modal-title">🔑 API Key de Anthropic</div>
+    <div style="background:rgba(0,196,224,.06);border:1px solid rgba(0,196,224,.18);border-radius:14px;padding:13px">
+      <div style="font-size:12px;color:var(--soft);line-height:1.6">Para usar el análisis con IA necesitas una API Key de Anthropic. Se guarda solo en tu dispositivo.</div>
+      <div style="margin-top:8px;font-size:11px;color:var(--muted)">Obtén tu clave gratis en: <span style="color:var(--cyan)">console.anthropic.com</span></div>
+    </div>
+    <div>
+      <div class="inp-lbl">Tu API Key</div>
+      <input class="inp" id="apikey-inp" type="password" placeholder="sk-ant-..." value="${getApiKey()}" autocomplete="off">
+    </div>
+    <button class="btn" onclick="
+      const k=document.getElementById('apikey-inp').value.trim();
+      if(!k.startsWith('sk-')){toast('⚠️ Clave inválida — debe empezar con sk-');return}
+      saveApiKey(k);closeModal();openAIRecommendations();
+    ">Guardar y analizar</button>
+  </div>`);
+}
+
 async function openAIRecommendations(){
+  const apiKey=getApiKey();
+  if(!apiKey){openApiKeyModal();return}
   if(!tanks.length&&!species.length){toast('⚠️ Agrega peceras y especies primero');return}
 
-  // Construir contexto del acuario
   const tankSummary=tanks.map(t=>{
     const log=paramLog[t.id]||[],last=log.length?log[log.length-1]:null;
     const myFish=species.filter(s=>s.tank&&s.tank.includes(t.name));
@@ -1366,9 +1390,14 @@ async function openAIRecommendations(){
   try{
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'claude-haiku-4-5-20251001',
         max_tokens:1000,
         system:`Eres un experto acuarista. Analiza el acuario del usuario y da recomendaciones prácticas en español. 
 Sé conciso y específico. Responde SOLO en este formato JSON exacto (sin markdown):
@@ -1383,11 +1412,28 @@ Usa "ok" para bien, "warn" para atención, "bad" para problema crítico. puntuac
         messages:[{role:'user',content:`Analiza mi acuario:\n\n${tankSummary}\n\nEspecies detalle:\n${speciesSummary}`}]
       })
     });
+
+    if(resp.status===401){
+      const loadEl=document.getElementById('ai-loading');
+      const resEl=document.getElementById('ai-result');
+      if(loadEl)loadEl.style.display='none';
+      if(resEl){
+        resEl.style.display='';
+        resEl.innerHTML=`<div style="background:rgba(255,77,106,.08);border:1px solid rgba(255,77,106,.3);border-radius:14px;padding:14px;text-align:center">
+          <div style="font-size:22px;margin-bottom:8px">🔑</div>
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--coral);margin-bottom:6px">API Key inválida</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Verifica tu clave en console.anthropic.com</div>
+          <button class="btn2" onclick="localStorage.removeItem('aquacontrol_apikey');closeModal();openApiKeyModal()">🔑 Cambiar API Key</button>
+        </div>`;
+      }
+      return;
+    }
+
     const data=await resp.json();
     const text=data.content?.find(b=>b.type==='text')?.text||'{}';
     let r;
     try{r=JSON.parse(text)}catch{r=null}
-    
+
     const loadEl=document.getElementById('ai-loading');
     const resEl=document.getElementById('ai-result');
     if(!loadEl||!resEl)return;
@@ -1396,7 +1442,6 @@ Usa "ok" para bien, "warn" para atención, "bad" para problema crítico. puntuac
     if(!r){resEl.innerHTML=`<div style="color:var(--muted);font-size:12px;padding:10px">No se pudo analizar. Intenta de nuevo.</div>`;return}
 
     const scoreCol=r.puntuacion>=80?'var(--green)':r.puntuacion>=60?'var(--gold)':'var(--coral)';
-    const typeColor={ok:'var(--green)',warn:'var(--gold)',bad:'var(--coral)'};
     const typeIcon={ok:'✅',warn:'⚠️',bad:'🚨'};
     const typeBg={ok:'rgba(47,238,160,.07)',warn:'rgba(255,185,64,.07)',bad:'rgba(255,77,106,.07)'};
     const typeBorder={ok:'rgba(47,238,160,.25)',warn:'rgba(255,185,64,.25)',bad:'rgba(255,77,106,.25)'};
@@ -1414,29 +1459,35 @@ Usa "ok" para bien, "warn" para atención, "bad" para problema crítico. puntuac
         <div style="font-family:'Space Mono',monospace;font-size:42px;font-weight:700;color:${scoreCol}">${r.puntuacion}</div>
         <div style="font-size:11px;color:var(--muted);margin-top:2px">Puntuación del acuario / 100</div>
       </div>
-
       <div class="slbl" style="margin-bottom:7px">📐 Espacio y densidad</div>
       ${renderItems(r.espacio)}
-
       <div class="slbl" style="margin-top:4px;margin-bottom:7px">🤝 Compatibilidad</div>
       ${renderItems(r.compatibilidad)}
-
       <div class="slbl" style="margin-top:4px;margin-bottom:7px">💧 Parámetros</div>
       ${renderItems(r.parametros)}
-
       ${r.sugerencias?.length?`
         <div class="slbl" style="margin-top:4px;margin-bottom:7px">💡 Sugerencias</div>
         <div style="background:rgba(0,196,224,.06);border:1px solid rgba(0,196,224,.18);border-radius:14px;padding:13px">
           ${r.sugerencias.map(s=>`<div style="display:flex;gap:8px;font-size:12px;color:var(--soft);margin-bottom:7px;line-height:1.5"><span style="color:var(--cyan);flex-shrink:0">→</span>${s}</div>`).join('')}
         </div>`:''}
-
-      <button class="btn2" onclick="openAIRecommendations()" style="margin-top:4px">🔄 Analizar de nuevo</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px">
+        <button class="btn2" onclick="openAIRecommendations()">🔄 Analizar de nuevo</button>
+        <button class="btn2" onclick="localStorage.removeItem('aquacontrol_apikey');closeModal();openApiKeyModal()" style="font-size:11px">🔑 Cambiar clave</button>
+      </div>
     `;
   }catch(e){
     const loadEl=document.getElementById('ai-loading');
     const resEl=document.getElementById('ai-result');
     if(loadEl)loadEl.style.display='none';
-    if(resEl){resEl.style.display='';resEl.innerHTML=`<div style="color:var(--coral);font-size:12px;padding:10px">Error al conectar con la IA. Verifica tu conexión.</div>`;}
+    if(resEl){
+      resEl.style.display='';
+      resEl.innerHTML=`<div style="background:rgba(255,77,106,.08);border:1px solid rgba(255,77,106,.3);border-radius:14px;padding:14px;text-align:center">
+        <div style="font-size:22px;margin-bottom:8px">⚠️</div>
+        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--coral);margin-bottom:6px">Error de conexión</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px">${e.message||'Verifica tu conexión a internet'}</div>
+        <button class="btn2" onclick="openAIRecommendations()">Reintentar</button>
+      </div>`;
+    }
   }
 }
 
