@@ -697,7 +697,7 @@ function tCardHTML(t,sel=true){
   const filtChips=(t.filtration||[]).map(f=>`<span class="chip ch-purple" style="font-size:9px">⚙ ${f}</span>`).join('');
   const photoHTML=t.photo?`<div class="tcard-photo" style="background-image:url(${t.photo})"></div>`:`<div class="tcard-photo-placeholder">${t.emoji}</div>`;
   const isSel=sel&&selTank===t.id?'sel':'';
-  const clickFn=sel?`selectTank(${t.id})`:`goTo('params')`;
+  const clickFn=`openTankDetail(${t.id})`;
   return `<div class="tcard ${isSel}" onclick="${clickFn}">
     ${photoHTML}
     <div class="tcard-del" onclick="event.stopPropagation();delTank(${t.id})">🗑</div>
@@ -718,6 +718,123 @@ function tCardHTML(t,sel=true){
 }
 function renderTankList(){document.getElementById('tank-list').innerHTML=tanks.map(t=>tCardHTML(t,true)).join('')}
 function selectTank(id){selTank=id;goTo('params')}
+
+// ─── TANK DETAIL MODAL ───
+function openTankDetail(id){
+  const t=tanks.find(x=>x.id===id);if(!t)return;
+  const log=paramLog[id]||[],last=log.length?log[log.length-1]:null;
+  const st=getTankHealth(id);
+  const mySpecies=species.filter(s=>s.tank&&s.tank.includes(t.name));
+  const myRoutines=routines.filter(r=>r.tank&&r.tank.includes(t.name));
+  const pending=myRoutines.filter(r=>!routineDone[r.id]);
+  const done=myRoutines.filter(r=>routineDone[r.id]);
+  const activeD=diseases.filter(d=>d.tank&&d.tank.includes(t.name)&&d.status==='active');
+  const photoHTML=t.photo
+    ?`<div style="width:100%;height:180px;background:#091726 url(${t.photo}) center/cover no-repeat;border-radius:18px 18px 0 0;flex-shrink:0"></div>`
+    :`<div style="width:100%;height:90px;background:linear-gradient(135deg,rgba(0,196,224,.1),rgba(0,237,212,.05));border-radius:18px 18px 0 0;display:flex;align-items:center;justify-content:center;font-size:52px;flex-shrink:0">${t.emoji}</div>`;
+
+  // Parámetros rápidos
+  const paramHTML=last?`
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:2px">
+      ${[
+        ['🌡','Temp',last.temp+'°C',last.temp>30||last.temp<22?'var(--coral)':last.temp>28?'var(--gold)':'var(--cyan)'],
+        ['pH','pH',last.ph,last.ph<6.4||last.ph>8.0?'var(--coral)':last.ph<6.8||last.ph>7.6?'var(--gold)':'var(--aqua)'],
+        ['NH₃','NH₃',last.nh3+' ppm',last.nh3>0.25?'var(--coral)':last.nh3>0.1?'var(--gold)':'var(--green)'],
+        ['NO₂','NO₂',(last.no2||0)+' ppm',(last.no2||0)>0.8?'var(--coral)':(last.no2||0)>0.3?'var(--gold)':'var(--green)'],
+        ['NO₃','NO₃',last.no3+' ppm',last.no3>40?'var(--coral)':last.no3>20?'var(--gold)':'var(--green)'],
+        ['📅','Medido',new Date(last.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short'}),'var(--muted)'],
+      ].map(([ico,lbl,val,col])=>`
+        <div style="background:var(--glass);border:1px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center">
+          <div style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:${col};line-height:1">${val}</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:4px;font-family:'Space Mono',monospace">${lbl}</div>
+        </div>`).join('')}
+    </div>`
+    :`<div style="text-align:center;padding:14px;background:var(--glass);border-radius:14px;border:1px solid var(--border)"><div style="font-size:11px;color:var(--muted)">Sin parámetros registrados aún</div><div onclick="closeModal();openLogParams()" style="font-family:'Space Mono',monospace;font-size:10px;color:var(--cyan);margin-top:8px;cursor:pointer">+ Registrar ahora</div></div>`;
+
+  // Peces en esta pecera
+  const fishHTML=mySpecies.length
+    ?mySpecies.map(s=>{
+      const img=s.customImg||s.img;
+      return `<div style="display:flex;align-items:center;gap:11px;background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:11px;margin-bottom:8px">
+        <div style="width:52px;height:52px;border-radius:11px;overflow:hidden;flex-shrink:0;background:${s.grad||'rgba(0,196,224,.08)'} center/contain no-repeat;${img?`background-image:url(${img})`:''}">${!img?`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:26px">${s.emoji}</div>`:''}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--soft)">${s.emoji} ${s.name}</div>
+          ${s.sci?`<div style="font-size:10px;color:var(--muted);font-style:italic">${s.sci}</div>`:''}
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px">
+            <span class="chip ch-c">×${s.count}</span>
+            ${s.temp&&s.temp!=='—'?`<span class="chip ch-m">🌡 ${s.temp}</span>`:''}
+            ${s.diet?`<span class="chip ch-gold">${s.diet}</span>`:''}
+            ${s.compat?`<span class="chip ${s.compat==='Pacífico'?'ch-green':s.compat==='Semi-agresivo'?'ch-gold':'ch-red'}">${s.compat}</span>`:''}
+          </div>
+        </div>
+        <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-align:right;flex-shrink:0">${s.diff||''}</div>
+      </div>`;
+    }).join('')
+    :`<div style="text-align:center;padding:18px;background:var(--glass);border-radius:14px;border:1px solid var(--border)"><div style="font-size:28px;opacity:.3">🐟</div><div style="font-size:11px;color:var(--muted);margin-top:6px">Sin peces registrados en esta pecera</div><div onclick="closeModal();openCatalog()" style="font-family:'Space Mono',monospace;font-size:10px;color:var(--cyan);margin-top:8px;cursor:pointer">+ Agregar peces</div></div>`;
+
+  // Alertas activas de salud
+  const healthHTML=activeD.length?`<div class="alert-box" style="margin-bottom:8px"><span style="font-size:20px">🦠</span><div><div class="al">${activeD[0].fishName} — ${activeD[0].diseaseName}</div><div class="as">Enfermedad activa en esta pecera</div></div></div>`:'';
+
+  // Tareas pendientes
+  const routinesHTML=pending.length
+    ?pending.slice(0,3).map(r=>`<div style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--glass);border:1px solid var(--border);border-radius:12px;margin-bottom:7px">
+        <div style="width:20px;height:20px;border-radius:6px;border:2px solid var(--muted);flex-shrink:0"></div>
+        <div style="flex:1;font-size:13px;color:var(--soft)">${r.task}</div>
+        <div style="font-family:'Space Mono',monospace;font-size:9px;color:${{high:'var(--coral)',medium:'var(--gold)',low:'var(--aqua)'}[r.priority]||'var(--muted)'}">${r.due}</div>
+      </div>`).join('')
+    :`<div style="font-size:11px;color:var(--muted);padding:8px 0">✅ Sin tareas pendientes</div>`;
+
+  showModal(`<div class="modal" onclick="event.stopPropagation()" style="padding:0;overflow:hidden;gap:0">
+    <div class="modal-close" onclick="closeModal()" style="top:14px;right:14px;z-index:10">✕</div>
+    ${photoHTML}
+    <div style="padding:18px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;max-height:calc(80vh - 180px)">
+
+      <!-- HEADER -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--soft)">${t.emoji} ${t.name}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:5px">
+            <span class="chip ch-m">🌿 Agua dulce</span>
+            <span class="chip ch-m">🪣 ${t.liters}L</span>
+            ${t.tempTarget?`<span class="chip ch-m">🌡 objetivo ${t.tempTarget}°C</span>`:''}
+            ${(t.filtration||[]).map(f=>`<span class="chip ch-purple">⚙ ${f}</span>`).join('')}
+          </div>
+        </div>
+        <span class="badge ${bc(st)}">${bl(st)}</span>
+      </div>
+
+      ${healthHTML}
+
+      <!-- PARÁMETROS -->
+      <div>
+        <div class="slbl" style="margin-bottom:8px">📊 Parámetros del agua</div>
+        ${paramHTML}
+      </div>
+
+      <!-- PECES -->
+      <div>
+        <div class="slbl" style="margin-bottom:8px">🐟 Peces en esta pecera (${mySpecies.length} especie${mySpecies.length!==1?'s':''}· ${mySpecies.reduce((a,s)=>a+s.count,0)} pez)</div>
+        ${fishHTML}
+      </div>
+
+      <!-- TAREAS -->
+      ${pending.length||done.length?`<div>
+        <div class="slbl" style="margin-bottom:8px">✅ Tareas — ${done.length}/${myRoutines.length} hechas</div>
+        ${routinesHTML}
+        ${pending.length>3?`<div style="font-size:10px;color:var(--muted);text-align:center">+${pending.length-3} más...</div>`:''}
+      </div>`:''}
+
+      <!-- ACCIONES RÁPIDAS -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <button class="btn" onclick="closeModal();selTank=${t.id};goTo('params')" style="font-size:12px;padding:12px">📊 Ver parámetros</button>
+        <button class="btn2" onclick="closeModal();openLogParams()" style="font-size:12px;padding:12px">+ Registrar</button>
+        <button class="btn2" onclick="closeModal();goTo('species')" style="font-size:12px;padding:12px">🐟 Mis peces</button>
+        <button class="btn2" onclick="closeModal();openAddRoutine()" style="font-size:12px;padding:12px;border-color:rgba(47,238,160,.3);color:var(--green)">✅ Nueva tarea</button>
+      </div>
+
+    </div>
+  </div>`);
+}
 function delTank(id){if(!confirm('¿Eliminar esta pecera y sus datos?'))return;tanks=tanks.filter(t=>t.id!==id);delete paramLog[id];if(selTank===id)selTank=tanks.length?tanks[0].id:null;saveState();renderTankList();renderDash();toast('🗑 Pecera eliminada')}
 function openAddTank(){
   _filtSel=new Set();_photoData=null;
