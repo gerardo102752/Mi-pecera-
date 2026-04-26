@@ -82,10 +82,10 @@ select.inp{cursor:pointer}
 .inp-lbl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 
 /* PHOTO UPLOAD */
-.photo-upload{width:100%;height:130px;border-radius:16px;border:2px dashed rgba(0,196,224,.3);background:var(--glass);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:8px;overflow:hidden;position:relative}
+.photo-upload{width:100%;height:150px;border-radius:16px;border:2px dashed rgba(0,196,224,.3);background:var(--glass);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:8px;overflow:hidden;position:relative}
 .photo-upload:active{background:var(--glassh)}
-.photo-upload img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px}
-.photo-upload .overlay{position:absolute;inset:0;background:rgba(6,13,24,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-radius:14px}
+.photo-upload img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px;display:block}
+.photo-upload .overlay{position:absolute;inset:0;background:rgba(6,13,24,.52);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-radius:14px}
 
 /* MULTI-SELECT CHIPS */
 .filt-grid{display:flex;flex-wrap:wrap;gap:7px}
@@ -153,7 +153,7 @@ select.inp{cursor:pointer}
 
 .tcard{background:var(--glass);border:1px solid var(--border);border-radius:18px;overflow:hidden;cursor:pointer;transition:all .18s;position:relative;margin-bottom:10px;-webkit-user-select:none;user-select:none}
 .tcard:active{border-color:rgba(0,196,224,.22)}.tcard.sel{border-color:rgba(0,196,224,.38)}
-.tcard-photo{width:100%;height:110px;object-fit:cover;display:block}
+.tcard-photo{width:100%;height:140px;object-fit:cover;display:block;background:#091726}
 .tcard-photo-placeholder{width:100%;height:80px;background:linear-gradient(135deg,rgba(0,196,224,.08),rgba(0,237,212,.04));display:flex;align-items:center;justify-content:center;font-size:36px}
 .tcard-body{padding:14px}.tcard-del{position:absolute;top:10px;right:10px;background:rgba(6,13,24,.7);border:1px solid rgba(255,77,106,.3);border-radius:9px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;z-index:2}
 .tcard-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
@@ -204,9 +204,16 @@ select.inp{cursor:pointer}
 
 /* SPECIES CARD — with catalog photo */
 .sp-card{background:var(--glass);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:10px}
-.sp-card-img{width:100%;height:120px;object-fit:cover;display:block}
-.sp-card-fallback{width:100%;height:80px;display:flex;align-items:center;justify-content:center;font-size:40px}
+.sp-card-img-wrap{width:100%;height:140px;overflow:hidden;position:relative;flex-shrink:0}
+.sp-card-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.sp-card-img-wrap .sp-fb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px}
 .sp-card-body{padding:13px}
+.sp-photo-btn{position:absolute;bottom:7px;right:7px;background:rgba(6,13,24,.78);border:1px solid rgba(0,196,224,.35);border-radius:9px;padding:5px 9px;font-family:'Space Mono',monospace;font-size:9px;color:var(--cyan);cursor:pointer;-webkit-user-select:none;user-select:none}
+/* TANK FILTER PILLS */
+.tank-filter-row{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-shrink:0}
+.tank-filter-row::-webkit-scrollbar{display:none}
+.tank-pill{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:7px 14px;border-radius:20px;cursor:pointer;border:1px solid rgba(0,196,224,.22);background:var(--glass);color:var(--muted);white-space:nowrap;transition:all .18s;-webkit-user-select:none;user-select:none;flex-shrink:0}
+.tank-pill.on{background:var(--cyan);color:#060D18;border-color:var(--cyan)}
 </style>
 </head>
 <body>
@@ -321,7 +328,14 @@ select.inp{cursor:pointer}
 
     <!-- SPECIES -->
     <div class="sec" id="s-species">
-      <button class="btn" onclick="openSpeciesChoice()">+ Agregar especie</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <button class="btn" onclick="openSpeciesChoice()" style="font-size:13px;padding:13px">+ Agregar especie</button>
+        <button class="btn2" onclick="openManualSpecies(null)" style="font-size:13px;padding:13px">✏️ Personalizada</button>
+      </div>
+      <div id="sp-tank-filter" style="display:none">
+        <div class="slbl">Filtrar por pecera</div>
+        <div class="tank-filter-row" id="sp-tank-pills"></div>
+      </div>
       <div id="sp-list"></div>
       <div id="sp-empty" class="empty"><div class="eico">🐟</div><div class="etxt">Sin especies</div><div class="esub">Agrega peces del catálogo o manualmente</div></div>
     </div>
@@ -702,12 +716,15 @@ function handlePhoto(input){
   const reader=new FileReader();
   reader.onload=e=>{
     _photoData=e.target.result;
-    const area=document.getElementById('photo-area');
-    const old=area.querySelector('img');if(old)old.remove();
+    const area=document.getElementById('photo-area');if(!area)return;
+    // Remove any existing preview img
+    area.querySelectorAll('img.preview-img').forEach(el=>el.remove());
     const img=document.createElement('img');
-    img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px';
-    img.src=_photoData;area.appendChild(img);
-    const ov=document.getElementById('photo-overlay');if(ov)ov.style.background='rgba(6,13,24,.35)';
+    img.className='preview-img';
+    img.src=_photoData;
+    area.appendChild(img);
+    const ov=document.getElementById('photo-overlay');
+    if(ov)ov.style.background='rgba(6,13,24,.38)';
   };
   reader.readAsDataURL(file);
 }
@@ -865,15 +882,7 @@ function saveFeedLog(){const tankId=parseInt(document.getElementById('fl-t').val
 
 function openSpeciesChoice(){
   if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
-  showModal(`<div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-close" onclick="closeModal()">✕</div>
-    <div class="modal-title">Agregar especie</div>
-    <div style="font-size:13px;color:var(--muted)">¿Cómo quieres agregar el pez?</div>
-    <button class="btn" onclick="openCatalog()" style="display:flex;align-items:center;justify-content:center;gap:10px">
-      <span style="font-size:20px">📖</span> Elegir del catálogo
-    </button>
-    <button class="btn2" onclick="openManualSpecies()">✏️ Agregar manualmente</button>
-  </div>`);
+  openCatalog();
 }
 
 // ── CATÁLOGO ──
@@ -978,18 +987,19 @@ function saveCatalogFish(){
 
 // ── MANUAL SPECIES ──
 function openManualSpecies(editIdx){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
   const tkopts=tanks.map(t=>`<option>${t.emoji} ${t.name}</option>`).join('');
   const sp=editIdx!=null?species[editIdx]:null;
   _photoData=sp&&sp.customImg?sp.customImg:null;
-  const imgPreview=_photoData?`<img style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px" src="${_photoData}">`:'';
+  const imgPreview=_photoData?`<img class="preview-img" src="${_photoData}" alt="preview">`:'';
   showModal(`<div class="modal" onclick="event.stopPropagation()">
     <div class="modal-close" onclick="${sp?'closeModal()':'openSpeciesChoice()'}">←</div>
     <div class="modal-title">${sp?'✏️ Editar especie':'✏️ Especie personalizada'}</div>
     <div>
       <div class="inp-lbl">Foto del pez (opcional)</div>
-      <div class="photo-upload" id="photo-area" onclick="document.getElementById('sp-photo-input').click()" style="height:110px">
+      <div class="photo-upload" id="photo-area" onclick="document.getElementById('sp-photo-input').click()">
         ${imgPreview}
-        <div class="overlay" id="photo-overlay" style="${_photoData?'background:rgba(6,13,24,.35)':''}"><span style="font-size:28px">📷</span><span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">Foto del pez</span></div>
+        <div class="overlay" id="photo-overlay" style="${_photoData?'background:rgba(6,13,24,.38)':''}"><span style="font-size:28px">📷</span><span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">${_photoData?'Cambiar foto':'Foto del pez'}</span></div>
       </div>
       <input type="file" id="sp-photo-input" accept="image/*" style="display:none" onchange="handlePhoto(this)">
     </div>
@@ -1014,66 +1024,96 @@ function openManualSpecies(editIdx){
 function saveManualSp(editIdx){
   const name=document.getElementById('sp-n').value.trim();
   if(!name){toast('⚠️ Escribe el nombre');return}
-  const obj={name,sci:document.getElementById('sp-sc').value.trim(),emoji:document.getElementById('sp-em').value.trim()||'🐟',count:parseInt(document.getElementById('sp-ct').value)||1,diet:document.getElementById('sp-di').value,diff:document.getElementById('sp-df').value,temp:document.getElementById('sp-tp').value||'—',ph:document.getElementById('sp-ph').value||'—',compat:document.getElementById('sp-cp').value,tank:document.getElementById('sp-tk').value,img:_photoData||null,customImg:_photoData||null};
-  if(editIdx!=null&&editIdx>=0&&editIdx<species.length){
-    const old=species[editIdx];obj.id=old.id;if(!_photoData&&old.img&&old.img===old.customImg)obj.img=old.img;obj.customImg=_photoData||old.customImg||null;if(!_photoData&&old.img&&!old.customImg)obj.img=old.img;
-    species[editIdx]=obj;toast('✅ Especie actualizada');
-  }else{
-    obj.id=_sid++;species.push(obj);toast('✅ Especie registrada');
-  }
+  const tkVal=document.getElementById('sp-tk').value;
+  const old=editIdx!=null&&editIdx>=0?species[editIdx]:null;
+  const newCustomImg=_photoData||(old?old.customImg:null);
+  const newImg=newCustomImg||(old?old.img:null);
+  const obj={
+    id:old?old.id:_sid++,
+    name,
+    sci:document.getElementById('sp-sc').value.trim(),
+    emoji:document.getElementById('sp-em').value.trim()||'🐟',
+    count:parseInt(document.getElementById('sp-ct').value)||1,
+    diet:document.getElementById('sp-di').value,
+    diff:document.getElementById('sp-df').value,
+    temp:document.getElementById('sp-tp').value||'—',
+    ph:document.getElementById('sp-ph').value||'—',
+    compat:document.getElementById('sp-cp').value,
+    tank:tkVal,
+    img:newImg,
+    customImg:newCustomImg,
+    grad:old?old.grad:null,
+    desc:old?old.desc:'',
+    size:old?old.size:'',
+    minTank:old?old.minTank:null,
+  };
+  if(old){species[editIdx]=obj;toast('✅ Especie actualizada')}
+  else{species.push(obj);toast('✅ Especie registrada')}
   closeModal();renderSpecies();renderDash();
 }
 
+let _spTankFilter='all';
 function renderSpecies(){
   const el=document.getElementById('sp-list'),empty=document.getElementById('sp-empty');
-  if(!species.length){el.innerHTML='';empty.style.display='';return}
+  const filterWrap=document.getElementById('sp-tank-filter');
+  const pillsEl=document.getElementById('sp-tank-pills');
+  // Build tank filter pills
+  if(tanks.length>1&&species.length){
+    filterWrap.style.display='';
+    const allTanks=[...new Set(species.map(s=>s.tank).filter(Boolean))];
+    pillsEl.innerHTML=`<div class="tank-pill ${_spTankFilter==='all'?'on':''}" onclick="setSpFilter('all')">Todas</div>`+allTanks.map(tk=>`<div class="tank-pill ${_spTankFilter===tk?'on':''}" onclick="setSpFilter('${tk.replace(/'/g,"\\'")}'">${tk}</div>`).join('');
+  }else{filterWrap.style.display='none'}
+  const filtered=_spTankFilter==='all'?species:species.filter(s=>s.tank===_spTankFilter);
+  if(!filtered.length){el.innerHTML='';empty.style.display='';return}
   empty.style.display='none';
   const diffColor={Fácil:'b-ok',Medio:'b-warn',Difícil:'b-bad'};
   const compatColor={Pacífico:'b-ok','Semi-agresivo':'b-warn',Agresivo:'b-bad'};
-  el.innerHTML=species.map((s,i)=>{
+  el.innerHTML=filtered.map(s=>{
+    const i=species.indexOf(s);
     const displayImg=s.customImg||s.img;
+    const gradBg=s.grad||'linear-gradient(135deg,rgba(0,196,224,.08),rgba(0,237,212,.04))';
     const photoHtml=displayImg
-      ?`<div style="height:120px;overflow:hidden;position:relative;background:${s.grad||'var(--glass)'}">
-          <img src="${displayImg}" alt="${s.name}" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-          <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px;background:${s.grad||'var(--glass)'}">${s.emoji}</div>
-          <div onclick="event.stopPropagation();uploadSpPhoto(${i})" style="position:absolute;bottom:7px;right:7px;background:rgba(6,13,24,.7);border:1px solid rgba(0,196,224,.3);border-radius:9px;padding:5px 9px;font-family:'Space Mono',monospace;font-size:9px;color:var(--cyan);cursor:pointer">📷 Cambiar foto</div>
+      ?`<div class="sp-card-img-wrap" style="background:${gradBg}">
+          <img src="${displayImg}" alt="${s.name}" onerror="this.style.display='none';this.nextSibling.style.display='flex'">
+          <div class="sp-fb" style="display:none;background:${gradBg}">${s.emoji}</div>
+          <div class="sp-photo-btn" onclick="event.stopPropagation();uploadSpPhoto(${i})">📷 Cambiar</div>
         </div>`
-      :`<div style="height:80px;background:var(--glass);display:flex;align-items:center;justify-content:center;gap:10px;position:relative;">
-          <span style="font-size:36px">${s.emoji}</span>
-          <div onclick="event.stopPropagation();uploadSpPhoto(${i})" style="font-family:'Space Mono',monospace;font-size:9px;color:var(--cyan);cursor:pointer;padding:5px 10px;border:1px solid rgba(0,196,224,.2);border-radius:9px;background:var(--glass)">📷 Agregar foto</div>
+      :`<div class="sp-card-img-wrap" style="background:${gradBg}">
+          <div class="sp-fb" style="background:${gradBg};flex-direction:column;gap:8px">${s.emoji}<div class="sp-photo-btn" onclick="event.stopPropagation();uploadSpPhoto(${i})" style="position:relative;bottom:auto;right:auto">📷 Agregar foto</div></div>
         </div>`;
     return `<div class="sp-card">
       ${photoHtml}
       <input type="file" id="sp-file-${i}" accept="image/*" style="display:none" onchange="applySpPhoto(this,${i})">
       <div class="sp-card-body">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
           <div style="flex:1;min-width:0">
             <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--soft)">${s.emoji} ${s.name}</div>
-            <div style="font-size:11px;color:var(--muted);font-style:italic;margin-top:1px">${s.sci||''}</div>
+            ${s.sci?`<div style="font-size:11px;color:var(--muted);font-style:italic;margin-top:1px">${s.sci}</div>`:''}
           </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px">
-            <span class="badge ${diffColor[s.diff]||'b-purple'}">${s.diff}</span>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
+            <span class="badge ${diffColor[s.diff]||'b-purple'}">${s.diff||'—'}</span>
             <span class="badge ${compatColor[s.compat]||'b-purple'}" style="font-size:8px">${s.compat||'—'}</span>
           </div>
         </div>
         ${s.desc?`<div style="font-size:11px;color:var(--muted);margin-top:7px;line-height:1.5">${s.desc}</div>`:''}
         <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:10px">
           <span class="chip ch-c">×${s.count}</span>
-          <span class="chip ch-m">🌡 ${s.temp}</span>
-          <span class="chip ch-a">pH ${s.ph}</span>
-          <span class="chip ch-gold">${s.diet}</span>
+          ${s.temp&&s.temp!=='—'?`<span class="chip ch-m">🌡 ${s.temp}</span>`:''}
+          ${s.ph&&s.ph!=='—'?`<span class="chip ch-a">pH ${s.ph}</span>`:''}
+          ${s.diet?`<span class="chip ch-gold">${s.diet}</span>`:''}
           ${s.size?`<span class="chip ch-m">📏 ${s.size}</span>`:''}
           ${s.minTank?`<span class="chip ch-m">🪣 ${s.minTank}L</span>`:''}
-          <span class="chip ch-m">${s.tank}</span>
+          <span class="chip ch-m">📍 ${s.tank||'—'}</span>
         </div>
-        <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center">
-          <div onclick="openManualSpecies(${i})" style="font-family:'Space Mono',monospace;font-size:9px;color:var(--cyan);cursor:pointer;padding:5px 10px;border:1px solid rgba(0,196,224,.2);border-radius:8px;background:var(--glass)">✏️ Editar</div>
-          <span onclick="delSp(${i})" style="font-size:11px;color:rgba(255,77,106,.35);cursor:pointer;padding:4px">✕ eliminar</span>
+        <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <button onclick="openManualSpecies(${i})" style="flex:1;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:8px;border-radius:10px;border:1px solid rgba(0,196,224,.25);background:var(--glass);color:var(--cyan);cursor:pointer">✏️ Editar</button>
+          <button onclick="confirmDelSp(${i})" style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:8px 12px;border-radius:10px;border:1px solid rgba(255,77,106,.25);background:rgba(255,77,106,.05);color:var(--coral);cursor:pointer">🗑 Borrar</button>
         </div>
       </div>
     </div>`;
   }).join('');
 }
+function setSpFilter(tank){_spTankFilter=tank;renderSpecies()}
 function uploadSpPhoto(i){document.getElementById('sp-file-'+i).click()}
 function applySpPhoto(input,i){
   const file=input.files[0];if(!file)return;
@@ -1081,7 +1121,19 @@ function applySpPhoto(input,i){
   reader.onload=e=>{species[i].customImg=e.target.result;species[i].img=e.target.result;toast('📷 Foto actualizada');renderSpecies()};
   reader.readAsDataURL(file);
 }
-function delSp(i){species.splice(i,1);renderSpecies();renderDash();toast('🗑 Especie eliminada')}
+function confirmDelSp(i){
+  const s=species[i];
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div class="modal-title">🗑 Eliminar especie</div>
+    <div style="font-size:13px;color:var(--muted)">¿Eliminar <strong style="color:var(--soft)">${s.emoji} ${s.name}</strong> (×${s.count}) de ${s.tank}?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn2" onclick="closeModal()">Cancelar</button>
+      <button class="btn-red" onclick="delSp(${i})">Sí, eliminar</button>
+    </div>
+  </div>`);
+}
+function delSp(i){species.splice(i,1);_spTankFilter='all';closeModal();renderSpecies();renderDash();toast('🗑 Especie eliminada')}
 
 // ─── DISEASE ADVICE DATA ───
 const DISEASE_ADVICE={
