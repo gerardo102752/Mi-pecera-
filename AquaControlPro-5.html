@@ -251,6 +251,7 @@ select.inp{cursor:pointer}
     <!-- DASHBOARD -->
     <div class="sec on" id="s-dash">
       <div id="dash-alerts-wrap"></div>
+      <button onclick="openAIRecommendations()" style="width:100%;background:linear-gradient(135deg,rgba(157,126,255,.15),rgba(0,196,224,.1));border:1px solid rgba(157,126,255,.35);border-radius:16px;padding:13px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--purple);cursor:pointer;-webkit-user-select:none;user-select:none">🤖 Recomendaciones IA — Analizar acuario</button>
       <div class="sgrid">
         <div class="scrd"><div class="sv" style="color:var(--cyan)" id="st-t">0</div><div class="sl">Peceras</div></div>
         <div class="scrd"><div class="sv" style="color:var(--green)" id="st-s">0</div><div class="sl">Especies</div></div>
@@ -349,6 +350,7 @@ select.inp{cursor:pointer}
         <button class="btn" onclick="openSpeciesChoice()" style="font-size:13px;padding:13px">+ Agregar especie</button>
         <button class="btn2" onclick="openManualSpecies(null)" style="font-size:13px;padding:13px">✏️ Personalizada</button>
       </div>
+      <button onclick="openAIRecommendations()" style="width:100%;background:linear-gradient(135deg,rgba(157,126,255,.2),rgba(0,196,224,.15));border:1px solid rgba(157,126,255,.4);border-radius:16px;padding:13px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--purple);cursor:pointer;-webkit-user-select:none;user-select:none">🤖 Analizar mi acuario con IA</button>
       <div class="tab-row">
         <div class="tab on" id="sptab-list" onclick="setSpTab('list')">📋 Lista</div>
         <div class="tab" id="sptab-gallery" onclick="setSpTab('gallery')">🖼 Galería</div>
@@ -1248,10 +1250,13 @@ function renderSpecies(){
           ${s.minTank?`<span class="chip ch-m">🪣 ${s.minTank}L</span>`:''}
           <span class="chip ch-m">📍 ${s.tank||'—'}</span>
         </div>
-        <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:8px">
-          <button onclick="openManualSpecies(${i})" style="flex:1;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:8px;border-radius:10px;border:1px solid rgba(0,196,224,.25);background:var(--glass);color:var(--cyan);cursor:pointer">✏️ Editar</button>
-          <button onclick="openManualSpeciesForTank('${s.tank}')" style="flex:1;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:8px;border-radius:10px;border:1px solid rgba(47,238,160,.25);background:rgba(47,238,160,.05);color:var(--green);cursor:pointer">+ Agregar pez</button>
-          <button onclick="confirmDelSp(${i})" style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:8px 12px;border-radius:10px;border:1px solid rgba(255,77,106,.25);background:rgba(255,77,106,.05);color:var(--coral);cursor:pointer">🗑</button>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;gap:7px">
+            <button onclick="openManualSpecies(${i})" style="flex:1;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:8px;border-radius:10px;border:1px solid rgba(0,196,224,.25);background:var(--glass);color:var(--cyan);cursor:pointer">✏️ Editar</button>
+            <button onclick="openManualSpeciesForTank('${s.tank}')" style="flex:1;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:8px;border-radius:10px;border:1px solid rgba(47,238,160,.25);background:rgba(47,238,160,.05);color:var(--green);cursor:pointer">+ Agregar</button>
+            <button onclick="confirmDelSp(${i})" style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:8px 12px;border-radius:10px;border:1px solid rgba(255,77,106,.25);background:rgba(255,77,106,.05);color:var(--coral);cursor:pointer">🗑</button>
+          </div>
+          <button onclick="openFishDied(${i})" style="width:100%;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:9px;border-radius:10px;border:1px solid rgba(255,77,106,.35);background:rgba(255,77,106,.08);color:var(--coral);cursor:pointer">💀 Registrar muerte de pez</button>
         </div>
       </div>
     </div>`;
@@ -1266,6 +1271,174 @@ function openManualSpeciesForTank(tankName){
 }
 
 function setSpFilter(tank){_spTankFilter=tank;renderSpecies()}
+
+// ─── MUERTE DE PEZ ───
+function openFishDied(i){
+  const s=species[i];
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div class="modal-title">💀 Registrar muerte</div>
+    <div style="background:rgba(255,77,106,.07);border:1px solid rgba(255,77,106,.25);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px">
+      <span style="font-size:36px">${s.emoji}</span>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--soft)">${s.name}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">Cantidad actual: <strong style="color:var(--soft)">×${s.count}</strong></div>
+      </div>
+    </div>
+    <div><div class="inp-lbl">¿Cuántos fallecieron?</div>
+      <input class="inp" id="die-ct" type="number" value="1" min="1" max="${s.count}" inputmode="numeric">
+    </div>
+    <div><div class="inp-lbl">Causa probable (opcional)</div>
+      <select class="inp" id="die-cause">
+        <option value="">— No especificado —</option>
+        <option>Enfermedad</option><option>Mala calidad del agua</option><option>Pelea / estrés</option>
+        <option>Vejez</option><option>Salto fuera del acuario</option><option>Temperatura incorrecta</option><option>Otra</option>
+      </select>
+    </div>
+    <div><div class="inp-lbl">Notas (opcional)</div>
+      <input class="inp" id="die-notes" placeholder="Síntomas, observaciones..." maxlength="100">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+      <button class="btn2" onclick="closeModal()">Cancelar</button>
+      <button class="btn-red" onclick="saveFishDied(${i})">💀 Registrar</button>
+    </div>
+  </div>`);
+}
+
+function saveFishDied(i){
+  const s=species[i];
+  const ct=parseInt(document.getElementById('die-ct').value)||1;
+  const cause=document.getElementById('die-cause').value;
+  const notes=document.getElementById('die-notes').value.trim();
+  if(ct>=s.count){
+    // Eliminar especie completa
+    const msg=`💀 ${s.name} — todos fallecieron${cause?' ('+cause+')':''}`;
+    species.splice(i,1);
+    closeModal();saveState();renderSpecies();renderDash();
+    toast(msg);
+  } else {
+    species[i].count -= ct;
+    closeModal();saveState();renderSpecies();renderDash();
+    toast(`💀 ${ct} ${s.name} registrado(s) como fallecido(s). Quedan ×${s.count-ct+ct===s.count?species[i].count:s.count}`);
+  }
+  // Registrar en salud si hay causa
+  if(cause){
+    diseases.push({
+      id:_did++,diseaseName:cause||'Fallecimiento',fishName:`${s.name} (×${ct})`,
+      tank:s.tank,symptoms:[],treatments:[],
+      startDate:new Date().toISOString().split('T')[0],
+      notes:notes||`Fallecimiento de ${ct} pez(ces)`,
+      status:'resolved',qStartDate:null,qEndDate:null
+    });
+    saveState();updateAlertBadge();
+  }
+}
+
+// ─── RECOMENDACIONES IA ───
+async function openAIRecommendations(){
+  if(!tanks.length&&!species.length){toast('⚠️ Agrega peceras y especies primero');return}
+
+  // Construir contexto del acuario
+  const tankSummary=tanks.map(t=>{
+    const log=paramLog[t.id]||[],last=log.length?log[log.length-1]:null;
+    const myFish=species.filter(s=>s.tank&&s.tank.includes(t.name));
+    const totalFish=myFish.reduce((a,s)=>a+s.count,0);
+    return `Pecera: ${t.name} (${t.liters}L, filtración: ${(t.filtration||[]).join(', ')||'desconocida'})
+  Peces: ${myFish.map(s=>`${s.name} ×${s.count}`).join(', ')||'ninguno'} (total: ${totalFish})
+  ${last?`Parámetros: Temp ${last.temp}°C, pH ${last.ph}, NH₃ ${last.nh3} ppm, NO₂ ${last.no2||0} ppm, NO₃ ${last.no3} ppm`:'Sin parámetros registrados'}`;
+  }).join('\n\n');
+
+  const speciesSummary=species.map(s=>
+    `- ${s.name} (${s.sci||'—'}): ×${s.count}, ${s.temp||'—'}, pH ${s.ph||'—'}, ${s.diet||'—'}, ${s.compat||'—'}, mín ${s.minTank||'?'}L, pecera: ${s.tank||'—'}`
+  ).join('\n');
+
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div class="modal-title">🤖 Recomendaciones IA</div>
+    <div id="ai-loading" style="text-align:center;padding:30px;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="font-size:36px">🔍</div>
+      <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--cyan)">Analizando tu acuario...</div>
+      <div style="font-size:11px;color:var(--muted)">Revisando espacio, compatibilidad y parámetros</div>
+    </div>
+    <div id="ai-result" style="display:none"></div>
+  </div>`);
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:`Eres un experto acuarista. Analiza el acuario del usuario y da recomendaciones prácticas en español. 
+Sé conciso y específico. Responde SOLO en este formato JSON exacto (sin markdown):
+{
+  "espacio": [{"tipo":"ok|warn|bad","texto":"..."}],
+  "compatibilidad": [{"tipo":"ok|warn|bad","texto":"..."}],
+  "parametros": [{"tipo":"ok|warn|bad","texto":"..."}],
+  "sugerencias": ["...","..."],
+  "puntuacion": 85
+}
+Usa "ok" para bien, "warn" para atención, "bad" para problema crítico. puntuacion es del 0 al 100.`,
+        messages:[{role:'user',content:`Analiza mi acuario:\n\n${tankSummary}\n\nEspecies detalle:\n${speciesSummary}`}]
+      })
+    });
+    const data=await resp.json();
+    const text=data.content?.find(b=>b.type==='text')?.text||'{}';
+    let r;
+    try{r=JSON.parse(text)}catch{r=null}
+    
+    const loadEl=document.getElementById('ai-loading');
+    const resEl=document.getElementById('ai-result');
+    if(!loadEl||!resEl)return;
+    loadEl.style.display='none';resEl.style.display='';
+
+    if(!r){resEl.innerHTML=`<div style="color:var(--muted);font-size:12px;padding:10px">No se pudo analizar. Intenta de nuevo.</div>`;return}
+
+    const scoreCol=r.puntuacion>=80?'var(--green)':r.puntuacion>=60?'var(--gold)':'var(--coral)';
+    const typeColor={ok:'var(--green)',warn:'var(--gold)',bad:'var(--coral)'};
+    const typeIcon={ok:'✅',warn:'⚠️',bad:'🚨'};
+    const typeBg={ok:'rgba(47,238,160,.07)',warn:'rgba(255,185,64,.07)',bad:'rgba(255,77,106,.07)'};
+    const typeBorder={ok:'rgba(47,238,160,.25)',warn:'rgba(255,185,64,.25)',bad:'rgba(255,77,106,.25)'};
+
+    function renderItems(arr){
+      return (arr||[]).map(it=>`
+        <div style="display:flex;gap:9px;align-items:flex-start;background:${typeBg[it.tipo]};border:1px solid ${typeBorder[it.tipo]};border-radius:11px;padding:10px;margin-bottom:7px">
+          <span style="font-size:15px;flex-shrink:0">${typeIcon[it.tipo]}</span>
+          <span style="font-size:12px;color:var(--soft);line-height:1.5">${it.texto}</span>
+        </div>`).join('');
+    }
+
+    resEl.innerHTML=`
+      <div style="text-align:center;padding:14px 0 8px">
+        <div style="font-family:'Space Mono',monospace;font-size:42px;font-weight:700;color:${scoreCol}">${r.puntuacion}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Puntuación del acuario / 100</div>
+      </div>
+
+      <div class="slbl" style="margin-bottom:7px">📐 Espacio y densidad</div>
+      ${renderItems(r.espacio)}
+
+      <div class="slbl" style="margin-top:4px;margin-bottom:7px">🤝 Compatibilidad</div>
+      ${renderItems(r.compatibilidad)}
+
+      <div class="slbl" style="margin-top:4px;margin-bottom:7px">💧 Parámetros</div>
+      ${renderItems(r.parametros)}
+
+      ${r.sugerencias?.length?`
+        <div class="slbl" style="margin-top:4px;margin-bottom:7px">💡 Sugerencias</div>
+        <div style="background:rgba(0,196,224,.06);border:1px solid rgba(0,196,224,.18);border-radius:14px;padding:13px">
+          ${r.sugerencias.map(s=>`<div style="display:flex;gap:8px;font-size:12px;color:var(--soft);margin-bottom:7px;line-height:1.5"><span style="color:var(--cyan);flex-shrink:0">→</span>${s}</div>`).join('')}
+        </div>`:''}
+
+      <button class="btn2" onclick="openAIRecommendations()" style="margin-top:4px">🔄 Analizar de nuevo</button>
+    `;
+  }catch(e){
+    const loadEl=document.getElementById('ai-loading');
+    const resEl=document.getElementById('ai-result');
+    if(loadEl)loadEl.style.display='none';
+    if(resEl){resEl.style.display='';resEl.innerHTML=`<div style="color:var(--coral);font-size:12px;padding:10px">Error al conectar con la IA. Verifica tu conexión.</div>`;}
+  }
+}
 
 let _spTab='list';
 function setSpTab(tab){
