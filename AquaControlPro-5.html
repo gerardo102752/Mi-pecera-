@@ -718,7 +718,7 @@ function tCardHTML(t,sel=true){
 }
 function renderTankList(){document.getElementById('tank-list').innerHTML=tanks.map(t=>tCardHTML(t,true)).join('')}
 function selectTank(id){selTank=id;goTo('params')}
-function delTank(id){if(!confirm('¿Eliminar esta pecera y sus datos?'))return;tanks=tanks.filter(t=>t.id!==id);delete paramLog[id];if(selTank===id)selTank=tanks.length?tanks[0].id:null;renderTankList();renderDash();toast('🗑 Pecera eliminada')}
+function delTank(id){if(!confirm('¿Eliminar esta pecera y sus datos?'))return;tanks=tanks.filter(t=>t.id!==id);delete paramLog[id];if(selTank===id)selTank=tanks.length?tanks[0].id:null;saveState();renderTankList();renderDash();toast('🗑 Pecera eliminada')}
 function openAddTank(){
   _filtSel=new Set();_photoData=null;
   showModal(`<div class="modal" onclick="event.stopPropagation()">
@@ -769,7 +769,7 @@ function saveTank(){
   if(!name){toast('⚠️ Escribe el nombre');return}
   tanks.push({id:_tid++,name,liters:parseInt(document.getElementById('tl').value)||50,tempTarget:parseFloat(document.getElementById('ttp').value)||null,filtration:[..._filtSel],lighting:document.getElementById('tlight').value,notes:document.getElementById('tnotes').value.trim(),emoji:_emj,photo:_photoData||null});
   if(!selTank)selTank=tanks[tanks.length-1].id;
-  closeModal();toast('✅ Pecera agregada');renderTankList();renderDash();
+  closeModal();saveState();toast('✅ Pecera agregada');renderTankList();renderDash();
 }
 
 // ─── PARAMS ───
@@ -823,7 +823,7 @@ function saveParams(){
   if(isNaN(temp)||isNaN(ph)){toast('⚠️ Completa temperatura y pH');return}
   if(!paramLog[id])paramLog[id]=[];
   paramLog[id].push({date:new Date(),temp,ph,nh3:parseFloat(document.getElementById('lp-nh3').value)||0,no2:parseFloat(document.getElementById('lp-no2').value)||0,no3:parseFloat(document.getElementById('lp-no3').value)||0});
-  selTank=id;closeModal();toast('📊 Parámetros guardados');renderParams();renderDash();
+  selTank=id;closeModal();saveState();toast('📊 Parámetros guardados');renderParams();renderDash();
 }
 
 // ─── ROUTINES ───
@@ -839,9 +839,9 @@ function renderRoutines(){
   if(!routines.length){el.innerHTML='';empty.style.display='';return}
   empty.style.display='none';el.innerHTML=routines.map(r=>rItemHTML(r)).join('');
 }
-function toggleR(id){routineDone[id]=!routineDone[id];renderRoutines();renderDash();updateAlertBadge()}
-function delR(id){routines=routines.filter(r=>r.id!==id);delete routineDone[id];renderRoutines();renderDash();updateAlertBadge();toast('🗑 Tarea eliminada')}
-function resetRoutines(){routineDone={};renderRoutines();renderDash();toast('↺ Tareas reiniciadas')}
+function toggleR(id){routineDone[id]=!routineDone[id];saveState();renderRoutines();renderDash();updateAlertBadge()}
+function delR(id){routines=routines.filter(r=>r.id!==id);delete routineDone[id];saveState();renderRoutines();renderDash();updateAlertBadge();toast('🗑 Tarea eliminada')}
+function resetRoutines(){routineDone={};saveState();renderRoutines();renderDash();toast('↺ Tareas reiniciadas')}
 function openAddRoutine(){
   if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
   showModal(`<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">Nueva tarea</div>
@@ -859,7 +859,7 @@ function saveRoutine(){
   const task=document.getElementById('rt-task').value.trim();
   if(!task){toast('⚠️ Escribe la tarea');return}
   routines.push({id:_rid++,tank:document.getElementById('rt-t').value,task,due:document.getElementById('rt-due').value.trim()||'Hoy',priority:document.getElementById('rt-pri').value,freq:document.getElementById('rt-freq').value});
-  closeModal();toast('✅ Tarea agregada');renderRoutines();renderDash();
+  closeModal();saveState();toast('✅ Tarea agregada');renderRoutines();renderDash();
 }
 
 // ─── FEEDING ───
@@ -881,9 +881,9 @@ function renderFeedLog(){
   empty.style.display='none';
   el.innerHTML=feedLog.slice().reverse().map(l=>`<div class="flog-item"><div><div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--soft)">${l.tankName}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${new Date(l.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>${l.notes?`<div style="font-size:10px;color:var(--muted);margin-top:2px;font-style:italic">${l.notes}</div>`:''}</div><div style="text-align:right"><span class="chip ch-gold" style="font-size:9px">${l.foodType}</span>${l.amount?`<div style="font-size:10px;color:var(--muted);margin-top:3px">${l.amount}</div>`:''}<div onclick="delFeedLog(${l.id})" style="color:rgba(255,77,106,.4);font-size:11px;cursor:pointer;margin-top:5px">✕</div></div></div>`).join('');
 }
-function toggleFeedDone(id){const f=feedSchedule.find(x=>x.id===id);if(f){f.doneToday=!f.doneToday;renderFeedSchedule();renderDash();toast(f.doneToday?'✅ ¡Alimentación completada!':'↩ Pendiente')}}
-function delFeedSched(id){feedSchedule=feedSchedule.filter(f=>f.id!==id);renderFeedSchedule();renderDash();toast('🗑 Horario eliminado')}
-function delFeedLog(id){feedLog=feedLog.filter(l=>l.id!==id);renderFeedLog();toast('🗑 Registro eliminado')}
+function toggleFeedDone(id){const f=feedSchedule.find(x=>x.id===id);if(f){f.doneToday=!f.doneToday;saveState();renderFeedSchedule();renderDash();toast(f.doneToday?'✅ ¡Alimentación completada!':'↩ Pendiente')}}
+function delFeedSched(id){feedSchedule=feedSchedule.filter(f=>f.id!==id);saveState();renderFeedSchedule();renderDash();toast('🗑 Horario eliminado')}
+function delFeedLog(id){feedLog=feedLog.filter(l=>l.id!==id);saveState();renderFeedLog();toast('🗑 Registro eliminado')}
 function openAddSchedule(){
   if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
   showModal(`<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">Nuevo horario de alimentación</div>
@@ -895,7 +895,7 @@ function openAddSchedule(){
     <button class="btn" onclick="saveFeedSched()">Guardar horario</button>
   </div>`);
 }
-function saveFeedSched(){const sel=document.getElementById('fs-t'),tankId=parseInt(sel.value),tank=tanks.find(t=>t.id===tankId)||{name:'—',emoji:'🐟'};feedSchedule.push({id:_fschid++,tankId,tankName:tank.name,emoji:tank.emoji,time:document.getElementById('fs-time').value,foodType:document.getElementById('fs-food').value,doneToday:false});closeModal();toast('✅ Horario agregado');renderFeedSchedule();renderDash()}
+function saveFeedSched(){const sel=document.getElementById('fs-t'),tankId=parseInt(sel.value),tank=tanks.find(t=>t.id===tankId)||{name:'—',emoji:'🐟'};feedSchedule.push({id:_fschid++,tankId,tankName:tank.name,emoji:tank.emoji,time:document.getElementById('fs-time').value,foodType:document.getElementById('fs-food').value,doneToday:false});closeModal();saveState();toast('✅ Horario agregado');renderFeedSchedule();renderDash()}
 function openLogFeeding(){
   if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
   showModal(`<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">Registrar alimentación manual</div>
@@ -908,7 +908,7 @@ function openLogFeeding(){
     <button class="btn" onclick="saveFeedLog()">Guardar registro</button>
   </div>`);
 }
-function saveFeedLog(){const tankId=parseInt(document.getElementById('fl-t').value),tank=tanks.find(t=>t.id===tankId)||{name:'—'};feedLog.push({id:_flogid++,tankId,tankName:tank.name,date:new Date(),foodType:document.getElementById('fl-food').value,amount:document.getElementById('fl-amount').value.trim(),notes:document.getElementById('fl-notes').value.trim()});closeModal();toast('✅ Alimentación registrada');renderFeedLog();renderDash()}
+function saveFeedLog(){const tankId=parseInt(document.getElementById('fl-t').value),tank=tanks.find(t=>t.id===tankId)||{name:'—'};feedLog.push({id:_flogid++,tankId,tankName:tank.name,date:new Date(),foodType:document.getElementById('fl-food').value,amount:document.getElementById('fl-amount').value.trim(),notes:document.getElementById('fl-notes').value.trim()});closeModal();saveState();toast('✅ Alimentación registrada');renderFeedLog();renderDash()}
 
 // ══════════════════════════════════════════════════════
 //  SPECIES — con catálogo de peces
@@ -1011,7 +1011,7 @@ function saveCatalogFish(){
   const count=parseInt(document.getElementById('cat-ct').value)||1;
   const tank=document.getElementById('cat-tk').value;
   species.push({id:_sid++,name:f.name,sci:f.sci,emoji:f.emoji,count,diet:f.diet,diff:f.diff,temp:f.temp,ph:f.ph,compat:f.compat,tank,img:f.img,grad:f.grad,desc:f.desc,size:f.size,minTank:f.min});
-  closeModal();toast(`✅ ${f.name} agregado a ${tank}`);renderSpecies();renderDash();
+  closeModal();saveState();toast(`✅ ${f.name} agregado a ${tank}`);renderSpecies();renderDash();
 }
 
 // ── MANUAL SPECIES ──
@@ -1077,7 +1077,7 @@ function saveManualSp(editIdx){
   };
   if(old){species[editIdx]=obj;toast('✅ Especie actualizada')}
   else{species.push(obj);toast('✅ Especie registrada')}
-  closeModal();renderSpecies();renderDash();
+  closeModal();saveState();renderSpecies();renderDash();
 }
 
 let _spTankFilter='all';
@@ -1191,7 +1191,7 @@ function renderSpGallery(){
 function applySpPhotoGallery(input,i){
   const file=input.files[0];if(!file)return;
   const reader=new FileReader();
-  reader.onload=e=>{species[i].customImg=e.target.result;species[i].img=e.target.result;toast('📷 Foto actualizada');renderSpGallery();};
+  reader.onload=e=>{species[i].customImg=e.target.result;species[i].img=e.target.result;saveState();toast('📷 Foto actualizada');renderSpGallery();};
   reader.readAsDataURL(file);
 }
 
@@ -1297,6 +1297,7 @@ function handleCatPhoto(input){
 }
 
 function saveFishToCatalog(fid){
+  const name=document.getElementById('cf-name').value.trim();
   if(!name){toast('⚠️ Escribe el nombre del pez');return}
   const data={
     id:fid||('cu'+Date.now()),
@@ -1325,12 +1326,13 @@ function saveFishToCatalog(fid){
   }
   _catPhotoData=null;
   closeModal();
+  saveState();
   filterInlineCatalog(_inlineCatQuery);
 }
 
 function deleteCatalogFish(fid){
   const idx=FISH_CATALOG.findIndex(f=>f.id===fid);
-  if(idx>=0&&FISH_CATALOG[idx]._custom){FISH_CATALOG.splice(idx,1);toast('🗑 Pez eliminado del catálogo');filterInlineCatalog(_inlineCatQuery);}
+  if(idx>=0&&FISH_CATALOG[idx]._custom){FISH_CATALOG.splice(idx,1);saveState();toast('🗑 Pez eliminado del catálogo');filterInlineCatalog(_inlineCatQuery);}
 }
 
 function applyCatalogPhoto(input,fid){
@@ -1338,7 +1340,7 @@ function applyCatalogPhoto(input,fid){
   const reader=new FileReader();
   reader.onload=e=>{
     const f=FISH_CATALOG.find(x=>x.id===fid);
-    if(f){f.customImg=e.target.result;f.img=e.target.result;toast('📷 Foto actualizada');filterInlineCatalog(_inlineCatQuery);}
+    if(f){f.customImg=e.target.result;f.img=e.target.result;saveState();toast('📷 Foto actualizada');filterInlineCatalog(_inlineCatQuery);}
   };
   reader.readAsDataURL(file);
 }
@@ -1352,7 +1354,7 @@ function uploadSpPhoto(i){document.getElementById('sp-file-'+i).click()}
 function applySpPhoto(input,i){
   const file=input.files[0];if(!file)return;
   const reader=new FileReader();
-  reader.onload=e=>{species[i].customImg=e.target.result;species[i].img=e.target.result;toast('📷 Foto actualizada');renderSpecies()};
+  reader.onload=e=>{species[i].customImg=e.target.result;species[i].img=e.target.result;saveState();toast('📷 Foto actualizada');renderSpecies()};
   reader.readAsDataURL(file);
 }
 function confirmDelSp(i){
@@ -1367,7 +1369,7 @@ function confirmDelSp(i){
     </div>
   </div>`);
 }
-function delSp(i){species.splice(i,1);_spTankFilter='all';closeModal();renderSpecies();renderDash();toast('🗑 Especie eliminada')}
+function delSp(i){species.splice(i,1);_spTankFilter='all';closeModal();saveState();renderSpecies();renderDash();toast('🗑 Especie eliminada')}
 
 // ─── DISEASE ADVICE DATA ───
 const DISEASE_ADVICE={
@@ -1431,7 +1433,7 @@ function logWaterChangeTask(){
   const sel=document.getElementById('wc-tank');
   const tankName=sel?sel.options[sel.selectedIndex].getAttribute('data-name'):(tanks[0].emoji+' '+tanks[0].name);
   routines.push({id:_rid++,tank:tankName,task:'💧 Cambio de agua '+_wcPct+'%',due:'Hoy',priority:'high',freq:'Semanal'});
-  closeModal();toast('💧 Cambio de agua agregado a tareas');renderRoutines();renderDash();
+  closeModal();saveState();toast('💧 Cambio de agua agregado a tareas');renderRoutines();renderDash();
 }
 
 // ─── HEALTH / QUARANTINE ───
@@ -1480,10 +1482,10 @@ function cycleStatus(id){
   const d=diseases.find(x=>x.id===id);if(!d)return;
   const cycle={active:'quarantine',quarantine:'resolved',resolved:'active'};
   d.status=cycle[d.status]||'active';
-  renderHealth();renderDash();updateAlertBadge();
+  saveState();renderHealth();renderDash();updateAlertBadge();
   toast(d.status==='quarantine'?'🔒 En cuarentena':d.status==='resolved'?'✅ Resuelto':'🦠 Activo');
 }
-function delDisease(id){if(!confirm('¿Eliminar este registro?'))return;diseases=diseases.filter(d=>d.id!==id);renderHealth();renderDash();updateAlertBadge();toast('🗑 Eliminado')}
+function delDisease(id){if(!confirm('¿Eliminar este registro?'))return;diseases=diseases.filter(d=>d.id!==id);saveState();renderHealth();renderDash();updateAlertBadge();toast('🗑 Eliminado')}
 function openAddDisease(){
   if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
   _filtSel=new Set();_treatSel=new Set();
@@ -1505,7 +1507,7 @@ function saveDisease(){
   const fishName=document.getElementById('d-fish').value.trim();
   if(!fishName){toast('⚠️ Indica qué pez está afectado');return}
   diseases.push({id:_did++,diseaseName:document.getElementById('d-dis').value,fishName,tank:document.getElementById('d-tk').value,symptoms:[..._filtSel],treatments:[..._treatSel],startDate:document.getElementById('d-date').value,notes:document.getElementById('d-notes').value.trim(),status:'active',qStartDate:null,qEndDate:null});
-  closeModal();toast('🦠 Enfermedad registrada');renderHealth();renderDash();updateAlertBadge();
+  closeModal();saveState();toast('🦠 Enfermedad registrada');renderHealth();renderDash();updateAlertBadge();
 }
 function openAddQuarantine(){
   if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
@@ -1530,9 +1532,58 @@ function saveQuarantine(){
   const qStart=document.getElementById('q-start').value,qEnd=document.getElementById('q-end').value;
   if(new Date(qEnd)<=new Date(qStart)){toast('⚠️ La fecha fin debe ser posterior');return}
   diseases.push({id:_did++,diseaseName:document.getElementById('q-dis').value,fishName,tank:document.getElementById('q-tk').value,symptoms:[],treatments:[],startDate:qStart,notes:document.getElementById('q-notes').value.trim(),status:'quarantine',qStartDate:qStart,qEndDate:qEnd});
-  closeModal();toast('🔒 Cuarentena iniciada');renderHealth();renderDash();updateAlertBadge();
+  closeModal();saveState();toast('🔒 Cuarentena iniciada');renderHealth();renderDash();updateAlertBadge();
 }
 
+// ════════════════════════════════════════════════════
+//  PERSISTENCIA — localStorage
+// ════════════════════════════════════════════════════
+const STORAGE_KEY='aquacontrol_v1';
+
+function saveState(){
+  try{
+    // Guardar FISH_CATALOG solo los custom
+    const customFish=FISH_CATALOG.filter(f=>f._custom);
+    const state={
+      tanks,species,routines,feedSchedule,feedLog,diseases,
+      paramLog,routineDone,
+      selTank,
+      counters:{_tid,_rid,_sid,_fschid,_flogid,_did},
+      customFish,
+    };
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+  }catch(e){console.warn('AquaControl: No se pudo guardar',e);}
+}
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw)return;
+    const s=JSON.parse(raw);
+    if(s.tanks)tanks=s.tanks;
+    if(s.species)species=s.species;
+    if(s.routines)routines=s.routines;
+    if(s.feedSchedule)feedSchedule=s.feedSchedule;
+    if(s.feedLog)feedLog=s.feedLog;
+    if(s.diseases)diseases=s.diseases;
+    if(s.paramLog)paramLog=s.paramLog;
+    if(s.routineDone)routineDone=s.routineDone;
+    if(s.selTank)selTank=s.selTank;
+    if(s.counters){
+      _tid=s.counters._tid||1;_rid=s.counters._rid||1;_sid=s.counters._sid||1;
+      _fschid=s.counters._fschid||1;_flogid=s.counters._flogid||1;_did=s.counters._did||1;
+    }
+    // Restaurar peces custom al catálogo
+    if(s.customFish&&s.customFish.length){
+      s.customFish.forEach(f=>{
+        if(!FISH_CATALOG.find(x=>x.id===f.id))FISH_CATALOG.push(f);
+      });
+    }
+  }catch(e){console.warn('AquaControl: No se pudo cargar',e);}
+}
+
+// ─── Cargar datos al iniciar ───
+loadState();
 renderDash();
 </script>
 </body>
