@@ -84,7 +84,7 @@ select.inp{cursor:pointer}
 /* PHOTO UPLOAD */
 .photo-upload{width:100%;height:150px;border-radius:16px;border:2px dashed rgba(0,196,224,.3);background:var(--glass);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:8px;overflow:hidden;position:relative}
 .photo-upload:active{background:var(--glassh)}
-.photo-upload img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px;display:block}
+.photo-upload img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;border-radius:14px;display:block}
 .photo-upload .overlay{position:absolute;inset:0;background:rgba(6,13,24,.52);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-radius:14px}
 
 /* MULTI-SELECT CHIPS */
@@ -153,7 +153,8 @@ select.inp{cursor:pointer}
 
 .tcard{background:var(--glass);border:1px solid var(--border);border-radius:18px;overflow:hidden;cursor:pointer;transition:all .18s;position:relative;margin-bottom:10px;-webkit-user-select:none;user-select:none}
 .tcard:active{border-color:rgba(0,196,224,.22)}.tcard.sel{border-color:rgba(0,196,224,.38)}
-.tcard-photo{width:100%;height:140px;object-fit:cover;display:block;background:#091726}
+.tcard-photo-wrap{width:100%;height:140px;overflow:hidden;position:relative;flex-shrink:0}
+.tcard-photo{width:100%;height:100%;object-fit:cover;object-position:center;display:block;background:#091726}
 .tcard-photo-placeholder{width:100%;height:80px;background:linear-gradient(135deg,rgba(0,196,224,.08),rgba(0,237,212,.04));display:flex;align-items:center;justify-content:center;font-size:36px}
 .tcard-body{padding:14px}.tcard-del{position:absolute;top:10px;right:10px;background:rgba(6,13,24,.7);border:1px solid rgba(255,77,106,.3);border-radius:9px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;z-index:2}
 .tcard-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
@@ -205,7 +206,7 @@ select.inp{cursor:pointer}
 /* SPECIES CARD — with catalog photo */
 .sp-card{background:var(--glass);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:10px}
 .sp-card-img-wrap{width:100%;height:140px;overflow:hidden;position:relative;flex-shrink:0}
-.sp-card-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.sp-card-img-wrap img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
 .sp-card-img-wrap .sp-fb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px}
 .sp-card-body{padding:13px}
 .sp-photo-btn{position:absolute;bottom:7px;right:7px;background:rgba(6,13,24,.78);border:1px solid rgba(0,196,224,.35);border-radius:9px;padding:5px 9px;font-family:'Space Mono',monospace;font-size:9px;color:var(--cyan);cursor:pointer;-webkit-user-select:none;user-select:none}
@@ -659,7 +660,7 @@ function tCardHTML(t,sel=true){
   const st=getTankHealth(t.id),log=paramLog[t.id]||[],last=log.length?log[log.length-1]:null;
   const chips=last?`<span class="chip ch-c">🌡 ${last.temp}°C</span><span class="chip ch-a">pH ${last.ph}</span>`:'<span class="chip ch-m">Sin parámetros</span>';
   const filtChips=(t.filtration||[]).map(f=>`<span class="chip ch-purple" style="font-size:9px">⚙ ${f}</span>`).join('');
-  const photoHTML=t.photo?`<img class="tcard-photo" src="${t.photo}" alt="${t.name}">`:`<div class="tcard-photo-placeholder">${t.emoji}</div>`;
+  const photoHTML=t.photo?`<div class="tcard-photo-wrap"><img class="tcard-photo" src="${t.photo}" alt="${t.name}"></div>`:`<div class="tcard-photo-placeholder">${t.emoji}</div>`;
   const isSel=sel&&selTank===t.id?'sel':'';
   const clickFn=sel?`selectTank(${t.id})`:`goTo('params')`;
   return `<div class="tcard ${isSel}" onclick="${clickFn}">
@@ -721,10 +722,11 @@ function handlePhoto(input){
     area.querySelectorAll('img.preview-img').forEach(el=>el.remove());
     const img=document.createElement('img');
     img.className='preview-img';
+    img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;border-radius:14px;display:block;z-index:0';
     img.src=_photoData;
-    area.appendChild(img);
     const ov=document.getElementById('photo-overlay');
-    if(ov)ov.style.background='rgba(6,13,24,.38)';
+    if(ov){area.insertBefore(img,ov);ov.style.background='rgba(6,13,24,.38)';ov.style.zIndex='1';}
+    else{area.appendChild(img);}
   };
   reader.readAsDataURL(file);
 }
