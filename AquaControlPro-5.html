@@ -1,0 +1,2214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#060D18">
+<title>AquaControl Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060D18;--navy:#091726;
+  --cyan:#00C4E0;--aqua:#00EDD4;--coral:#FF4D6A;--gold:#FFB940;--green:#2FEEA0;--purple:#9D7EFF;
+  --soft:#BAE2F4;--muted:#356070;
+  --glass:rgba(0,196,224,.07);--glassh:rgba(0,196,224,.14);
+  --border:rgba(0,196,224,.12);
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%;background:#060D18}
+body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;overflow:hidden;
+  background-image:radial-gradient(ellipse 80% 30% at 50% 0%,rgba(0,196,224,.08) 0%,transparent 60%)}
+#app{display:flex;flex-direction:column;width:100%;height:100%;background:var(--navy);position:relative;overflow:hidden}
+
+.header{padding:calc(var(--safe-top)+12px) 18px 12px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;border-bottom:1px solid var(--border);background:rgba(9,23,38,.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.eyebrow{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.htitle{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--soft);letter-spacing:-.02em;line-height:1.1}
+.notif-btn{width:40px;height:40px;border-radius:13px;background:var(--glass);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;position:relative;-webkit-user-select:none;user-select:none}
+.notif-btn:active{background:var(--glassh)}
+.notif-badge{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--coral);border:1.5px solid var(--navy)}
+
+.content{flex:1;overflow-y:auto;overflow-x:hidden;padding:16px 15px 10px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.content::-webkit-scrollbar{display:none}
+.sec{display:none;flex-direction:column;gap:12px;padding-bottom:8px}
+.sec.on{display:flex}
+
+.bnav{display:flex;background:rgba(6,13,24,.98);border-top:1px solid var(--border);padding:5px 0 calc(5px + var(--safe-bot));flex-shrink:0;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 1px;-webkit-user-select:none;user-select:none}
+.ni .ico{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--muted);transition:all .18s}
+.ni.on .ico{background:rgba(0,196,224,.18);color:var(--cyan)}
+.ni .lbl{font-family:'Space Mono',monospace;font-size:6.5px;color:var(--muted);transition:color .18s;letter-spacing:.02em;text-align:center}
+.ni.on .lbl{color:var(--cyan);font-weight:700}
+.ni:active .ico{transform:scale(.9)}
+
+.card{background:var(--glass);border:1px solid var(--border);border-radius:18px;padding:16px;transition:background .2s}
+.card:active{background:var(--glassh)}
+
+.badge{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:20px;padding:3px 9px}
+.b-ok{color:var(--aqua);background:rgba(0,237,212,.1);border:1px solid rgba(0,237,212,.28)}
+.b-warn{color:var(--gold);background:rgba(255,185,64,.1);border:1px solid rgba(255,185,64,.28)}
+.b-bad{color:var(--coral);background:rgba(255,77,106,.1);border:1px solid rgba(255,77,106,.28)}
+.b-purple{color:var(--purple);background:rgba(157,126,255,.1);border:1px solid rgba(157,126,255,.25)}
+.b-green{color:var(--green);background:rgba(47,238,160,.1);border:1px solid rgba(47,238,160,.25)}
+
+.chip{font-family:'Space Mono',monospace;font-size:10px;border-radius:8px;padding:3px 8px;display:inline-block}
+.ch-c{color:var(--cyan);background:rgba(0,196,224,.12)}
+.ch-a{color:var(--aqua);background:rgba(0,237,212,.1)}
+.ch-m{color:var(--muted);background:rgba(53,96,112,.18)}
+.ch-gold{color:var(--gold);background:rgba(255,185,64,.1)}
+.ch-purple{color:var(--purple);background:rgba(157,126,255,.1)}
+.ch-green{color:var(--green);background:rgba(47,238,160,.1)}
+.ch-red{color:var(--coral);background:rgba(255,77,106,.1)}
+
+.slbl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 2px}
+
+.btn{background:linear-gradient(135deg,var(--cyan),#0A6080);border-radius:16px;padding:15px;text-align:center;cursor:pointer;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff;border:none;width:100%;transition:opacity .2s,transform .1s;box-shadow:0 4px 18px rgba(0,196,224,.2);-webkit-user-select:none;user-select:none}
+.btn:active{opacity:.88;transform:scale(.98)}
+.btn-red{background:linear-gradient(135deg,#FF4D6A,#8B0020);border-radius:16px;padding:15px;text-align:center;cursor:pointer;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff;border:none;width:100%;-webkit-user-select:none;user-select:none}
+.btn-red:active{opacity:.88;transform:scale(.98)}
+.btn2{background:var(--glass);border:1px solid rgba(0,196,224,.22);border-radius:16px;padding:14px;text-align:center;cursor:pointer;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--cyan);width:100%;transition:background .2s;-webkit-user-select:none;user-select:none}
+.btn2:active{background:var(--glassh)}
+.btn-sm{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:7px 13px;border-radius:10px;border:1px solid rgba(0,196,224,.25);background:var(--glass);color:var(--cyan);cursor:pointer;transition:background .2s}
+.btn-sm:active{background:var(--glassh)}
+
+.inp{background:var(--glass);border:1px solid rgba(0,196,224,.2);border-radius:13px;padding:13px 15px;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--soft);width:100%;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+.inp:focus{border-color:rgba(0,196,224,.52);background:var(--glassh)}
+.inp::placeholder{color:var(--muted)}
+select.inp{cursor:pointer}
+.inp-lbl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+
+/* PHOTO UPLOAD */
+.photo-upload{width:100%;height:150px;border-radius:16px;border:2px dashed rgba(0,196,224,.3);background:var(--glass) center/contain no-repeat;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:8px;overflow:hidden;position:relative;flex-shrink:0}
+.photo-upload:active{opacity:.9}
+.photo-upload img{display:none}
+.photo-upload .overlay{position:absolute;inset:0;background:rgba(6,13,24,.52);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-radius:14px}
+
+/* MULTI-SELECT CHIPS */
+.filt-grid{display:flex;flex-wrap:wrap;gap:7px}
+.filt-chip{font-family:'Space Mono',monospace;font-size:10px;padding:8px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--glass);color:var(--muted);cursor:pointer;transition:all .18s;-webkit-user-select:none;user-select:none}
+.filt-chip.on{border-color:var(--cyan);background:rgba(0,196,224,.14);color:var(--cyan)}
+.filt-chip:active{opacity:.8}
+
+/* ── FISH CATALOG ── */
+.modal-bg{position:fixed;inset:0;background:rgba(6,13,24,.92);z-index:200;display:flex;align-items:flex-end;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.modal{background:var(--navy);border-radius:28px 28px 0 0;border:1px solid rgba(0,196,224,.15);border-bottom:none;padding:24px 18px calc(28px + var(--safe-bot));width:100%;display:flex;flex-direction:column;gap:14px;max-height:92vh;overflow-y:auto;scrollbar-width:none;animation:slideUp .28s cubic-bezier(.2,0,0,1);position:relative}
+.modal::-webkit-scrollbar{display:none}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.modal-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--soft)}
+.modal-close{position:absolute;top:18px;right:18px;background:var(--glass);border:1px solid var(--border);border-radius:11px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--muted);-webkit-user-select:none;user-select:none}
+
+/* SEARCH INPUT */
+.search-inp{background:var(--glass);border:1px solid rgba(0,196,224,.2);border-radius:50px;padding:11px 18px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--soft);width:100%;outline:none;-webkit-appearance:none;appearance:none}
+.search-inp:focus{border-color:rgba(0,196,224,.5)}
+.search-inp::placeholder{color:var(--muted)}
+
+/* FISH CATALOG GRID */
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fish-card{background:var(--glass);border:1.5px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .18s;-webkit-user-select:none;user-select:none}
+.fish-card:active{border-color:var(--cyan);transform:scale(.97)}
+.fish-card.sel{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(0,196,224,.2)}
+.fish-img-wrap{position:relative;height:100px;overflow:hidden}
+.fish-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.fish-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:42px}
+.fish-diff{position:absolute;top:6px;right:6px}
+.fish-info{padding:9px 10px 10px}
+.fish-name{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--soft);line-height:1.2}
+.fish-sci{font-size:9px;color:var(--muted);font-style:italic;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fish-stats{display:flex;gap:3px;flex-wrap:wrap;margin-top:6px}
+.fish-stat{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);background:rgba(53,96,112,.18);border-radius:5px;padding:2px 5px}
+
+/* SELECTED FISH PREVIEW */
+.fish-preview{background:var(--glassh);border:1px solid rgba(0,196,224,.28);border-radius:16px;overflow:hidden}
+.fish-preview-img{width:100%;height:150px;object-fit:cover;display:block}
+.fish-preview-body{padding:13px}
+
+/* PARAM CARDS */
+.pcrd{background:var(--glass);border:1px solid var(--border);border-radius:13px;padding:13px}
+.pcrd.bad{border-color:rgba(255,77,106,.28)}.pcrd.warn{border-color:rgba(255,185,64,.28)}
+.pcrd .pl{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.pcrd .pv{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;line-height:1}
+.pcrd .pu{font-size:10px;color:var(--muted);margin-left:2px}
+.pbar{height:3px;background:rgba(53,96,112,.22);border-radius:2px;margin-top:9px;overflow:hidden}
+.pbf{height:100%;border-radius:2px;transition:width .5s}
+
+.chrt{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:14px}
+.chrt-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.chrt-lbl{font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:var(--soft)}
+.chrt-val{font-family:'Space Mono',monospace;font-size:12px}
+.chrt-days{display:flex;justify-content:space-between;margin-top:4px}
+.chrt-days span{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted)}
+.chrt-tabs{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap}
+.ctab{font-family:'Space Mono',monospace;font-size:9px;padding:5px 10px;border-radius:9px;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--glass);transition:all .18s;-webkit-user-select:none;user-select:none}
+.ctab.on{color:var(--cyan);border-color:var(--cyan);background:rgba(0,196,224,.12)}
+
+.ritem{background:var(--glass);border:1px solid var(--border);border-radius:15px;padding:14px 15px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .18s;-webkit-user-select:none;user-select:none}
+.ritem:active{background:var(--glassh)}.ritem.done{opacity:.45;border-color:rgba(0,237,212,.12)}
+.chkbox{width:24px;height:24px;border-radius:7px;border:2px solid var(--muted);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .18s}
+.chkbox.on{background:var(--aqua);border-color:var(--aqua)}
+.chkbox.on::after{content:'✓';color:#060D18;font-size:13px;font-weight:900}
+
+.tcard{background:var(--glass);border:1px solid var(--border);border-radius:18px;overflow:hidden;cursor:pointer;transition:all .18s;position:relative;margin-bottom:10px;-webkit-user-select:none;user-select:none}
+.tcard:active{border-color:rgba(0,196,224,.22)}.tcard.sel{border-color:rgba(0,196,224,.38)}
+.tcard-photo{width:100%;height:140px;background:#091726 center/contain no-repeat;display:block;flex-shrink:0}
+.tcard-photo-placeholder{width:100%;height:80px;background:linear-gradient(135deg,rgba(0,196,224,.08),rgba(0,237,212,.04));display:flex;align-items:center;justify-content:center;font-size:36px}
+.tcard-body{padding:14px}.tcard-del{position:absolute;top:10px;right:10px;background:rgba(6,13,24,.7);border:1px solid rgba(255,77,106,.3);border-radius:9px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;z-index:2}
+.tcard-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
+.tcard-meta span{font-size:10px;color:var(--muted)}
+
+.tab-row{display:flex;gap:7px;margin-bottom:2px}
+.tab{flex:1;text-align:center;padding:10px;border-radius:12px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;background:var(--glass);border:1px solid var(--border);color:var(--muted);transition:all .18s;-webkit-user-select:none;user-select:none}
+.tab.on{background:rgba(0,196,224,.16);border-color:var(--cyan);color:var(--cyan)}
+.tab:active{opacity:.8}
+.fcrd{background:var(--glass);border:1px solid var(--border);border-radius:15px;padding:14px 15px;display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.fcrd.done-today{border-color:rgba(0,237,212,.25);background:rgba(0,237,212,.04)}
+.flog-item{background:var(--glass);border:1px solid var(--border);border-radius:13px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+
+.alert-box{background:linear-gradient(135deg,rgba(255,77,106,.12),rgba(255,77,106,.04));border:1px solid rgba(255,77,106,.28);border-left:3px solid var(--coral);border-radius:15px;padding:13px 15px;display:flex;align-items:center;gap:12px}
+.warn-box{background:linear-gradient(135deg,rgba(255,185,64,.1),rgba(255,185,64,.03));border:1px solid rgba(255,185,64,.25);border-left:3px solid var(--gold);border-radius:15px;padding:13px 15px;display:flex;align-items:center;gap:12px}
+.al{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--coral)}
+.wl{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--gold)}
+.as{font-size:11px;color:var(--muted);margin-top:2px}
+
+.dcrd{background:var(--glass);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:10px}
+.dcrd.active{border-color:rgba(255,77,106,.3);background:rgba(255,77,106,.04)}
+.dcrd.quarantine{border-color:rgba(255,185,64,.3);background:rgba(255,185,64,.03)}
+.dcrd.resolved{border-color:rgba(47,238,160,.2);opacity:.65}
+.dcrd-head{padding:14px 15px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.dcrd-body{padding:0 15px 14px;display:flex;flex-direction:column;gap:8px}
+.qbar-wrap{background:rgba(53,96,112,.18);border-radius:4px;height:6px;overflow:hidden;margin-top:4px}
+.qbar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--coral));transition:width .4s}
+
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.scrd{background:var(--glass);border:1px solid var(--border);border-radius:15px;padding:13px 8px;text-align:center}
+.sv{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;line-height:1.1}
+.sl{font-size:10px;color:var(--muted);margin-top:4px}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.health-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block}
+.hd-ok{background:var(--green)}.hd-warn{background:var(--gold)}.hd-bad{background:var(--coral)}.hd-none{background:var(--muted)}
+
+.empty{text-align:center;padding:36px 16px;display:flex;flex-direction:column;align-items:center;gap:9px}
+.eico{font-size:46px;opacity:.28}
+.etxt{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--muted)}
+.esub{font-size:12px;color:var(--muted);opacity:.65}
+.emoji-grid{display:flex;gap:8px;flex-wrap:wrap}
+.emj{font-size:24px;cursor:pointer;padding:7px;border-radius:10px;border:2px solid transparent;transition:border .15s;-webkit-user-select:none;user-select:none}
+.emj.sel{border-color:var(--cyan)}
+.tcard-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
+.tcard-meta span{font-size:10px;color:var(--muted)}
+.toast{position:fixed;bottom:calc(80px + var(--safe-bot));left:50%;transform:translateX(-50%) translateY(8px);background:rgba(9,23,38,.97);border:1px solid rgba(0,196,224,.28);color:var(--soft);font-family:'Space Mono',monospace;font-size:11px;padding:10px 20px;border-radius:22px;white-space:nowrap;z-index:500;pointer-events:none;opacity:0;transition:opacity .25s,transform .25s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* SPECIES CARD — with catalog photo */
+.sp-card{background:var(--glass);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:10px}
+.sp-card-img-wrap{width:100%;height:140px;overflow:hidden;position:relative;flex-shrink:0}
+.sp-card-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.sp-card-img-wrap .sp-fb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px}
+.sp-card-body{padding:13px}
+.sp-photo-btn{position:absolute;bottom:7px;right:7px;background:rgba(6,13,24,.78);border:1px solid rgba(0,196,224,.35);border-radius:9px;padding:5px 9px;font-family:'Space Mono',monospace;font-size:9px;color:var(--cyan);cursor:pointer;-webkit-user-select:none;user-select:none}
+/* GALLERY CARD */
+.sp-gcard{background:var(--glass);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .18s}
+.sp-gcard:active{border-color:rgba(0,196,224,.3)}
+.sp-gcard-img{width:100%;height:110px;background:#091726 center/contain no-repeat}
+.sp-gcard-body{padding:10px 10px 12px}
+.sp-gcard-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp-gcard-sub{font-size:10px;color:var(--muted);margin-top:2px}
+/* INLINE CATALOG */
+.search-inp{background:var(--glass);border:1px solid rgba(0,196,224,.2);border-radius:13px;padding:12px 15px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--soft);width:100%;outline:none;-webkit-appearance:none;appearance:none}
+.search-inp:focus{border-color:rgba(0,196,224,.5)}
+.inline-cat-card{background:var(--glass);border:1px solid var(--border);border-radius:15px;overflow:hidden;cursor:pointer;transition:all .18s;-webkit-user-select:none;user-select:none}
+.inline-cat-card:active{border-color:var(--cyan);transform:scale(.97)}
+.inline-cat-card-img{width:100%;height:90px;position:relative;overflow:hidden}
+.inline-cat-card-body{padding:8px 10px 10px}
+.inline-cat-card-name{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--soft)}
+.inline-cat-card-sci{font-size:9px;color:var(--muted);font-style:italic;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inline-cat-card-btn{margin-top:7px;width:100%;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:6px;border-radius:8px;border:1px solid rgba(0,196,224,.3);background:rgba(0,196,224,.08);color:var(--cyan);cursor:pointer;-webkit-user-select:none;user-select:none}
+.inline-cat-photo-btn{width:100%;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:6px;border-radius:8px;border:1px solid rgba(157,126,255,.3);background:rgba(157,126,255,.08);color:var(--purple);cursor:pointer;margin-top:5px;-webkit-user-select:none;user-select:none}
+.tank-filter-row{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-shrink:0}
+.tank-filter-row::-webkit-scrollbar{display:none}
+.tank-pill{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:7px 14px;border-radius:20px;cursor:pointer;border:1px solid rgba(0,196,224,.22);background:var(--glass);color:var(--muted);white-space:nowrap;transition:all .18s;-webkit-user-select:none;user-select:none;flex-shrink:0}
+.tank-pill.on{background:var(--cyan);color:#060D18;border-color:var(--cyan)}
+
+/* ── AI CHAT ── */
+#ai-fab{position:fixed;bottom:calc(72px + var(--safe-bot) + 12px);right:14px;width:52px;height:52px;border-radius:18px;background:linear-gradient(135deg,#7C3AED,#00C4E0);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 20px rgba(124,58,237,.45);z-index:100;transition:transform .15s;-webkit-user-select:none;user-select:none}
+#ai-fab:active{transform:scale(.9)}
+#ai-fab .ai-badge{position:absolute;top:-4px;right:-4px;background:var(--coral);border:2px solid var(--navy);border-radius:50%;width:16px;height:16px;font-size:8px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;color:#fff;display:none}
+
+#ai-panel{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;background:var(--navy);transform:translateY(100%);transition:transform .3s cubic-bezier(.2,0,0,1);pointer-events:none}
+#ai-panel.open{transform:translateY(0);pointer-events:all}
+
+#ai-header{padding:calc(var(--safe-top)+14px) 16px 14px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);background:rgba(9,23,38,.97);backdrop-filter:blur(12px);flex-shrink:0}
+#ai-avatar{width:38px;height:38px;border-radius:13px;background:linear-gradient(135deg,#7C3AED,#00C4E0);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+#ai-header-text{flex:1;min-width:0}
+#ai-header-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--soft)}
+#ai-header-sub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.08em}
+#ai-close{width:34px;height:34px;border-radius:11px;background:var(--glass);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--muted);flex-shrink:0;-webkit-user-select:none;user-select:none}
+#ai-close:active{background:var(--glassh)}
+
+#ai-msgs{flex:1;overflow-y:auto;padding:14px 14px 8px;display:flex;flex-direction:column;gap:10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#ai-msgs::-webkit-scrollbar{display:none}
+
+.ai-msg{display:flex;gap:10px;align-items:flex-start;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.ai-msg.user{flex-direction:row-reverse}
+.ai-bubble{max-width:82%;padding:11px 14px;border-radius:18px;font-size:13px;line-height:1.55;color:var(--soft)}
+.ai-msg.ai .ai-bubble{background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.22);border-bottom-left-radius:6px}
+.ai-msg.user .ai-bubble{background:rgba(0,196,224,.13);border:1px solid rgba(0,196,224,.25);border-bottom-right-radius:6px;color:var(--soft)}
+.ai-msg-ico{width:28px;height:28px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:2px}
+.ai-msg.ai .ai-msg-ico{background:linear-gradient(135deg,#7C3AED,#00C4E0)}
+.ai-msg.user .ai-msg-ico{background:rgba(0,196,224,.18)}
+.ai-typing{display:flex;gap:4px;padding:6px 2px;align-items:center}
+.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--purple);opacity:.4;animation:bounce .9s infinite}
+.ai-dot:nth-child(2){animation-delay:.15s}.ai-dot:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{opacity:.4;transform:none}30%{opacity:1;transform:translateY(-4px)}}
+
+#ai-suggestions{display:flex;gap:7px;padding:4px 14px 6px;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+#ai-suggestions::-webkit-scrollbar{display:none}
+.ai-sug{font-family:'Space Mono',monospace;font-size:10px;padding:8px 12px;border-radius:22px;border:1px solid rgba(124,58,237,.35);background:rgba(124,58,237,.08);color:var(--purple);white-space:nowrap;cursor:pointer;transition:all .18s;flex-shrink:0;-webkit-user-select:none;user-select:none}
+.ai-sug:active{background:rgba(124,58,237,.2)}
+
+#ai-input-row{padding:8px 12px calc(8px + var(--safe-bot));display:flex;gap:9px;align-items:flex-end;border-top:1px solid var(--border);flex-shrink:0;background:rgba(6,13,24,.98)}
+#ai-input{flex:1;background:var(--glass);border:1px solid rgba(124,58,237,.3);border-radius:16px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--soft);outline:none;resize:none;max-height:100px;min-height:42px;line-height:1.4;-webkit-appearance:none;appearance:none}
+#ai-input:focus{border-color:rgba(124,58,237,.6);background:var(--glassh)}
+#ai-input::placeholder{color:var(--muted)}
+#ai-send{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#7C3AED,#00C4E0);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;transition:opacity .2s;-webkit-user-select:none;user-select:none}
+#ai-send:active{opacity:.8}
+#ai-send:disabled{opacity:.4;cursor:default}
+
+.ai-quick-card{background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.22);border-radius:14px;padding:11px 13px;cursor:pointer;transition:all .18s;-webkit-user-select:none;user-select:none}
+.ai-quick-card:active{background:rgba(124,58,237,.18)}
+.ai-quick-card-ico{font-size:20px;margin-bottom:5px}
+.ai-quick-card-t{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--soft)}
+.ai-quick-card-s{font-size:10px;color:var(--muted);margin-top:2px}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="header">
+    <div>
+      <div class="eyebrow">AquaControl Pro</div>
+      <div class="htitle" id="htitle">Dashboard</div>
+    </div>
+    <div class="notif-btn" onclick="openAlerts()">
+      🔔<div class="notif-badge" id="alert-badge" style="display:none"></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="sec on" id="s-dash">
+      <div id="dash-alerts-wrap"></div>
+      <button onclick="openAIRecommendations()" style="width:100%;background:linear-gradient(135deg,rgba(157,126,255,.15),rgba(0,196,224,.1));border:1px solid rgba(157,126,255,.35);border-radius:16px;padding:13px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--purple);cursor:pointer;-webkit-user-select:none;user-select:none">🤖 Recomendaciones IA — Analizar acuario</button>
+      <div class="sgrid">
+        <div class="scrd"><div class="sv" style="color:var(--cyan)" id="st-t">0</div><div class="sl">Peceras</div></div>
+        <div class="scrd"><div class="sv" style="color:var(--green)" id="st-s">0</div><div class="sl">Especies</div></div>
+        <div class="scrd"><div class="sv" style="color:var(--gold)" id="st-r">0</div><div class="sl">Tareas</div></div>
+      </div>
+      <div class="sgrid">
+        <div class="scrd"><div class="sv" style="color:var(--aqua)" id="st-f">—</div><div class="sl">Alimentado</div></div>
+        <div class="scrd"><div class="sv" style="color:var(--purple)" id="st-ph">—</div><div class="sl">pH prom.</div></div>
+        <div class="scrd"><div class="sv" style="color:var(--coral)" id="st-al">0</div><div class="sl">Alertas</div></div>
+      </div>
+      <div class="slbl">Mis peceras</div>
+      <div id="dash-tanks"></div>
+      <div class="slbl" id="dash-rlbl" style="display:none">Tareas pendientes</div>
+      <div id="dash-routines"></div>
+      <div class="slbl" id="dash-qlbl" style="display:none">⚠️ Cuarentenas activas</div>
+      <div id="dash-quarantine"></div>
+    </div>
+
+    <!-- TANKS -->
+    <div class="sec" id="s-tanks">
+      <div class="card" style="border:1.5px dashed rgba(0,196,224,.32);text-align:center;cursor:pointer;padding:22px" onclick="openAddTank()">
+        <div style="font-size:30px;margin-bottom:6px">🐟</div>
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--cyan)">Agregar pecera</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">Con foto · Filtración múltiple</div>
+      </div>
+      <div id="tank-list"></div>
+    </div>
+
+    <!-- PARAMS -->
+    <div class="sec" id="s-params">
+      <div id="p-tabs" style="display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch"></div>
+      <div id="p-status" style="display:flex;justify-content:space-between;align-items:center;min-height:28px"></div>
+      <div class="pgrid" id="p-grid"></div>
+      <div class="chrt" id="chart-block" style="display:none">
+        <div class="chrt-tabs">
+          <div class="ctab on" onclick="selChart(this,'ph')">pH</div>
+          <div class="ctab" onclick="selChart(this,'temp')">Temp</div>
+          <div class="ctab" onclick="selChart(this,'nh3')">NH₃</div>
+          <div class="ctab" onclick="selChart(this,'no2')">NO₂</div>
+          <div class="ctab" onclick="selChart(this,'no3')">NO₃</div>
+        </div>
+        <div class="chrt-hdr">
+          <span class="chrt-lbl" id="chart-lbl">pH</span>
+          <span class="chrt-val" id="chart-last" style="color:var(--cyan)">—</span>
+        </div>
+        <svg width="100%" height="54" viewBox="0 0 100 54" preserveAspectRatio="none">
+          <defs><linearGradient id="gc1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#00C4E0" stop-opacity=".28"/>
+            <stop offset="100%" stop-color="#00C4E0" stop-opacity="0"/>
+          </linearGradient></defs>
+          <polygon id="c-area" fill="url(#gc1)"/>
+          <polyline id="c-line" fill="none" stroke="#00C4E0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle id="c-dot" r="3" fill="#00C4E0"/>
+        </svg>
+        <div class="chrt-days"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span></div>
+      </div>
+      <button class="btn" onclick="openLogParams()">+ Registrar parámetros</button>
+    </div>
+
+    <!-- ROUTINES -->
+    <div class="sec" id="s-routines">
+      <button class="btn2" onclick="openAddRoutine()">+ Nueva tarea</button>
+      <button class="btn2" onclick="openWaterChangeGuide()" style="border-color:rgba(0,237,212,.3);color:var(--aqua)">💧 Guía cambio de agua</button>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--muted)" id="prog-lbl">0/0 completadas</span>
+        <button class="btn-sm" onclick="resetRoutines()">↺ Reiniciar</button>
+      </div>
+      <div style="height:5px;background:rgba(53,96,112,.22);border-radius:3px;overflow:hidden">
+        <div id="prog-bar" style="height:100%;background:linear-gradient(90deg,var(--cyan),var(--aqua));border-radius:3px;transition:width .4s;width:0%"></div>
+      </div>
+      <div id="r-list"></div>
+      <div id="r-empty" class="empty"><div class="eico">✅</div><div class="etxt">Sin tareas</div><div class="esub">Agrega tareas de mantenimiento</div></div>
+    </div>
+
+    <!-- FEEDING -->
+    <div class="sec" id="s-feed">
+      <div class="tab-row">
+        <div class="tab on" id="ftab-sched" onclick="setFeedTab('sched')">📅 Horarios</div>
+        <div class="tab" id="ftab-log" onclick="setFeedTab('log')">📋 Historial</div>
+      </div>
+      <div id="fv-sched">
+        <button class="btn2" onclick="openAddSchedule()">+ Agregar horario</button>
+        <div id="feed-sched-list"></div>
+        <div id="feed-sched-empty" class="empty"><div class="eico">🍽</div><div class="etxt">Sin horarios</div><div class="esub">Programa la alimentación diaria</div></div>
+      </div>
+      <div id="fv-log" style="display:none">
+        <button class="btn" onclick="openLogFeeding()">+ Registrar alimentación</button>
+        <div id="feed-log-list"></div>
+        <div id="feed-log-empty" class="empty"><div class="eico">📝</div><div class="etxt">Sin registros</div></div>
+      </div>
+    </div>
+
+    <!-- SPECIES -->
+    <div class="sec" id="s-species">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <button class="btn" onclick="openSpeciesChoice()" style="font-size:13px;padding:13px">+ Agregar especie</button>
+        <button class="btn2" onclick="openManualSpecies(null)" style="font-size:13px;padding:13px">✏️ Personalizada</button>
+      </div>
+      <button onclick="openAIRecommendations()" style="width:100%;background:linear-gradient(135deg,rgba(157,126,255,.2),rgba(0,196,224,.15));border:1px solid rgba(157,126,255,.4);border-radius:16px;padding:13px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--purple);cursor:pointer;-webkit-user-select:none;user-select:none">🤖 Analizar mi acuario con IA</button>
+      <div class="tab-row">
+        <div class="tab on" id="sptab-list" onclick="setSpTab('list')">📋 Lista</div>
+        <div class="tab" id="sptab-gallery" onclick="setSpTab('gallery')">🖼 Galería</div>
+        <div class="tab" id="sptab-catalog" onclick="setSpTab('catalog')">📖 Catálogo</div>
+      </div>
+      <!-- LIST VIEW -->
+      <div id="sp-view-list">
+        <div id="sp-tank-filter" style="display:none">
+          <div class="slbl">Filtrar por pecera</div>
+          <div class="tank-filter-row" id="sp-tank-pills"></div>
+        </div>
+        <div id="sp-list"></div>
+        <div id="sp-empty" class="empty"><div class="eico">🐟</div><div class="etxt">Sin especies</div><div class="esub">Agrega peces del catálogo o manualmente</div></div>
+      </div>
+      <!-- GALLERY VIEW -->
+      <div id="sp-view-gallery" style="display:none">
+        <div id="sp-gallery-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+        <div id="sp-gallery-empty" class="empty"><div class="eico">🐟</div><div class="etxt">Sin peces aún</div><div class="esub">Agrega especies para verlas aquí</div></div>
+      </div>
+      <!-- CATALOG VIEW -->
+      <div id="sp-view-catalog" style="display:none">
+        <button class="btn" onclick="openAddToCatalog(null)" style="font-size:13px;padding:13px">+ Nuevo pez al catálogo</button>
+        <input class="search-inp" id="inline-cat-search" placeholder="🔍 Buscar en catálogo..." oninput="filterInlineCatalog(this.value)" autocomplete="off" style="margin-top:4px">
+        <div id="inline-cat-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:8px"></div>
+      </div>
+    </div>
+
+    <!-- HEALTH -->
+    <div class="sec" id="s-health">
+      <div class="card" style="background:rgba(255,77,106,.05);border-color:rgba(255,77,106,.2)">
+        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--coral);margin-bottom:4px">🏥 Centro de salud</div>
+        <div style="font-size:11px;color:var(--muted)">Registra enfermedades, síntomas y cuarentenas. El contador se actualiza automáticamente.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <button class="btn-red" onclick="openAddDisease()" style="padding:13px;font-size:13px">🦠 Nueva enfermedad</button>
+        <button class="btn2" onclick="openAddQuarantine()" style="border-color:rgba(255,185,64,.4);color:var(--gold);font-size:13px;padding:13px">🔒 Cuarentena</button>
+      </div>
+      <button class="btn2" onclick="openWaterChangeGuide()" style="border-color:rgba(0,237,212,.3);color:var(--aqua)">💧 Guía de cambio de agua</button>
+      <div id="health-list"></div>
+      <div id="health-empty" class="empty"><div class="eico">🏥</div><div class="etxt">Sin registros de salud</div><div class="esub">Registra enfermedades y cuarentenas</div></div>
+    </div>
+
+  </div>
+
+  <nav class="bnav">
+    <div class="ni on" data-s="dash"     onclick="nav(this)"><div class="ico">◈</div><span class="lbl">Inicio</span></div>
+    <div class="ni"    data-s="tanks"    onclick="nav(this)"><div class="ico">⬡</div><span class="lbl">Peceras</span></div>
+    <div class="ni"    data-s="params"   onclick="nav(this)"><div class="ico">〜</div><span class="lbl">Params</span></div>
+    <div class="ni"    data-s="routines" onclick="nav(this)"><div class="ico">✓</div><span class="lbl">Tareas</span></div>
+    <div class="ni"    data-s="feed"     onclick="nav(this)"><div class="ico">🍽</div><span class="lbl">Comida</span></div>
+    <div class="ni"    data-s="species"  onclick="nav(this)"><div class="ico">❋</div><span class="lbl">Especies</span></div>
+    <div class="ni"    data-s="health"   onclick="nav(this)"><div class="ico">🏥</div><span class="lbl">Salud</span></div>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+  <div id="mroot"></div>
+
+  <!-- AI FAB -->
+  <button id="ai-fab" onclick="openAIChat()" title="Asistente IA">🤖</button>
+
+  <!-- AI PANEL -->
+  <div id="ai-panel">
+    <div id="ai-header">
+      <div id="ai-avatar">🤖</div>
+      <div id="ai-header-text">
+        <div id="ai-header-name">AquaBot IA</div>
+        <div id="ai-header-sub">Experto en acuarismo · Claude AI</div>
+      </div>
+      <div id="ai-close" onclick="closeAIChat()">✕</div>
+    </div>
+    <div id="ai-msgs"></div>
+    <div id="ai-suggestions"></div>
+    <div id="ai-input-row">
+      <textarea id="ai-input" placeholder="Pregúntame sobre tu acuario..." rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIMsg()}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'"></textarea>
+      <button id="ai-send" onclick="sendAIMsg()">➤</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════
+//  FISH CATALOG — 26 peces de agua dulce
+// ════════════════════════════════════════════════════
+const FISH_CATALOG = [
+  {id:'f01',name:'Neon Tetra',sci:'Paracheirodon innesi',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Neontetra.jpg/320px-Neontetra.jpg',
+   grad:'linear-gradient(135deg,#001A40,#003080)',
+   temp:'20–26°C',ph:'5.5–7.0',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'3–4 cm',min:30,
+   desc:'Pez de cardumen (6+). Franja azul-roja característica. Ideal para principiantes.'},
+
+  {id:'f02',name:'Guppy',sci:'Poecilia reticulata',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Guppy_06.jpg/320px-Guppy_06.jpg',
+   grad:'linear-gradient(135deg,#1A0040,#5000A0)',
+   temp:'22–28°C',ph:'6.8–7.8',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'3–6 cm',min:20,
+   desc:'Muy resistente, vivíparo. Gran variedad de colores. Perfecto para principiantes.'},
+
+  {id:'f03',name:'Betta / Pez de pelea',sci:'Betta splendens',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Betta_fish_%28Betta_splendens%29_2.jpg/320px-Betta_fish_%28Betta_splendens%29_2.jpg',
+   grad:'linear-gradient(135deg,#400010,#900030)',
+   temp:'24–30°C',ph:'6.0–7.5',diet:'Carnívoro',diff:'Fácil',compat:'Semi-agresivo',size:'6–7 cm',min:20,
+   desc:'No mezclar dos machos. Puede vivir solo. Necesita acceso al aire.'},
+
+  {id:'f04',name:'Goldfish / Carpa dorada',sci:'Carassius auratus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Goldfish1.jpg/320px-Goldfish1.jpg',
+   grad:'linear-gradient(135deg,#402000,#C06000)',
+   temp:'18–24°C',ph:'6.5–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'15–30 cm',min:100,
+   desc:'Produce mucho desecho. Requiere buena filtración. No mezclar con peces tropicales.'},
+
+  {id:'f05',name:'Pez Ángel / Escalar',sci:'Pterophyllum scalare',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Pterophyllum_scalare2.jpg/320px-Pterophyllum_scalare2.jpg',
+   grad:'linear-gradient(135deg,#0A1A30,#203050)',
+   temp:'24–30°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Medio',compat:'Semi-agresivo',size:'12–15 cm',min:100,
+   desc:'Pecera alta recomendada. Puede comer peces pequeños. Majestuoso nadador.'},
+
+  {id:'f06',name:'Disco / Discus',sci:'Symphysodon aequifasciatus',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Discus_fish.jpg/320px-Discus_fish.jpg',
+   grad:'linear-gradient(135deg,#001A20,#004060)',
+   temp:'27–31°C',ph:'5.5–6.5',diet:'Omnívoro',diff:'Difícil',compat:'Pacífico',size:'15–20 cm',min:200,
+   desc:'El rey del acuario. Requiere agua muy blanda y caliente. Para expertos.'},
+
+  {id:'f07',name:'Corydoras',sci:'Corydoras paleatus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Corydoras_paleatus2.jpg/320px-Corydoras_paleatus2.jpg',
+   grad:'linear-gradient(135deg,#202020,#504030)',
+   temp:'22–26°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'5–7 cm',min:50,
+   desc:'Limpiador de fondo. Vive en grupos de 3+. Compatible con casi todos.'},
+
+  {id:'f08',name:'Pleco / Pez diablo',sci:'Hypostomus plecostomus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Hypostomus_plecostomus2.jpg/320px-Hypostomus_plecostomus2.jpg',
+   grad:'linear-gradient(135deg,#1A1200,#403000)',
+   temp:'22–28°C',ph:'6.5–7.5',diet:'Herbívoro',diff:'Fácil',compat:'Pacífico',size:'30–50 cm',min:200,
+   desc:'Raspa algas del cristal. Crece mucho. Nocturno.'},
+
+  {id:'f09',name:'Molly',sci:'Poecilia sphenops',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Poecilia_sphenops.jpg/320px-Poecilia_sphenops.jpg',
+   grad:'linear-gradient(135deg,#001510,#003025)',
+   temp:'22–28°C',ph:'7.0–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'6–10 cm',min:40,
+   desc:'Vivíparo prolífico. Tolera algo de sal. Varias variedades de color.'},
+
+  {id:'f10',name:'Platy',sci:'Xiphophorus maculatus',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Platy_fish.jpg/320px-Platy_fish.jpg',
+   grad:'linear-gradient(135deg,#300010,#700030)',
+   temp:'20–26°C',ph:'7.0–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'4–6 cm',min:30,
+   desc:'Vivíparo. Gran variedad de colores. Muy resistente, ideal para principiantes.'},
+
+  {id:'f11',name:'Pez Espada',sci:'Xiphophorus helleri',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Swordtail_Fish.jpg/320px-Swordtail_Fish.jpg',
+   grad:'linear-gradient(135deg,#200A00,#600010)',
+   temp:'22–28°C',ph:'7.0–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'10–12 cm',min:50,
+   desc:'Macho con prolongación caudal en forma de espada. Vivo y activo.'},
+
+  {id:'f12',name:'Pez Cebra',sci:'Danio rerio',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Zebrafish.jpg/320px-Zebrafish.jpg',
+   grad:'linear-gradient(135deg,#001030,#003060)',
+   temp:'18–26°C',ph:'6.5–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'4–5 cm',min:30,
+   desc:'Muy resistente. Activo nadador. Tolera variaciones de temperatura.'},
+
+  {id:'f13',name:'Oscar',sci:'Astronotus ocellatus',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Astronotus_ocellatus.jpg/320px-Astronotus_ocellatus.jpg',
+   grad:'linear-gradient(135deg,#1A0000,#500010)',
+   temp:'23–28°C',ph:'6.0–8.0',diet:'Carnívoro',diff:'Medio',compat:'Agresivo',size:'25–35 cm',min:300,
+   desc:'Pez muy inteligente. Necesita pecera grande. Come peces pequeños.'},
+
+  {id:'f14',name:'Koi',sci:'Cyprinus rubrofuscus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Koi_fish.jpg/320px-Koi_fish.jpg',
+   grad:'linear-gradient(135deg,#200A00,#C04000)',
+   temp:'15–25°C',ph:'6.8–7.5',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'30–90 cm',min:1000,
+   desc:'Carpa ornamental japonesa. Para estanques. Longevos (hasta 30 años).'},
+
+  {id:'f15',name:'Barbo Tigre',sci:'Puntigrus tetrazona',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Tiger_barb.jpg/320px-Tiger_barb.jpg',
+   grad:'linear-gradient(135deg,#301500,#905000)',
+   temp:'22–28°C',ph:'6.0–7.0',diet:'Omnívoro',diff:'Fácil',compat:'Semi-agresivo',size:'5–7 cm',min:50,
+   desc:'Mordedor de aletas. Mejor en grupos de 6+. No mezclar con peces de aletas largas.'},
+
+  {id:'f16',name:'Barbo Cereza',sci:'Pethia titteya',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Puntius_titteya.jpg/320px-Puntius_titteya.jpg',
+   grad:'linear-gradient(135deg,#300010,#800020)',
+   temp:'22–27°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'4–5 cm',min:40,
+   desc:'Colorido y tranquilo. Macho de color rojo intenso. Buen pez de cardumen.'},
+
+  {id:'f17',name:'Clown Loach',sci:'Chromobotia macracanthus',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Chromobotia_macracanthus.jpg/320px-Chromobotia_macracanthus.jpg',
+   grad:'linear-gradient(135deg,#201000,#704000)',
+   temp:'24–30°C',ph:'5.5–7.0',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'20–30 cm',min:200,
+   desc:'Excelente contra caracoles. Social, en grupos de 3+. Crece lentamente.'},
+
+  {id:'f18',name:'Ramirezi / Ram',sci:'Mikrogeophagus ramirezi',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Mikrogeophagus_ramirezi.jpg/320px-Mikrogeophagus_ramirezi.jpg',
+   grad:'linear-gradient(135deg,#001A30,#0050A0)',
+   temp:'25–29°C',ph:'5.5–7.0',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'5–7 cm',min:60,
+   desc:'Cíclido enano muy colorido. Aguas blandas. Pareja estable.'},
+
+  {id:'f19',name:'Pez Arco Iris',sci:'Melanotaenia boesemani',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Melanotaenia_boesemani.jpg/320px-Melanotaenia_boesemani.jpg',
+   grad:'linear-gradient(135deg,#001A20,#005050)',
+   temp:'24–28°C',ph:'7.0–8.0',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'9–12 cm',min:100,
+   desc:'Espectacular coloración. Activo nadador. En cardumen de 6+.'},
+
+  {id:'f20',name:'Rasbora Arlequín',sci:'Trigonostigma heteromorpha',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Trigonostigma_heteromorpha.jpg/320px-Trigonostigma_heteromorpha.jpg',
+   grad:'linear-gradient(135deg,#201000,#703000)',
+   temp:'22–27°C',ph:'5.5–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'4–5 cm',min:40,
+   desc:'Mancha triangular negra característica. Cardumen de 8+. Tranquilo.'},
+
+  {id:'f21',name:'Gurami Perlado',sci:'Trichopodus leerii',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Pearl_gourami.jpg/320px-Pearl_gourami.jpg',
+   grad:'linear-gradient(135deg,#001020,#204060)',
+   temp:'24–28°C',ph:'6.5–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'10–12 cm',min:80,
+   desc:'Patrón de perlas blancas. Tranquilo y elegante. Laberíntico (sale a respirar).'},
+
+  {id:'f22',name:'Tetra de Buenos Aires',sci:'Hyphessobrycon anisitsi',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Buenos_Aires_tetra.jpg/320px-Buenos_Aires_tetra.jpg',
+   grad:'linear-gradient(135deg,#101A00,#405000)',
+   temp:'18–26°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Semi-agresivo',size:'6–8 cm',min:60,
+   desc:'Tolera aguas frescas. Come plantas. Cardumen activo.'},
+
+  {id:'f23',name:'Pez Globo Enano',sci:'Carinotetraodon travancoricus',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Dwarf_Puffer.jpg/320px-Dwarf_Puffer.jpg',
+   grad:'linear-gradient(135deg,#002010,#005020)',
+   temp:'23–28°C',ph:'7.0–8.0',diet:'Carnívoro',diff:'Medio',compat:'Semi-agresivo',size:'2–3 cm',min:40,
+   desc:'Más pequeño pez globo. Devora caracoles. Personalidad enorme. No comunal.'},
+
+  {id:'f24',name:'Ancistrus / Pleco enano',sci:'Ancistrus cirrhosus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Ancistrus_sp._(2).jpg/320px-Ancistrus_sp._(2).jpg',
+   grad:'linear-gradient(135deg,#1A1000,#402800)',
+   temp:'22–27°C',ph:'6.0–7.5',diet:'Herbívoro',diff:'Fácil',compat:'Pacífico',size:'10–15 cm',min:80,
+   desc:'Pleco enano ideal. Raspa algas. No crece tanto como el común.'},
+
+  {id:'f25',name:'Killifish',sci:'Fundulopanchax gardneri',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Fundulopanchax_gardneri.jpg/320px-Fundulopanchax_gardneri.jpg',
+   grad:'linear-gradient(135deg,#001A00,#004000)',
+   temp:'22–26°C',ph:'6.0–7.5',diet:'Carnívoro',diff:'Medio',compat:'Semi-agresivo',size:'5–6 cm',min:40,
+   desc:'Colores impresionantes. Macho muy colorido. Puede saltar, tapa necesaria.'},
+
+  {id:'f26',name:'Pez Paraíso',sci:'Macropodus opercularis',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Macropodus_opercularis_-_front_%28aka%29.jpg/320px-Macropodus_opercularis_-_front_%28aka%29.jpg',
+   grad:'linear-gradient(135deg,#200A00,#800020)',
+   temp:'16–26°C',ph:'6.0–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Semi-agresivo',size:'8–10 cm',min:60,
+   desc:'Tolerante al frío. Agresivo con peces de aletas largas. Laberíntico.'},
+];
+
+// ════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════
+let tanks=[], species=[], routines=[], feedSchedule=[], feedLog=[], diseases=[];
+let paramLog={}, routineDone={};
+let selTank=null, selChartParam='ph', selFeedTab='sched';
+let _tid=1,_rid=1,_sid=1,_fschid=1,_flogid=1,_did=1,_emj='🐟';
+let _filtSel=new Set(), _photoData=null, _treatSel=new Set();
+let _selCatFish=null;
+
+const TITLES={dash:'Dashboard',tanks:'Peceras',params:'Parámetros',routines:'Tareas',feed:'Alimentación',species:'Especies',health:'Salud & Cuarentena'};
+const EMOJIS=['🐟','🐠','🐡','🦈','🐙','🦑','🦞','🦀','🦭','🪸','🌿','💧','🐢','🦐','🐸'];
+const FOOD_TYPES=['Pellets','Hojuelas','Congelado','Vivo','Vegetales','Liofilizado','Tabletas'];
+const FILTRATIONS=['Filtro externo','Filtro HOB','Filtro interno','Esponja/Matten','Sump','Cascada','Sin filtro'];
+const LIGHTING=['LED','Fluorescente','Metal haluro','Natural','Sin luz'];
+const COMPAT=['Pacífico','Semi-agresivo','Agresivo'];
+const FEED_TIMES=['Mañana (8:00)','Tarde (14:00)','Noche (20:00)'];
+const FREQ=['Diaria','Semanal','Mensual'];
+const DISEASES_LIST=['Ich / Puntos blancos','Fin rot / Podredumbre de aletas','Hidropesía','Columnaris','Velvet / Terciopelo','Anchor worm','Bacterial infection','Fungal infection','Parasitos externos','Otra'];
+const SYMPTOMS_LIST=['Puntos blancos','Aletas raídas','Abdomen hinchado','Pérdida de color','Letargia','Sin apetito','Raspado objetos','Manchas grises','Ulceras','Hemorragias'];
+const TREATMENTS=['Sal acuario','Metileno azul','Verde malaquita','Formol','Cobre sulfato','Antibiótico','Antifúngico','Antiparasitario','Sube temperatura','Agua limpia + reposo','Cambio de agua parcial'];
+const CHART_CFG={
+  ph:{lbl:'pH',col:'#00C4E0',mn:5.5,mx:8.5,fmt:v=>v.toFixed(2)},
+  temp:{lbl:'Temperatura',col:'#FF4D6A',mn:18,mx:34,fmt:v=>v.toFixed(1)+'°C'},
+  nh3:{lbl:'NH₃ Amoniaco',col:'#00EDD4',mn:0,mx:1,fmt:v=>v.toFixed(3)+' ppm'},
+  no2:{lbl:'NO₂ Nitritos',col:'#9D7EFF',mn:0,mx:2,fmt:v=>v.toFixed(3)+' ppm'},
+  no3:{lbl:'NO₃ Nitratos',col:'#FFB940',mn:0,mx:50,fmt:v=>v.toFixed(1)+' ppm'}
+};
+
+// ─── NAV ───
+function nav(el){
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  el.classList.add('on');
+  const id=el.dataset.s;
+  document.getElementById('s-'+id).classList.add('on');
+  document.getElementById('htitle').textContent=TITLES[id]||id;
+  document.querySelector('.content').scrollTop=0;
+  ({dash:renderDash,tanks:renderTankList,params:renderParams,routines:renderRoutines,feed:renderFeed,species:renderSpecies,health:renderHealth}[id]||function(){})();
+}
+function goTo(s){const ni=document.querySelector(`.ni[data-s="${s}"]`);if(ni)nav(ni)}
+
+// ─── TOAST & MODAL ───
+let _tt;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2400)}
+function showModal(html){document.getElementById('mroot').innerHTML=`<div class="modal-bg" id="mbg" onclick="if(event.target.id==='mbg')closeModal()">${html}</div>`}
+function closeModal(){document.getElementById('mroot').innerHTML='';_photoData=null;_filtSel=new Set();_treatSel=new Set();_selCatFish=null}
+
+// ─── ALERTS ───
+function getTankHealth(id){
+  const log=paramLog[id]||[];if(!log.length)return'none';
+  const l=log[log.length-1];
+  if(l.nh3>0.3||(l.no2||0)>1.0||l.no3>50||l.ph<5.8||l.ph>8.8||l.temp<18||l.temp>33)return'bad';
+  if(l.nh3>0.1||(l.no2||0)>0.3||l.no3>25||l.ph<6.4||l.ph>8.0||l.temp<22||l.temp>30)return'warn';
+  return'ok';
+}
+function getAlerts(){
+  const alerts=[];
+  tanks.forEach(t=>{
+    const log=paramLog[t.id]||[];if(!log.length)return;const l=log[log.length-1];
+    if(l.nh3>0.3)alerts.push({type:'bad',tank:t.name,msg:`NH₃ peligroso: ${l.nh3} ppm`});
+    else if(l.nh3>0.1)alerts.push({type:'warn',tank:t.name,msg:`NH₃ elevado: ${l.nh3} ppm`});
+    if((l.no2||0)>1.0)alerts.push({type:'bad',tank:t.name,msg:`NO₂ peligroso: ${l.no2} ppm`});
+    else if((l.no2||0)>0.3)alerts.push({type:'warn',tank:t.name,msg:`NO₂ elevado: ${l.no2} ppm`});
+    if(l.no3>40)alerts.push({type:'warn',tank:t.name,msg:`NO₃ alto: ${l.no3} ppm`});
+    if(l.ph<6.4||l.ph>8.0)alerts.push({type:'warn',tank:t.name,msg:`pH fuera de rango: ${l.ph}`});
+    if(l.temp<22||l.temp>30)alerts.push({type:'warn',tank:t.name,msg:`Temperatura: ${l.temp}°C`});
+  });
+  const pend=routines.filter(r=>!routineDone[r.id]).length;
+  if(pend)alerts.push({type:'warn',tank:'General',msg:`${pend} tarea(s) pendiente(s)`});
+  const activeD=diseases.filter(d=>d.status==='active');
+  if(activeD.length)alerts.push({type:'bad',tank:'Salud',msg:`${activeD.length} enfermedad(es) activa(s)`});
+  return alerts;
+}
+function updateAlertBadge(){document.getElementById('alert-badge').style.display=getAlerts().length?'':'none'}
+function openAlerts(){
+  const alerts=getAlerts();
+  const body=alerts.length?alerts.map(a=>`<div class="${a.type==='bad'?'alert-box':'warn-box'}"><span style="font-size:20px">${a.type==='bad'?'🚨':'⚠️'}</span><div><div class="${a.type==='bad'?'al':'wl'}">${a.tank}</div><div class="as">${a.msg}</div></div></div>`).join('')
+    :`<div class="empty"><div class="eico">✅</div><div class="etxt">Sin alertas</div><div class="esub">Todo en orden</div></div>`;
+  showModal(`<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">🔔 Alertas</div>${body}</div>`);
+}
+function bc(s){return s==='ok'?'b-ok':s==='warn'?'b-warn':s==='bad'?'b-bad':'b-purple'}
+function bl(s){return s==='ok'?'Óptimo':s==='warn'?'Atención':s==='bad'?'Alerta':'Sin datos'}
+function daysBetween(a,b){return Math.ceil((new Date(b)-new Date(a))/86400000)}
+
+// ─── DASHBOARD ───
+function renderDash(){
+  document.getElementById('st-t').textContent=tanks.length;
+  document.getElementById('st-s').textContent=species.reduce((a,s)=>a+s.count,0);
+  document.getElementById('st-r').textContent=routines.filter(r=>!routineDone[r.id]).length;
+  const todayFeeds=feedSchedule.filter(f=>f.doneToday).length;
+  document.getElementById('st-f').textContent=todayFeeds?`${todayFeeds}✓`:'—';
+  let phVals=[];tanks.forEach(t=>{const log=paramLog[t.id]||[];if(log.length)phVals.push(log[log.length-1].ph)});
+  document.getElementById('st-ph').textContent=phVals.length?(phVals.reduce((a,b)=>a+b,0)/phVals.length).toFixed(1):'—';
+  const alerts=getAlerts();
+  document.getElementById('st-al').textContent=alerts.length;
+  document.getElementById('st-al').style.color=alerts.some(a=>a.type==='bad')?'var(--coral)':alerts.length?'var(--gold)':'var(--green)';
+  updateAlertBadge();
+  const aw=document.getElementById('dash-alerts-wrap');
+  const badT=tanks.filter(t=>getTankHealth(t.id)==='bad'),warnT=tanks.filter(t=>getTankHealth(t.id)==='warn');
+  const activeD=diseases.filter(d=>d.status==='active');
+  if(activeD.length)aw.innerHTML=`<div class="alert-box"><span style="font-size:22px">🦠</span><div><div class="al">${activeD[0].diseaseName} — ${activeD[0].fishName}</div><div class="as">Enfermedad activa · Ve a Salud</div></div></div>`;
+  else if(badT.length)aw.innerHTML=`<div class="alert-box"><span style="font-size:22px">🚨</span><div><div class="al">${badT[0].name} — Alerta crítica</div><div class="as">Parámetros en rango peligroso</div></div></div>`;
+  else if(warnT.length)aw.innerHTML=`<div class="warn-box"><span style="font-size:22px">⚠️</span><div><div class="wl">${warnT[0].name} — Requiere atención</div><div class="as">Revisa los parámetros del agua</div></div></div>`;
+  else aw.innerHTML='';
+  const dt=document.getElementById('dash-tanks');
+  dt.innerHTML=tanks.length?tanks.map(t=>tCardHTML(t,false)).join(''):`<div class="empty"><div class="eico">🐟</div><div class="etxt">Sin peceras</div><div class="esub">Ve a Peceras para agregar la tuya</div></div>`;
+  const pr=routines.filter(r=>!routineDone[r.id]).slice(0,3);
+  const rlbl=document.getElementById('dash-rlbl'),dr=document.getElementById('dash-routines');
+  if(pr.length){rlbl.style.display='';dr.innerHTML=pr.map(r=>rItemHTML(r)).join('')}else{rlbl.style.display='none';dr.innerHTML=''}
+  const quarantine=diseases.filter(d=>d.status==='quarantine'&&d.qEndDate&&new Date(d.qEndDate)>new Date()).slice(0,2);
+  const qlbl=document.getElementById('dash-qlbl'),dq=document.getElementById('dash-quarantine');
+  if(quarantine.length){
+    qlbl.style.display='';
+    dq.innerHTML=quarantine.map(d=>{
+      const total=Math.max(1,daysBetween(d.qStartDate,d.qEndDate)),elapsed=Math.max(0,daysBetween(d.qStartDate,new Date())),rem=Math.max(0,daysBetween(new Date(),d.qEndDate)),pct=Math.min(100,Math.round((elapsed/total)*100));
+      return `<div class="dcrd quarantine" style="margin-bottom:0"><div class="dcrd-head"><div><div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--soft)">🔒 ${d.fishName}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">${d.diseaseName} · Faltan ${rem} días</div></div><span class="badge b-warn">CUARENTENA</span></div><div class="dcrd-body"><div class="qbar-wrap"><div class="qbar" style="width:${pct}%"></div></div></div></div>`;
+    }).join('');
+  }else{qlbl.style.display='none';dq.innerHTML=''}
+}
+
+// ─── TANKS ───
+function tCardHTML(t,sel=true){
+  const st=getTankHealth(t.id),log=paramLog[t.id]||[],last=log.length?log[log.length-1]:null;
+  const chips=last?`<span class="chip ch-c">🌡 ${last.temp}°C</span><span class="chip ch-a">pH ${last.ph}</span>`:'<span class="chip ch-m">Sin parámetros</span>';
+  const filtChips=(t.filtration||[]).map(f=>`<span class="chip ch-purple" style="font-size:9px">⚙ ${f}</span>`).join('');
+  const photoHTML=t.photo?`<div class="tcard-photo" style="background-image:url(${t.photo})"></div>`:`<div class="tcard-photo-placeholder">${t.emoji}</div>`;
+  const isSel=sel&&selTank===t.id?'sel':'';
+  const clickFn=`openTankDetail(${t.id})`;
+  return `<div class="tcard ${isSel}" onclick="${clickFn}">
+    ${photoHTML}
+    <div class="tcard-del" onclick="event.stopPropagation();delTank(${t.id})">🗑</div>
+    <div class="tcard-body">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--soft)">${t.emoji} ${t.name}</div>
+          <div class="tcard-meta"><span>🌿 Dulce</span><span>·</span><span>${t.liters}L</span>${t.tempTarget?`<span>·</span><span>🌡${t.tempTarget}°C</span>`:''}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+          <span class="badge ${bc(st)}">${bl(st)}</span>
+          <div style="display:flex;align-items:center;gap:4px"><div class="health-dot ${st==='ok'?'hd-ok':st==='warn'?'hd-warn':st==='bad'?'hd-bad':'hd-none'}"></div><span style="font-size:9px;color:var(--muted)">Salud</span></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:9px">${chips}${filtChips}</div>
+    </div>
+  </div>`;
+}
+function renderTankList(){document.getElementById('tank-list').innerHTML=tanks.map(t=>tCardHTML(t,true)).join('')}
+function selectTank(id){selTank=id;goTo('params')}
+
+// ─── TANK DETAIL MODAL ───
+function openTankDetail(id){
+  const t=tanks.find(x=>x.id===id);if(!t)return;
+  const log=paramLog[id]||[],last=log.length?log[log.length-1]:null;
+  const st=getTankHealth(id);
+  const mySpecies=species.filter(s=>s.tank&&s.tank.includes(t.name));
+  const myRoutines=routines.filter(r=>r.tank&&r.tank.includes(t.name));
+  const pending=myRoutines.filter(r=>!routineDone[r.id]);
+  const done=myRoutines.filter(r=>routineDone[r.id]);
+  const activeD=diseases.filter(d=>d.tank&&d.tank.includes(t.name)&&d.status==='active');
+  const photoHTML=t.photo
+    ?`<div style="width:100%;height:180px;background:#091726 url(${t.photo}) center/cover no-repeat;border-radius:18px 18px 0 0;flex-shrink:0"></div>`
+    :`<div style="width:100%;height:90px;background:linear-gradient(135deg,rgba(0,196,224,.1),rgba(0,237,212,.05));border-radius:18px 18px 0 0;display:flex;align-items:center;justify-content:center;font-size:52px;flex-shrink:0">${t.emoji}</div>`;
+
+  // Parámetros rápidos
+  const paramHTML=last?`
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:2px">
+      ${[
+        ['🌡','Temp',last.temp+'°C',last.temp>30||last.temp<22?'var(--coral)':last.temp>28?'var(--gold)':'var(--cyan)'],
+        ['pH','pH',last.ph,last.ph<6.4||last.ph>8.0?'var(--coral)':last.ph<6.8||last.ph>7.6?'var(--gold)':'var(--aqua)'],
+        ['NH₃','NH₃',last.nh3+' ppm',last.nh3>0.25?'var(--coral)':last.nh3>0.1?'var(--gold)':'var(--green)'],
+        ['NO₂','NO₂',(last.no2||0)+' ppm',(last.no2||0)>0.8?'var(--coral)':(last.no2||0)>0.3?'var(--gold)':'var(--green)'],
+        ['NO₃','NO₃',last.no3+' ppm',last.no3>40?'var(--coral)':last.no3>20?'var(--gold)':'var(--green)'],
+        ['📅','Medido',new Date(last.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short'}),'var(--muted)'],
+      ].map(([ico,lbl,val,col])=>`
+        <div style="background:var(--glass);border:1px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center">
+          <div style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:${col};line-height:1">${val}</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:4px;font-family:'Space Mono',monospace">${lbl}</div>
+        </div>`).join('')}
+    </div>`
+    :`<div style="text-align:center;padding:14px;background:var(--glass);border-radius:14px;border:1px solid var(--border)"><div style="font-size:11px;color:var(--muted)">Sin parámetros registrados aún</div><div onclick="closeModal();openLogParams()" style="font-family:'Space Mono',monospace;font-size:10px;color:var(--cyan);margin-top:8px;cursor:pointer">+ Registrar ahora</div></div>`;
+
+  // Peces en esta pecera
+  const fishHTML=mySpecies.length
+    ?mySpecies.map(s=>{
+      const img=s.customImg||s.img;
+      return `<div style="display:flex;align-items:center;gap:11px;background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:11px;margin-bottom:8px">
+        <div style="width:52px;height:52px;border-radius:11px;overflow:hidden;flex-shrink:0;background:${s.grad||'rgba(0,196,224,.08)'} center/contain no-repeat;${img?`background-image:url(${img})`:''}">${!img?`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:26px">${s.emoji}</div>`:''}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--soft)">${s.emoji} ${s.name}</div>
+          ${s.sci?`<div style="font-size:10px;color:var(--muted);font-style:italic">${s.sci}</div>`:''}
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px">
+            <span class="chip ch-c">×${s.count}</span>
+            ${s.temp&&s.temp!=='—'?`<span class="chip ch-m">🌡 ${s.temp}</span>`:''}
+            ${s.diet?`<span class="chip ch-gold">${s.diet}</span>`:''}
+            ${s.compat?`<span class="chip ${s.compat==='Pacífico'?'ch-green':s.compat==='Semi-agresivo'?'ch-gold':'ch-red'}">${s.compat}</span>`:''}
+          </div>
+        </div>
+        <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-align:right;flex-shrink:0">${s.diff||''}</div>
+      </div>`;
+    }).join('')
+    :`<div style="text-align:center;padding:18px;background:var(--glass);border-radius:14px;border:1px solid var(--border)"><div style="font-size:28px;opacity:.3">🐟</div><div style="font-size:11px;color:var(--muted);margin-top:6px">Sin peces registrados en esta pecera</div><div onclick="closeModal();openCatalog()" style="font-family:'Space Mono',monospace;font-size:10px;color:var(--cyan);margin-top:8px;cursor:pointer">+ Agregar peces</div></div>`;
+
+  // Alertas activas de salud
+  const healthHTML=activeD.length?`<div class="alert-box" style="margin-bottom:8px"><span style="font-size:20px">🦠</span><div><div class="al">${activeD[0].fishName} — ${activeD[0].diseaseName}</div><div class="as">Enfermedad activa en esta pecera</div></div></div>`:'';
+
+  // Tareas pendientes
+  const routinesHTML=pending.length
+    ?pending.slice(0,3).map(r=>`<div style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--glass);border:1px solid var(--border);border-radius:12px;margin-bottom:7px">
+        <div style="width:20px;height:20px;border-radius:6px;border:2px solid var(--muted);flex-shrink:0"></div>
+        <div style="flex:1;font-size:13px;color:var(--soft)">${r.task}</div>
+        <div style="font-family:'Space Mono',monospace;font-size:9px;color:${{high:'var(--coral)',medium:'var(--gold)',low:'var(--aqua)'}[r.priority]||'var(--muted)'}">${r.due}</div>
+      </div>`).join('')
+    :`<div style="font-size:11px;color:var(--muted);padding:8px 0">✅ Sin tareas pendientes</div>`;
+
+  showModal(`<div class="modal" onclick="event.stopPropagation()" style="padding:0;overflow:hidden;gap:0">
+    <div class="modal-close" onclick="closeModal()" style="top:14px;right:14px;z-index:10">✕</div>
+    ${photoHTML}
+    <div style="padding:18px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;max-height:calc(80vh - 180px)">
+
+      <!-- HEADER -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--soft)">${t.emoji} ${t.name}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:5px">
+            <span class="chip ch-m">🌿 Agua dulce</span>
+            <span class="chip ch-m">🪣 ${t.liters}L</span>
+            ${t.tempTarget?`<span class="chip ch-m">🌡 objetivo ${t.tempTarget}°C</span>`:''}
+            ${(t.filtration||[]).map(f=>`<span class="chip ch-purple">⚙ ${f}</span>`).join('')}
+          </div>
+        </div>
+        <span class="badge ${bc(st)}">${bl(st)}</span>
+      </div>
+
+      ${healthHTML}
+
+      <!-- PARÁMETROS -->
+      <div>
+        <div class="slbl" style="margin-bottom:8px">📊 Parámetros del agua</div>
+        ${paramHTML}
+      </div>
+
+      <!-- PECES -->
+      <div>
+        <div class="slbl" style="margin-bottom:8px">🐟 Peces en esta pecera (${mySpecies.length} especie${mySpecies.length!==1?'s':''}· ${mySpecies.reduce((a,s)=>a+s.count,0)} pez)</div>
+        ${fishHTML}
+      </div>
+
+      <!-- TAREAS -->
+      ${pending.length||done.length?`<div>
+        <div class="slbl" style="margin-bottom:8px">✅ Tareas — ${done.length}/${myRoutines.length} hechas</div>
+        ${routinesHTML}
+        ${pending.length>3?`<div style="font-size:10px;color:var(--muted);text-align:center">+${pending.length-3} más...</div>`:''}
+      </div>`:''}
+
+      <!-- ACCIONES RÁPIDAS -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <button class="btn" onclick="closeModal();selTank=${t.id};goTo('params')" style="font-size:12px;padding:12px">📊 Ver parámetros</button>
+        <button class="btn2" onclick="closeModal();openLogParams()" style="font-size:12px;padding:12px">+ Registrar</button>
+        <button class="btn2" onclick="closeModal();goTo('species')" style="font-size:12px;padding:12px">🐟 Mis peces</button>
+        <button class="btn2" onclick="closeModal();openAddRoutine()" style="font-size:12px;padding:12px;border-color:rgba(47,238,160,.3);color:var(--green)">✅ Nueva tarea</button>
+      </div>
+
+    </div>
+  </div>`);
+}
+function delTank(id){if(!confirm('¿Eliminar esta pecera y sus datos?'))return;tanks=tanks.filter(t=>t.id!==id);delete paramLog[id];if(selTank===id)selTank=tanks.length?tanks[0].id:null;saveState();renderTankList();renderDash();toast('🗑 Pecera eliminada')}
+function openAddTank(){
+  _filtSel=new Set();_photoData=null;
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div class="modal-title">Nueva pecera</div>
+    <div>
+      <div class="inp-lbl">Foto de la pecera (opcional)</div>
+      <div class="photo-upload" id="photo-area" onclick="document.getElementById('photo-input').click()">
+        <div class="overlay" id="photo-overlay"><span style="font-size:32px">📷</span><span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">Toca para agregar foto</span></div>
+      </div>
+      <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhoto(this)">
+    </div>
+    <div><div class="inp-lbl">Emoji</div><div class="emoji-grid">${EMOJIS.map((e,i)=>`<div class="emj${i===0?' sel':''}" onclick="pickEmoji(this,'${e}')">${e}</div>`).join('')}</div></div>
+    <div><div class="inp-lbl">Nombre</div><input class="inp" id="tn" placeholder="Mi pecera principal" maxlength="40"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><div class="inp-lbl">Litros</div><input class="inp" id="tl" type="number" placeholder="100" min="1" inputmode="numeric"></div>
+      <div><div class="inp-lbl">Temp. objetivo °C</div><input class="inp" id="ttp" type="number" placeholder="26" min="18" max="35" inputmode="numeric"></div>
+    </div>
+    <div>
+      <div class="inp-lbl">Filtración (selecciona todos los que aplican)</div>
+      <div class="filt-grid">${FILTRATIONS.map(f=>`<div class="filt-chip" onclick="toggleFilt(this,'${f}')">${f}</div>`).join('')}</div>
+    </div>
+    <div><div class="inp-lbl">Iluminación</div><select class="inp" id="tlight">${LIGHTING.map(l=>`<option>${l}</option>`).join('')}</select></div>
+    <div><div class="inp-lbl">Notas (opcional)</div><input class="inp" id="tnotes" placeholder="Observaciones..." maxlength="80"></div>
+    <button class="btn" onclick="saveTank()">Guardar pecera</button>
+  </div>`);
+  _emj=EMOJIS[0];
+}
+function handlePhoto(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    _photoData=e.target.result;
+    const area=document.getElementById('photo-area');if(!area)return;
+    area.style.backgroundImage=`url(${_photoData})`;
+    area.style.backgroundSize='contain';
+    area.style.backgroundPosition='center';
+    area.style.borderStyle='solid';
+    const ov=document.getElementById('photo-overlay');
+    if(ov)ov.style.background='rgba(6,13,24,.38)';
+  };
+  reader.readAsDataURL(file);
+}
+function toggleFilt(el,name){if(_filtSel.has(name)){_filtSel.delete(name);el.classList.remove('on')}else{_filtSel.add(name);el.classList.add('on')}}
+function pickEmoji(el,e){document.querySelectorAll('.emj').forEach(d=>d.classList.remove('sel'));el.classList.add('sel');_emj=e}
+function saveTank(){
+  const name=document.getElementById('tn').value.trim();
+  if(!name){toast('⚠️ Escribe el nombre');return}
+  tanks.push({id:_tid++,name,liters:parseInt(document.getElementById('tl').value)||50,tempTarget:parseFloat(document.getElementById('ttp').value)||null,filtration:[..._filtSel],lighting:document.getElementById('tlight').value,notes:document.getElementById('tnotes').value.trim(),emoji:_emj,photo:_photoData||null});
+  if(!selTank)selTank=tanks[tanks.length-1].id;
+  closeModal();saveState();toast('✅ Pecera agregada');renderTankList();renderDash();
+}
+
+// ─── PARAMS ───
+function renderParams(){
+  const tabs=document.getElementById('p-tabs'),statusEl=document.getElementById('p-status'),grid=document.getElementById('p-grid'),cb=document.getElementById('chart-block');
+  if(!tanks.length){tabs.innerHTML='';statusEl.innerHTML='';grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="eico">〜</div><div class="etxt">Sin peceras</div><div class="esub">Agrega una pecera primero</div></div>`;cb.style.display='none';return}
+  if(!selTank)selTank=tanks[0].id;
+  tabs.innerHTML=tanks.map(t=>`<div onclick="selPTank(${t.id})" style="flex-shrink:0;padding:8px 14px;border-radius:20px;cursor:pointer;background:${selTank===t.id?'var(--cyan)':'var(--glass)'};color:${selTank===t.id?'#060D18':'var(--muted)'};border:1px solid rgba(0,196,224,.22);font-family:'Space Mono',monospace;font-size:11px;font-weight:700;transition:all .2s;-webkit-user-select:none;user-select:none">${t.emoji} ${t.name}</div>`).join('');
+  const log=paramLog[selTank]||[],last=log.length?log[log.length-1]:null,st=getTankHealth(selTank);
+  statusEl.innerHTML=`<span class="badge ${bc(st)}">${bl(st)}</span><span style="font-size:10px;color:var(--muted)">${last?new Date(last.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'Sin datos aún'}</span>`;
+  if(!last){grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="eico">📊</div><div class="etxt">Sin parámetros</div><div class="esub">Registra el primer dato</div></div>`;cb.style.display='none';return}
+  function pct(v,mn,mx){return Math.min(100,Math.max(0,((v-mn)/(mx-mn))*100))}
+  function pcrd(lbl,val,unit,mn,mx,col,warnV,badV){const p=pct(val,mn,mx),isBad=val>=badV,isWarn=val>=warnV&&!isBad,c=isBad?'var(--coral)':isWarn?'var(--gold)':col;return `<div class="pcrd ${isBad?'bad':isWarn?'warn':''}"><div class="pl">${lbl}</div><div class="pv" style="color:${c}">${val}<span class="pu">${unit}</span></div><div class="pbar"><div class="pbf" style="width:${p}%;background:${c}"></div></div></div>`}
+  grid.innerHTML=pcrd('Temperatura',last.temp,'°C',18,34,'var(--coral)',28,31)+pcrd('pH',last.ph,'',6,8,'var(--cyan)',7.6,8.1)+pcrd('NH₃',last.nh3,'ppm',0,1,'var(--aqua)',0.1,0.25)+pcrd('NO₂',(last.no2||0),'ppm',0,2,'var(--purple)',0.3,0.8)+pcrd('NO₃',last.no3,'ppm',0,50,'var(--gold)',20,40);
+  cb.style.display='';drawParamChart(selChartParam);
+}
+function selPTank(id){selTank=id;renderParams()}
+function selChart(el,p){document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('on'));el.classList.add('on');selChartParam=p;drawParamChart(p)}
+function drawParamChart(p){
+  const cfg=CHART_CFG[p];
+  document.getElementById('chart-lbl').textContent=cfg.lbl;document.getElementById('chart-last').style.color=cfg.col;
+  document.getElementById('c-dot').setAttribute('fill',cfg.col);document.getElementById('c-line').setAttribute('stroke',cfg.col);
+  document.querySelector('#gc1 stop:first-child').setAttribute('stop-color',cfg.col);
+  const log=paramLog[selTank]||[];
+  if(!log.length){['c-area','c-line'].forEach(id=>document.getElementById(id).setAttribute('points',''));document.getElementById('chart-last').textContent='—';return}
+  const data=log.slice(-7).map(l=>p==='no2'?(l.no2||0):l[p]);
+  document.getElementById('chart-last').textContent=cfg.fmt(data[data.length-1]);
+  const h=54,w=100,rng=(cfg.mx-cfg.mn)||1;
+  const pts=data.map((v,i)=>{const x=data.length===1?50:(i/(data.length-1))*w;const y=h-((v-cfg.mn)/rng)*(h-6)-3;return`${x},${y}`});
+  const s=pts.join(' '),lp=pts[pts.length-1].split(',');
+  document.getElementById('c-area').setAttribute('points',`0,${h} ${s} ${w},${h}`);
+  document.getElementById('c-line').setAttribute('points',s);document.getElementById('c-dot').setAttribute('cx',lp[0]);document.getElementById('c-dot').setAttribute('cy',lp[1]);
+}
+function openLogParams(){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
+  showModal(`<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">Registrar parámetros</div>
+    <div><div class="inp-lbl">Pecera</div><select class="inp" id="lp-t">${tanks.map(t=>`<option value="${t.id}" ${t.id===selTank?'selected':''}>${t.emoji} ${t.name}</option>`).join('')}</select></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><div class="inp-lbl">Temperatura °C</div><input class="inp" id="lp-temp" type="number" step="0.1" placeholder="26.0" inputmode="decimal"></div>
+      <div><div class="inp-lbl">pH</div><input class="inp" id="lp-ph" type="number" step="0.01" placeholder="7.0" inputmode="decimal"></div>
+      <div><div class="inp-lbl">NH₃ ppm</div><input class="inp" id="lp-nh3" type="number" step="0.001" placeholder="0.000" inputmode="decimal"></div>
+      <div><div class="inp-lbl">NO₂ ppm</div><input class="inp" id="lp-no2" type="number" step="0.001" placeholder="0.000" inputmode="decimal"></div>
+      <div style="grid-column:1/-1"><div class="inp-lbl">NO₃ ppm</div><input class="inp" id="lp-no3" type="number" step="0.1" placeholder="5.0" inputmode="decimal"></div>
+    </div>
+    <button class="btn" onclick="saveParams()">Guardar parámetros</button>
+  </div>`);
+}
+function saveParams(){
+  const id=parseInt(document.getElementById('lp-t').value);
+  const temp=parseFloat(document.getElementById('lp-temp').value),ph=parseFloat(document.getElementById('lp-ph').value);
+  if(isNaN(temp)||isNaN(ph)){toast('⚠️ Completa temperatura y pH');return}
+  if(!paramLog[id])paramLog[id]=[];
+  paramLog[id].push({date:new Date(),temp,ph,nh3:parseFloat(document.getElementById('lp-nh3').value)||0,no2:parseFloat(document.getElementById('lp-no2').value)||0,no3:parseFloat(document.getElementById('lp-no3').value)||0});
+  selTank=id;closeModal();saveState();toast('📊 Parámetros guardados');renderParams();renderDash();
+}
+
+// ─── ROUTINES ───
+function rItemHTML(r){
+  const done=!!routineDone[r.id],pc={high:'var(--coral)',medium:'var(--gold)',low:'var(--aqua)'}[r.priority]||'var(--muted)';
+  return `<div class="ritem ${done?'done':''}" onclick="toggleR(${r.id})"><div class="chkbox ${done?'on':''}"></div><div style="flex:1;min-width:0"><div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--soft);${done?'text-decoration:line-through':''}">${r.task}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${r.tank} · ${r.freq||'Una vez'}</div></div><div style="text-align:right;flex-shrink:0"><div style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:${pc}">${r.due}</div><div onclick="event.stopPropagation();delR(${r.id})" style="color:rgba(255,77,106,.4);font-size:13px;margin-top:5px;cursor:pointer;padding:2px 4px">✕</div></div></div>`;
+}
+function renderRoutines(){
+  const done=routines.filter(r=>routineDone[r.id]).length;
+  document.getElementById('prog-lbl').textContent=`${done}/${routines.length} completadas`;
+  document.getElementById('prog-bar').style.width=routines.length?`${(done/routines.length)*100}%`:'0%';
+  const el=document.getElementById('r-list'),empty=document.getElementById('r-empty');
+  if(!routines.length){el.innerHTML='';empty.style.display='';return}
+  empty.style.display='none';el.innerHTML=routines.map(r=>rItemHTML(r)).join('');
+}
+function toggleR(id){routineDone[id]=!routineDone[id];saveState();renderRoutines();renderDash();updateAlertBadge()}
+function delR(id){routines=routines.filter(r=>r.id!==id);delete routineDone[id];saveState();renderRoutines();renderDash();updateAlertBadge();toast('🗑 Tarea eliminada')}
+function resetRoutines(){routineDone={};saveState();renderRoutines();renderDash();toast('↺ Tareas reiniciadas')}
+function openAddRoutine(){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
+  showModal(`<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">Nueva tarea</div>
+    <div><div class="inp-lbl">Pecera</div><select class="inp" id="rt-t">${tanks.map(t=>`<option>${t.emoji} ${t.name}</option>`).join('')}</select></div>
+    <div><div class="inp-lbl">Tarea</div><input class="inp" id="rt-task" placeholder="Ej: Cambio de agua 30%" maxlength="60"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><div class="inp-lbl">Frecuencia</div><select class="inp" id="rt-freq">${FREQ.map(f=>`<option>${f}</option>`).join('')}</select></div>
+      <div><div class="inp-lbl">Prioridad</div><select class="inp" id="rt-pri"><option value="high">Alta 🔴</option><option value="medium" selected>Media 🟡</option><option value="low">Baja 🟢</option></select></div>
+    </div>
+    <div><div class="inp-lbl">Vencimiento</div><input class="inp" id="rt-due" placeholder="Hoy / Mañana"></div>
+    <button class="btn" onclick="saveRoutine()">Guardar tarea</button>
+  </div>`);
+}
+function saveRoutine(){
+  const task=document.getElementById('rt-task').value.trim();
+  if(!task){toast('⚠️ Escribe la tarea');return}
+  routines.push({id:_rid++,tank:document.getElementById('rt-t').value,task,due:document.getElementById('rt-due').value.trim()||'Hoy',priority:document.getElementById('rt-pri').value,freq:document.getElementById('rt-freq').value});
+  closeModal();saveState();toast('✅ Tarea agregada');renderRoutines();renderDash();
+}
+
+// ─── FEEDING ───
+function setFeedTab(tab){
+  selFeedTab=tab;
+  ['sched','log'].forEach(t=>{document.getElementById(`ftab-${t}`).classList.toggle('on',t===tab);document.getElementById(`fv-${t}`).style.display=t===tab?'':'none'});
+  renderFeed();
+}
+function renderFeed(){renderFeedSchedule();renderFeedLog()}
+function renderFeedSchedule(){
+  const el=document.getElementById('feed-sched-list'),empty=document.getElementById('feed-sched-empty');
+  if(!feedSchedule.length){el.innerHTML='';empty.style.display='';return}
+  empty.style.display='none';
+  el.innerHTML=feedSchedule.map(f=>`<div class="fcrd ${f.doneToday?'done-today':''}"><div style="font-size:24px">${f.emoji||'🐟'}</div><div style="flex:1"><div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--soft)">${f.tankName}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${f.time} · <span class="chip ch-gold" style="font-size:9px;padding:2px 7px">${f.foodType}</span></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div onclick="toggleFeedDone(${f.id})" style="width:36px;height:36px;border-radius:11px;background:${f.doneToday?'var(--aqua)':'var(--glass)'};border:2px solid ${f.doneToday?'var(--aqua)':'var(--muted)'};display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .2s;-webkit-user-select:none;user-select:none">${f.doneToday?'✓':'○'}</div><div onclick="delFeedSched(${f.id})" style="color:rgba(255,77,106,.4);font-size:11px;cursor:pointer">✕</div></div></div>`).join('');
+}
+function renderFeedLog(){
+  const el=document.getElementById('feed-log-list'),empty=document.getElementById('feed-log-empty');
+  if(!feedLog.length){el.innerHTML='';empty.style.display='';return}
+  empty.style.display='none';
+  el.innerHTML=feedLog.slice().reverse().map(l=>`<div class="flog-item"><div><div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--soft)">${l.tankName}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${new Date(l.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>${l.notes?`<div style="font-size:10px;color:var(--muted);margin-top:2px;font-style:italic">${l.notes}</div>`:''}</div><div style="text-align:right"><span class="chip ch-gold" style="font-size:9px">${l.foodType}</span>${l.amount?`<div style="font-size:10px;color:var(--muted);margin-top:3px">${l.amount}</div>`:''}<div onclick="delFeedLog(${l.id})" style="color:rgba(255,77,106,.4);font-size:11px;cursor:pointer;margin-top:5px">✕</div></div></div>`).join('');
+}
+function toggleFeedDone(id){const f=feedSchedule.find(x=>x.id===id);if(f){f.doneToday=!f.doneToday;saveState();renderFeedSchedule();renderDash();toast(f.doneToday?'✅ ¡Alimentación completada!':'↩ Pendiente')}}
+function delFeedSched(id){feedSchedule=feedSchedule.filter(f=>f.id!==id);saveState();renderFeedSchedule();renderDash();toast('🗑 Horario eliminado')}
+function delFeedLog(id){feedLog=feedLog.filter(l=>l.id!==id);saveState();renderFeedLog();toast('🗑 Registro eliminado')}
+function openAddSchedule(){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
+  showModal(`<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">Nuevo horario de alimentación</div>
+    <div><div class="inp-lbl">Pecera</div><select class="inp" id="fs-t">${tanks.map(t=>`<option value="${t.id}">${t.emoji} ${t.name}</option>`).join('')}</select></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><div class="inp-lbl">Horario</div><select class="inp" id="fs-time">${FEED_TIMES.map(t=>`<option>${t}</option>`).join('')}</select></div>
+      <div><div class="inp-lbl">Tipo de alimento</div><select class="inp" id="fs-food">${FOOD_TYPES.map(f=>`<option>${f}</option>`).join('')}</select></div>
+    </div>
+    <button class="btn" onclick="saveFeedSched()">Guardar horario</button>
+  </div>`);
+}
+function saveFeedSched(){const sel=document.getElementById('fs-t'),tankId=parseInt(sel.value),tank=tanks.find(t=>t.id===tankId)||{name:'—',emoji:'🐟'};feedSchedule.push({id:_fschid++,tankId,tankName:tank.name,emoji:tank.emoji,time:document.getElementById('fs-time').value,foodType:document.getElementById('fs-food').value,doneToday:false});closeModal();saveState();toast('✅ Horario agregado');renderFeedSchedule();renderDash()}
+function openLogFeeding(){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
+  showModal(`<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">Registrar alimentación manual</div>
+    <div><div class="inp-lbl">Pecera</div><select class="inp" id="fl-t">${tanks.map(t=>`<option value="${t.id}">${t.emoji} ${t.name}</option>`).join('')}</select></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><div class="inp-lbl">Tipo de alimento</div><select class="inp" id="fl-food">${FOOD_TYPES.map(f=>`<option>${f}</option>`).join('')}</select></div>
+      <div><div class="inp-lbl">Cantidad (opcional)</div><input class="inp" id="fl-amount" placeholder="Ej: 5 pellets"></div>
+    </div>
+    <div><div class="inp-lbl">Notas (opcional)</div><input class="inp" id="fl-notes" placeholder="Observaciones..." maxlength="80"></div>
+    <button class="btn" onclick="saveFeedLog()">Guardar registro</button>
+  </div>`);
+}
+function saveFeedLog(){const tankId=parseInt(document.getElementById('fl-t').value),tank=tanks.find(t=>t.id===tankId)||{name:'—'};feedLog.push({id:_flogid++,tankId,tankName:tank.name,date:new Date(),foodType:document.getElementById('fl-food').value,amount:document.getElementById('fl-amount').value.trim(),notes:document.getElementById('fl-notes').value.trim()});closeModal();saveState();toast('✅ Alimentación registrada');renderFeedLog();renderDash()}
+
+// ══════════════════════════════════════════════════════
+//  SPECIES — con catálogo de peces
+// ══════════════════════════════════════════════════════
+
+function openSpeciesChoice(){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
+  openCatalog();
+}
+
+// ── CATÁLOGO ──
+let _catQuery='';
+function openCatalog(){
+  _selCatFish=null;_catQuery='';
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div class="modal-title">📖 Catálogo de peces</div>
+    <input class="search-inp" id="cat-search" placeholder="🔍 Buscar pez..." oninput="filterCatalog(this.value)" autocomplete="off">
+    <div class="cat-grid" id="cat-grid"></div>
+    <button class="btn" id="cat-btn" onclick="openFromCatalog()" style="display:none">Ver ficha y agregar</button>
+  </div>`);
+  renderCatalogGrid(FISH_CATALOG);
+}
+
+function filterCatalog(q){
+  _catQuery=q.toLowerCase();
+  const filtered=FISH_CATALOG.filter(f=>f.name.toLowerCase().includes(_catQuery)||f.sci.toLowerCase().includes(_catQuery)||f.diet.toLowerCase().includes(_catQuery)||f.diff.toLowerCase().includes(_catQuery));
+  renderCatalogGrid(filtered);
+}
+
+function renderCatalogGrid(list){
+  const el=document.getElementById('cat-grid');
+  if(!list.length){el.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);font-size:13px">Sin resultados para "${_catQuery}"</div>`;return}
+  const diffColor={Fácil:'var(--green)',Medio:'var(--gold)',Difícil:'var(--coral)'};
+  el.innerHTML=list.map(f=>`<div class="fish-card ${_selCatFish&&_selCatFish.id===f.id?'sel':''}" onclick="selectCatFish('${f.id}')">
+    <div class="fish-img-wrap" style="background:${f.grad} url(${f.img}) center/contain no-repeat">
+      <div class="fish-diff"><span class="badge" style="font-size:7px;padding:2px 6px;background:rgba(0,0,0,.5);border:1px solid ${diffColor[f.diff]};color:${diffColor[f.diff]}">${f.diff}</span></div>
+    </div>
+    <div class="fish-info">
+      <div class="fish-name">${f.name}</div>
+      <div class="fish-sci">${f.sci}</div>
+      <div class="fish-stats">
+        <span class="fish-stat">🌡 ${f.temp}</span>
+        <span class="fish-stat">pH ${f.ph}</span>
+        <span class="fish-stat">${f.size}</span>
+      </div>
+    </div>
+  </div>`).join('');
+}
+
+function selectCatFish(id){
+  _selCatFish=FISH_CATALOG.find(f=>f.id===id);
+  // Re-render with selection
+  const q=document.getElementById('cat-search').value;
+  filterCatalog(q||'');
+  const btn=document.getElementById('cat-btn');
+  if(btn)btn.style.display='';
+}
+
+function openFromCatalog(){
+  if(!_selCatFish){toast('⚠️ Selecciona un pez primero');return}
+  const f=_selCatFish;
+  const tkopts=tanks.map(t=>`<option>${t.emoji} ${t.name}</option>`).join('');
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="openCatalog()">←</div>
+    <div class="modal-title">${f.emoji} ${f.name}</div>
+
+    <!-- FISH PREVIEW -->
+    <div class="fish-preview">
+      <div style="height:150px;background:${f.grad} url(${f.img}) center/contain no-repeat;border-radius:16px 16px 0 0;flex-shrink:0"></div>
+      <div class="fish-preview-body">
+        <div style="font-size:11px;color:var(--muted);font-style:italic;margin-bottom:8px">${f.sci}</div>
+        <div style="font-size:12px;color:var(--soft);line-height:1.5;margin-bottom:10px">${f.desc}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <span class="chip ch-c">🌡 ${f.temp}</span>
+          <span class="chip ch-a">pH ${f.ph}</span>
+          <span class="chip ch-gold">${f.diet}</span>
+          <span class="chip ch-m">📏 ${f.size}</span>
+          <span class="chip ch-m">🪣 mín. ${f.min}L</span>
+          <span class="chip ${f.compat==='Pacífico'?'ch-green':f.compat==='Semi-agresivo'?'ch-gold':'ch-red'}">${f.compat}</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:13px">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Personalizar antes de agregar</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><div class="inp-lbl">Cantidad</div><input class="inp" id="cat-ct" type="number" value="1" min="1" inputmode="numeric"></div>
+        <div><div class="inp-lbl">Pecera</div><select class="inp" id="cat-tk">${tkopts}</select></div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="saveCatalogFish()">+ Agregar ${f.name} a mi pecera</button>
+    <button class="btn2" onclick="openCatalog()">← Volver al catálogo</button>
+  </div>`);
+}
+
+function saveCatalogFish(){
+  const f=_selCatFish;
+  const count=parseInt(document.getElementById('cat-ct').value)||1;
+  const tank=document.getElementById('cat-tk').value;
+  species.push({id:_sid++,name:f.name,sci:f.sci,emoji:f.emoji,count,diet:f.diet,diff:f.diff,temp:f.temp,ph:f.ph,compat:f.compat,tank,img:f.img,grad:f.grad,desc:f.desc,size:f.size,minTank:f.min});
+  closeModal();saveState();toast(`✅ ${f.name} agregado a ${tank}`);renderSpecies();renderDash();
+}
+
+// ── MANUAL SPECIES ──
+function openManualSpecies(editIdx){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
+  const tkopts=tanks.map(t=>`<option value="${t.emoji} ${t.name}">${t.emoji} ${t.name}</option>`).join('');
+  const sp=editIdx!=null?species[editIdx]:null;
+  _photoData=sp&&sp.customImg?sp.customImg:null;
+  const bgStyle=_photoData?`background-image:url(${_photoData});background-size:contain;background-position:center;background-repeat:no-repeat;border-style:solid;`:'';
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="${sp?'closeModal()':'openSpeciesChoice()'}">←</div>
+    <div class="modal-title">${sp?'✏️ Editar especie':'✏️ Especie personalizada'}</div>
+    <div>
+      <div class="inp-lbl">Foto del pez (opcional)</div>
+      <div class="photo-upload" id="photo-area" style="${bgStyle}" onclick="document.getElementById('sp-photo-input').click()">
+        <div class="overlay" id="photo-overlay" style="${_photoData?'background:rgba(6,13,24,.38)':''}"><span style="font-size:28px">📷</span><span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">${_photoData?'Cambiar foto':'Foto del pez'}</span></div>
+      </div>
+      <input type="file" id="sp-photo-input" accept="image/*" style="display:none" onchange="handlePhoto(this)">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="grid-column:1/-1"><div class="inp-lbl">Nombre común</div><input class="inp" id="sp-n" placeholder="Ej: Neon Tetra" maxlength="50" value="${sp?sp.name:''}"></div>
+      <div style="grid-column:1/-1"><div class="inp-lbl">Nombre científico (opcional)</div><input class="inp" id="sp-sc" placeholder="Ej: Paracheirodon innesi" value="${sp?sp.sci||'':''}"></div>
+      <div><div class="inp-lbl">Emoji</div><input class="inp" id="sp-em" placeholder="🐟" maxlength="4" value="${sp?sp.emoji:'🐟'}"></div>
+      <div><div class="inp-lbl">Cantidad</div><input class="inp" id="sp-ct" type="number" placeholder="5" min="1" inputmode="numeric" value="${sp?sp.count:1}"></div>
+      <div><div class="inp-lbl">Dieta</div><select class="inp" id="sp-di"><option${sp&&sp.diet==='Omnívoro'?' selected':''}>Omnívoro</option><option${sp&&sp.diet==='Herbívoro'?' selected':''}>Herbívoro</option><option${sp&&sp.diet==='Carnívoro'?' selected':''}>Carnívoro</option></select></div>
+      <div><div class="inp-lbl">Dificultad</div><select class="inp" id="sp-df"><option${!sp||sp.diff==='Fácil'?' selected':''}>Fácil</option><option${sp&&sp.diff==='Medio'?' selected':''}>Medio</option><option${sp&&sp.diff==='Difícil'?' selected':''}>Difícil</option></select></div>
+      <div><div class="inp-lbl">Temp. óptima</div><input class="inp" id="sp-tp" placeholder="24-27°C" maxlength="15" value="${sp?sp.temp&&sp.temp!=='—'?sp.temp:'':''}"></div>
+      <div><div class="inp-lbl">pH óptimo</div><input class="inp" id="sp-ph" placeholder="6.5-7.5" maxlength="15" value="${sp?sp.ph&&sp.ph!=='—'?sp.ph:'':''}"></div>
+      <div><div class="inp-lbl">Compatibilidad</div><select class="inp" id="sp-cp"><option${!sp||sp.compat==='Pacífico'?' selected':''}>Pacífico</option><option${sp&&sp.compat==='Semi-agresivo'?' selected':''}>Semi-agresivo</option><option${sp&&sp.compat==='Agresivo'?' selected':''}>Agresivo</option></select></div>
+      <div style="grid-column:1/-1"><div class="inp-lbl">Pecera asignada</div><select class="inp" id="sp-tk">${tkopts}</select></div>
+    </div>
+    <button class="btn" onclick="saveManualSp(${editIdx!=null?editIdx:'null'})">${sp?'💾 Guardar cambios':'Guardar especie'}</button>
+    ${sp?`<button class="btn2" onclick="closeModal()">Cancelar</button>`:''}
+  </div>`);
+  // Set tank select value
+  if(sp&&sp.tank){const s=document.getElementById('sp-tk');for(let o of s.options){if(o.value===sp.tank){o.selected=true;break}}}
+}
+function saveManualSp(editIdx){
+  const name=document.getElementById('sp-n').value.trim();
+  if(!name){toast('⚠️ Escribe el nombre');return}
+  const tkVal=document.getElementById('sp-tk').value;
+  const old=editIdx!=null&&editIdx>=0?species[editIdx]:null;
+  const newCustomImg=_photoData||(old?old.customImg:null);
+  const newImg=newCustomImg||(old?old.img:null);
+  const obj={
+    id:old?old.id:_sid++,
+    name,
+    sci:document.getElementById('sp-sc').value.trim(),
+    emoji:document.getElementById('sp-em').value.trim()||'🐟',
+    count:parseInt(document.getElementById('sp-ct').value)||1,
+    diet:document.getElementById('sp-di').value,
+    diff:document.getElementById('sp-df').value,
+    temp:document.getElementById('sp-tp').value||'—',
+    ph:document.getElementById('sp-ph').value||'—',
+    compat:document.getElementById('sp-cp').value,
+    tank:tkVal,
+    img:newImg,
+    customImg:newCustomImg,
+    grad:old?old.grad:null,
+    desc:old?old.desc:'',
+    size:old?old.size:'',
+    minTank:old?old.minTank:null,
+  };
+  if(old){species[editIdx]=obj;toast('✅ Especie actualizada')}
+  else{species.push(obj);toast('✅ Especie registrada')}
+  closeModal();saveState();renderSpecies();renderDash();
+}
+
+let _spTankFilter='all';
+function renderSpecies(){
+  const el=document.getElementById('sp-list'),empty=document.getElementById('sp-empty');
+  const filterWrap=document.getElementById('sp-tank-filter');
+  const pillsEl=document.getElementById('sp-tank-pills');
+  // Build tank filter pills
+  if(tanks.length>1&&species.length){
+    filterWrap.style.display='';
+    const allTanks=[...new Set(species.map(s=>s.tank).filter(Boolean))];
+    pillsEl.innerHTML=`<div class="tank-pill ${_spTankFilter==='all'?'on':''}" onclick="setSpFilter('all')">Todas</div>`+allTanks.map(tk=>`<div class="tank-pill ${_spTankFilter===tk?'on':''}" onclick="setSpFilter('${tk.replace(/'/g,"\\'")}'">${tk}</div>`).join('');
+  }else{filterWrap.style.display='none'}
+  const filtered=_spTankFilter==='all'?species:species.filter(s=>s.tank===_spTankFilter);
+  if(!filtered.length){el.innerHTML='';empty.style.display='';return}
+  empty.style.display='none';
+  const diffColor={Fácil:'b-ok',Medio:'b-warn',Difícil:'b-bad'};
+  const compatColor={Pacífico:'b-ok','Semi-agresivo':'b-warn',Agresivo:'b-bad'};
+  el.innerHTML=filtered.map(s=>{
+    const i=species.indexOf(s);
+    const displayImg=s.customImg||s.img;
+    const gradBg=s.grad||'linear-gradient(135deg,rgba(0,196,224,.08),rgba(0,237,212,.04))';
+    const photoHtml=displayImg
+      ?`<div class="sp-card-img-wrap" style="background:${gradBg} url(${displayImg}) center/contain no-repeat">
+          <div class="sp-photo-btn" onclick="event.stopPropagation();uploadSpPhoto(${i})">📷 Cambiar</div>
+        </div>`
+      :`<div class="sp-card-img-wrap" style="background:${gradBg}">
+          <div class="sp-fb" style="background:${gradBg};flex-direction:column;gap:8px">${s.emoji}<div class="sp-photo-btn" onclick="event.stopPropagation();uploadSpPhoto(${i})" style="position:relative;bottom:auto;right:auto">📷 Agregar foto</div></div>
+        </div>`;
+    return `<div class="sp-card">
+      ${photoHtml}
+      <input type="file" id="sp-file-${i}" accept="image/*" style="display:none" onchange="applySpPhoto(this,${i})">
+      <div class="sp-card-body">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <div style="flex:1;min-width:0">
+            <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--soft)">${s.emoji} ${s.name}</div>
+            ${s.sci?`<div style="font-size:11px;color:var(--muted);font-style:italic;margin-top:1px">${s.sci}</div>`:''}
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
+            <span class="badge ${diffColor[s.diff]||'b-purple'}">${s.diff||'—'}</span>
+            <span class="badge ${compatColor[s.compat]||'b-purple'}" style="font-size:8px">${s.compat||'—'}</span>
+          </div>
+        </div>
+        ${s.desc?`<div style="font-size:11px;color:var(--muted);margin-top:7px;line-height:1.5">${s.desc}</div>`:''}
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:10px">
+          <span class="chip ch-c">×${s.count}</span>
+          ${s.temp&&s.temp!=='—'?`<span class="chip ch-m">🌡 ${s.temp}</span>`:''}
+          ${s.ph&&s.ph!=='—'?`<span class="chip ch-a">pH ${s.ph}</span>`:''}
+          ${s.diet?`<span class="chip ch-gold">${s.diet}</span>`:''}
+          ${s.size?`<span class="chip ch-m">📏 ${s.size}</span>`:''}
+          ${s.minTank?`<span class="chip ch-m">🪣 ${s.minTank}L</span>`:''}
+          <span class="chip ch-m">📍 ${s.tank||'—'}</span>
+        </div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;gap:7px">
+            <button onclick="openManualSpecies(${i})" style="flex:1;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:8px;border-radius:10px;border:1px solid rgba(0,196,224,.25);background:var(--glass);color:var(--cyan);cursor:pointer">✏️ Editar</button>
+            <button onclick="openManualSpeciesForTank('${s.tank}')" style="flex:1;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:8px;border-radius:10px;border:1px solid rgba(47,238,160,.25);background:rgba(47,238,160,.05);color:var(--green);cursor:pointer">+ Agregar</button>
+            <button onclick="confirmDelSp(${i})" style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:8px 12px;border-radius:10px;border:1px solid rgba(255,77,106,.25);background:rgba(255,77,106,.05);color:var(--coral);cursor:pointer">🗑</button>
+          </div>
+          <button onclick="openFishDied(${i})" style="width:100%;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:9px;border-radius:10px;border:1px solid rgba(255,77,106,.35);background:rgba(255,77,106,.08);color:var(--coral);cursor:pointer">💀 Registrar muerte de pez</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function openManualSpeciesForTank(tankName){
+  openManualSpecies(null);
+  setTimeout(()=>{
+    const s=document.getElementById('sp-tk');
+    if(s){for(let o of s.options){if(o.value===tankName){o.selected=true;break}}}
+  },50);
+}
+
+function setSpFilter(tank){_spTankFilter=tank;renderSpecies()}
+
+// ─── MUERTE DE PEZ ───
+function openFishDied(i){
+  const s=species[i];
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div class="modal-title">💀 Registrar muerte</div>
+    <div style="background:rgba(255,77,106,.07);border:1px solid rgba(255,77,106,.25);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px">
+      <span style="font-size:36px">${s.emoji}</span>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--soft)">${s.name}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">Cantidad actual: <strong style="color:var(--soft)">×${s.count}</strong></div>
+      </div>
+    </div>
+    <div><div class="inp-lbl">¿Cuántos fallecieron?</div>
+      <input class="inp" id="die-ct" type="number" value="1" min="1" max="${s.count}" inputmode="numeric">
+    </div>
+    <div><div class="inp-lbl">Causa probable (opcional)</div>
+      <select class="inp" id="die-cause">
+        <option value="">— No especificado —</option>
+        <option>Enfermedad</option><option>Mala calidad del agua</option><option>Pelea / estrés</option>
+        <option>Vejez</option><option>Salto fuera del acuario</option><option>Temperatura incorrecta</option><option>Otra</option>
+      </select>
+    </div>
+    <div><div class="inp-lbl">Notas (opcional)</div>
+      <input class="inp" id="die-notes" placeholder="Síntomas, observaciones..." maxlength="100">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+      <button class="btn2" onclick="closeModal()">Cancelar</button>
+      <button class="btn-red" onclick="saveFishDied(${i})">💀 Registrar</button>
+    </div>
+  </div>`);
+}
+
+function saveFishDied(i){
+  const s=species[i];
+  const ct=parseInt(document.getElementById('die-ct').value)||1;
+  const cause=document.getElementById('die-cause').value;
+  const notes=document.getElementById('die-notes').value.trim();
+  if(ct>=s.count){
+    // Eliminar especie completa
+    const msg=`💀 ${s.name} — todos fallecieron${cause?' ('+cause+')':''}`;
+    species.splice(i,1);
+    closeModal();saveState();renderSpecies();renderDash();
+    toast(msg);
+  } else {
+    species[i].count -= ct;
+    closeModal();saveState();renderSpecies();renderDash();
+    toast(`💀 ${ct} ${s.name} registrado(s) como fallecido(s). Quedan ×${s.count-ct+ct===s.count?species[i].count:s.count}`);
+  }
+  // Registrar en salud si hay causa
+  if(cause){
+    diseases.push({
+      id:_did++,diseaseName:cause||'Fallecimiento',fishName:`${s.name} (×${ct})`,
+      tank:s.tank,symptoms:[],treatments:[],
+      startDate:new Date().toISOString().split('T')[0],
+      notes:notes||`Fallecimiento de ${ct} pez(ces)`,
+      status:'resolved',qStartDate:null,qEndDate:null
+    });
+    saveState();updateAlertBadge();
+  }
+}
+
+// ─── RECOMENDACIONES IA ───
+function getApiKey(){return localStorage.getItem('aquacontrol_apikey')||''}
+function saveApiKey(k){localStorage.setItem('aquacontrol_apikey',k.trim())}
+
+function openApiKeyModal(onSave){
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div class="modal-title">🔑 API Key de Anthropic</div>
+    <div style="background:rgba(0,196,224,.06);border:1px solid rgba(0,196,224,.18);border-radius:14px;padding:13px">
+      <div style="font-size:12px;color:var(--soft);line-height:1.6">Para usar el análisis con IA necesitas una API Key de Anthropic. Se guarda solo en tu dispositivo.</div>
+      <div style="margin-top:8px;font-size:11px;color:var(--muted)">Obtén tu clave gratis en: <span style="color:var(--cyan)">console.anthropic.com</span></div>
+    </div>
+    <div>
+      <div class="inp-lbl">Tu API Key</div>
+      <input class="inp" id="apikey-inp" type="password" placeholder="sk-ant-..." value="${getApiKey()}" autocomplete="off">
+    </div>
+    <button class="btn" onclick="
+      const k=document.getElementById('apikey-inp').value.trim();
+      if(!k.startsWith('sk-')){toast('⚠️ Clave inválida — debe empezar con sk-');return}
+      saveApiKey(k);closeModal();openAIRecommendations();
+    ">Guardar y analizar</button>
+  </div>`);
+}
+
+async function openAIRecommendations(){
+  const apiKey=getApiKey();
+  if(!apiKey){openApiKeyModal();return}
+  if(!tanks.length&&!species.length){toast('⚠️ Agrega peceras y especies primero');return}
+
+  const tankSummary=tanks.map(t=>{
+    const log=paramLog[t.id]||[],last=log.length?log[log.length-1]:null;
+    const myFish=species.filter(s=>s.tank&&s.tank.includes(t.name));
+    const totalFish=myFish.reduce((a,s)=>a+s.count,0);
+    return `Pecera: ${t.name} (${t.liters}L, filtración: ${(t.filtration||[]).join(', ')||'desconocida'})
+  Peces: ${myFish.map(s=>`${s.name} ×${s.count}`).join(', ')||'ninguno'} (total: ${totalFish})
+  ${last?`Parámetros: Temp ${last.temp}°C, pH ${last.ph}, NH₃ ${last.nh3} ppm, NO₂ ${last.no2||0} ppm, NO₃ ${last.no3} ppm`:'Sin parámetros registrados'}`;
+  }).join('\n\n');
+
+  const speciesSummary=species.map(s=>
+    `- ${s.name} (${s.sci||'—'}): ×${s.count}, ${s.temp||'—'}, pH ${s.ph||'—'}, ${s.diet||'—'}, ${s.compat||'—'}, mín ${s.minTank||'?'}L, pecera: ${s.tank||'—'}`
+  ).join('\n');
+
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div class="modal-title">🤖 Recomendaciones IA</div>
+    <div id="ai-loading" style="text-align:center;padding:30px;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="font-size:36px">🔍</div>
+      <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--cyan)">Analizando tu acuario...</div>
+      <div style="font-size:11px;color:var(--muted)">Revisando espacio, compatibilidad y parámetros</div>
+    </div>
+    <div id="ai-result" style="display:none"></div>
+  </div>`);
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:1000,
+        system:`Eres un experto acuarista. Analiza el acuario del usuario y da recomendaciones prácticas en español. 
+Sé conciso y específico. Responde SOLO en este formato JSON exacto (sin markdown):
+{
+  "espacio": [{"tipo":"ok|warn|bad","texto":"..."}],
+  "compatibilidad": [{"tipo":"ok|warn|bad","texto":"..."}],
+  "parametros": [{"tipo":"ok|warn|bad","texto":"..."}],
+  "sugerencias": ["...","..."],
+  "puntuacion": 85
+}
+Usa "ok" para bien, "warn" para atención, "bad" para problema crítico. puntuacion es del 0 al 100.`,
+        messages:[{role:'user',content:`Analiza mi acuario:\n\n${tankSummary}\n\nEspecies detalle:\n${speciesSummary}`}]
+      })
+    });
+
+    if(resp.status===401){
+      const loadEl=document.getElementById('ai-loading');
+      const resEl=document.getElementById('ai-result');
+      if(loadEl)loadEl.style.display='none';
+      if(resEl){
+        resEl.style.display='';
+        resEl.innerHTML=`<div style="background:rgba(255,77,106,.08);border:1px solid rgba(255,77,106,.3);border-radius:14px;padding:14px;text-align:center">
+          <div style="font-size:22px;margin-bottom:8px">🔑</div>
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--coral);margin-bottom:6px">API Key inválida</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Verifica tu clave en console.anthropic.com</div>
+          <button class="btn2" onclick="localStorage.removeItem('aquacontrol_apikey');closeModal();openApiKeyModal()">🔑 Cambiar API Key</button>
+        </div>`;
+      }
+      return;
+    }
+
+    const data=await resp.json();
+    const text=data.content?.find(b=>b.type==='text')?.text||'{}';
+    let r;
+    try{r=JSON.parse(text)}catch{r=null}
+
+    const loadEl=document.getElementById('ai-loading');
+    const resEl=document.getElementById('ai-result');
+    if(!loadEl||!resEl)return;
+    loadEl.style.display='none';resEl.style.display='';
+
+    if(!r){resEl.innerHTML=`<div style="color:var(--muted);font-size:12px;padding:10px">No se pudo analizar. Intenta de nuevo.</div>`;return}
+
+    const scoreCol=r.puntuacion>=80?'var(--green)':r.puntuacion>=60?'var(--gold)':'var(--coral)';
+    const typeIcon={ok:'✅',warn:'⚠️',bad:'🚨'};
+    const typeBg={ok:'rgba(47,238,160,.07)',warn:'rgba(255,185,64,.07)',bad:'rgba(255,77,106,.07)'};
+    const typeBorder={ok:'rgba(47,238,160,.25)',warn:'rgba(255,185,64,.25)',bad:'rgba(255,77,106,.25)'};
+
+    function renderItems(arr){
+      return (arr||[]).map(it=>`
+        <div style="display:flex;gap:9px;align-items:flex-start;background:${typeBg[it.tipo]};border:1px solid ${typeBorder[it.tipo]};border-radius:11px;padding:10px;margin-bottom:7px">
+          <span style="font-size:15px;flex-shrink:0">${typeIcon[it.tipo]}</span>
+          <span style="font-size:12px;color:var(--soft);line-height:1.5">${it.texto}</span>
+        </div>`).join('');
+    }
+
+    resEl.innerHTML=`
+      <div style="text-align:center;padding:14px 0 8px">
+        <div style="font-family:'Space Mono',monospace;font-size:42px;font-weight:700;color:${scoreCol}">${r.puntuacion}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Puntuación del acuario / 100</div>
+      </div>
+      <div class="slbl" style="margin-bottom:7px">📐 Espacio y densidad</div>
+      ${renderItems(r.espacio)}
+      <div class="slbl" style="margin-top:4px;margin-bottom:7px">🤝 Compatibilidad</div>
+      ${renderItems(r.compatibilidad)}
+      <div class="slbl" style="margin-top:4px;margin-bottom:7px">💧 Parámetros</div>
+      ${renderItems(r.parametros)}
+      ${r.sugerencias?.length?`
+        <div class="slbl" style="margin-top:4px;margin-bottom:7px">💡 Sugerencias</div>
+        <div style="background:rgba(0,196,224,.06);border:1px solid rgba(0,196,224,.18);border-radius:14px;padding:13px">
+          ${r.sugerencias.map(s=>`<div style="display:flex;gap:8px;font-size:12px;color:var(--soft);margin-bottom:7px;line-height:1.5"><span style="color:var(--cyan);flex-shrink:0">→</span>${s}</div>`).join('')}
+        </div>`:''}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px">
+        <button class="btn2" onclick="openAIRecommendations()">🔄 Analizar de nuevo</button>
+        <button class="btn2" onclick="localStorage.removeItem('aquacontrol_apikey');closeModal();openApiKeyModal()" style="font-size:11px">🔑 Cambiar clave</button>
+      </div>
+    `;
+  }catch(e){
+    const loadEl=document.getElementById('ai-loading');
+    const resEl=document.getElementById('ai-result');
+    if(loadEl)loadEl.style.display='none';
+    if(resEl){
+      resEl.style.display='';
+      resEl.innerHTML=`<div style="background:rgba(255,77,106,.08);border:1px solid rgba(255,77,106,.3);border-radius:14px;padding:14px;text-align:center">
+        <div style="font-size:22px;margin-bottom:8px">⚠️</div>
+        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--coral);margin-bottom:6px">Error de conexión</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px">${e.message||'Verifica tu conexión a internet'}</div>
+        <button class="btn2" onclick="openAIRecommendations()">Reintentar</button>
+      </div>`;
+    }
+  }
+}
+
+let _spTab='list';
+function setSpTab(tab){
+  _spTab=tab;
+  ['list','gallery','catalog'].forEach(t=>{
+    const btn=document.getElementById('sptab-'+t);
+    const view=document.getElementById('sp-view-'+t);
+    if(btn)btn.classList.toggle('on',t===tab);
+    if(view)view.style.display=t===tab?'':'none';
+  });
+  if(tab==='gallery')renderSpGallery();
+  if(tab==='catalog'){filterInlineCatalog('');const el=document.getElementById('inline-cat-search');if(el)el.value='';}
+}
+
+function renderSpGallery(){
+  const grid=document.getElementById('sp-gallery-grid');
+  const empty=document.getElementById('sp-gallery-empty');
+  if(!grid)return;
+  if(!species.length){grid.style.display='none';empty.style.display='';return}
+  grid.style.display='grid';empty.style.display='none';
+  grid.innerHTML=species.map((s,i)=>{
+    const img=s.customImg||s.img;
+    const bgStyle=img?`background:${s.grad||'#091726'} url(${img}) center/contain no-repeat`:`background:${s.grad||'#091726'}`;
+    return `<div class="sp-gcard">
+      <div class="sp-gcard-img" style="${bgStyle}"></div>
+      <div class="sp-gcard-body">
+        <div class="sp-gcard-name">${s.emoji} ${s.name}</div>
+        <div class="sp-gcard-sub">×${s.count} · ${s.tank||'—'}</div>
+        <div style="margin-top:6px;display:flex;gap:5px">
+          <button onclick="openManualSpecies(${i})" style="flex:1;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:6px;border-radius:8px;border:1px solid rgba(0,196,224,.25);background:var(--glass);color:var(--cyan);cursor:pointer">✏️</button>
+          <button onclick="document.getElementById('gal-file-${i}').click()" style="flex:1;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:6px;border-radius:8px;border:1px solid rgba(157,126,255,.3);background:rgba(157,126,255,.08);color:var(--purple);cursor:pointer">📷</button>
+          <button onclick="confirmDelSp(${i})" style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:6px 10px;border-radius:8px;border:1px solid rgba(255,77,106,.25);background:rgba(255,77,106,.05);color:var(--coral);cursor:pointer">🗑</button>
+        </div>
+        <input type="file" id="gal-file-${i}" accept="image/*" style="display:none" onchange="applySpPhotoGallery(this,${i})">
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function applySpPhotoGallery(input,i){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{species[i].customImg=e.target.result;species[i].img=e.target.result;saveState();toast('📷 Foto actualizada');renderSpGallery();};
+  reader.readAsDataURL(file);
+}
+
+// ── INLINE CATALOG ──
+let _inlineCatQuery='';
+let _catPhotoData=null;
+function filterInlineCatalog(q){
+  _inlineCatQuery=(q||'').toLowerCase();
+  const list=FISH_CATALOG.filter(f=>!_inlineCatQuery||f.name.toLowerCase().includes(_inlineCatQuery)||f.sci.toLowerCase().includes(_inlineCatQuery));
+  const grid=document.getElementById('inline-cat-grid');
+  if(!grid)return;
+  const diffColor={Fácil:'var(--green)',Medio:'var(--gold)',Difícil:'var(--coral)'};
+  grid.innerHTML=list.map(f=>{
+    const img=f.customImg||f.img;
+    const isCustom=!!f._custom;
+    return `<div class="inline-cat-card">
+      <div class="inline-cat-card-img" style="background:${f.grad};position:relative;overflow:hidden">
+        ${img?`<img src="${img}" alt="${f.name}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;display:block">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px">'+f.emoji+'</div>'}
+      </div>
+      <div class="inline-cat-card-body">
+        <div class="inline-cat-card-name">${f.emoji} ${f.name}</div>
+        <div class="inline-cat-card-sci">${f.sci||''}</div>
+        <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">
+          <span style="font-size:9px;font-family:'Space Mono',monospace;color:${diffColor[f.diff]||'var(--muted)'}">${f.diff}</span>
+          ${f.temp?`<span style="font-size:9px;font-family:'Space Mono',monospace;color:var(--muted)">· 🌡${f.temp}</span>`:''}
+        </div>
+        <button class="inline-cat-card-btn" onclick="addFromInlineCatalog('${f.id}')">+ Agregar a pecera</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px">
+          <button class="inline-cat-photo-btn" onclick="openAddToCatalog('${f.id}')">✏️ Editar</button>
+          <label class="inline-cat-photo-btn" style="display:block;text-align:center;cursor:pointer">📷 Foto<input type="file" accept="image/*" style="display:none" onchange="applyCatalogPhoto(this,'${f.id}')"></label>
+        </div>
+        ${isCustom?`<button onclick="deleteCatalogFish('${f.id}')" style="margin-top:5px;width:100%;font-family:'Space Mono',monospace;font-size:9px;padding:5px;border-radius:8px;border:1px solid rgba(255,77,106,.25);background:rgba(255,77,106,.05);color:var(--coral);cursor:pointer">🗑 Eliminar del catálogo</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAddToCatalog(fid){
+  const f=fid?FISH_CATALOG.find(x=>x.id===fid):null;
+  _catPhotoData=f?(f.customImg||f.img||null):null;
+  const bgStyle=_catPhotoData?`background-image:url(${_catPhotoData});background-size:contain;background-position:center;background-repeat:no-repeat;border-style:solid;`:'';
+  const GRADS=['linear-gradient(135deg,#001A40,#003080)','linear-gradient(135deg,#1A0040,#5000A0)','linear-gradient(135deg,#400010,#900030)','linear-gradient(135deg,#402000,#C06000)','linear-gradient(135deg,#0A1A30,#203050)','linear-gradient(135deg,#001A10,#004030)','linear-gradient(135deg,#1A1A00,#404000)'];
+  const gradOpts=GRADS.map((g,i)=>`<option value="${g}" ${f&&f.grad===g?'selected':''}>${['🔵 Azul','🟣 Morado','🔴 Rojo','🟠 Naranja','⚫ Gris','🟢 Verde','🟡 Amarillo'][i]}</option>`).join('');
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div class="modal-title">${f?'✏️ Editar pez del catálogo':'➕ Nuevo pez al catálogo'}</div>
+    <div>
+      <div class="inp-lbl">Foto del pez (opcional)</div>
+      <div class="photo-upload" id="cat-photo-area" style="${bgStyle}" onclick="document.getElementById('cat-photo-file').click()">
+        <div class="overlay" id="cat-photo-overlay" style="${_catPhotoData?'background:rgba(6,13,24,.38)':''}">
+          <span style="font-size:28px">📷</span>
+          <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">${_catPhotoData?'Cambiar foto':'Foto del pez'}</span>
+        </div>
+      </div>
+      <input type="file" id="cat-photo-file" accept="image/*" style="display:none" onchange="handleCatPhoto(this)">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="grid-column:1/-1"><div class="inp-lbl">Nombre común *</div><input class="inp" id="cf-name" placeholder="Ej: Telescopio negro" maxlength="60" value="${f?f.name:''}"></div>
+      <div style="grid-column:1/-1"><div class="inp-lbl">Nombre científico</div><input class="inp" id="cf-sci" placeholder="Ej: Carassius auratus" value="${f?f.sci||'':''}"></div>
+      <div><div class="inp-lbl">Emoji</div><input class="inp" id="cf-emoji" placeholder="🐟" maxlength="4" value="${f?f.emoji:'🐟'}"></div>
+      <div><div class="inp-lbl">Tamaño</div><input class="inp" id="cf-size" placeholder="Ej: 15–20 cm" maxlength="20" value="${f?f.size||'':''}"></div>
+      <div><div class="inp-lbl">Temp. óptima</div><input class="inp" id="cf-temp" placeholder="Ej: 20–26°C" maxlength="15" value="${f?f.temp||'':''}"></div>
+      <div><div class="inp-lbl">pH óptimo</div><input class="inp" id="cf-ph" placeholder="Ej: 6.5–7.5" maxlength="15" value="${f?f.ph||'':''}"></div>
+      <div><div class="inp-lbl">Dieta</div><select class="inp" id="cf-diet">
+        <option${f&&f.diet==='Omnívoro'?' selected':''}>Omnívoro</option>
+        <option${f&&f.diet==='Herbívoro'?' selected':''}>Herbívoro</option>
+        <option${f&&f.diet==='Carnívoro'?' selected':''}>Carnívoro</option>
+      </select></div>
+      <div><div class="inp-lbl">Dificultad</div><select class="inp" id="cf-diff">
+        <option${!f||f.diff==='Fácil'?' selected':''}>Fácil</option>
+        <option${f&&f.diff==='Medio'?' selected':''}>Medio</option>
+        <option${f&&f.diff==='Difícil'?' selected':''}>Difícil</option>
+      </select></div>
+      <div><div class="inp-lbl">Compatibilidad</div><select class="inp" id="cf-compat">
+        <option${!f||f.compat==='Pacífico'?' selected':''}>Pacífico</option>
+        <option${f&&f.compat==='Semi-agresivo'?' selected':''}>Semi-agresivo</option>
+        <option${f&&f.compat==='Agresivo'?' selected':''}>Agresivo</option>
+      </select></div>
+      <div><div class="inp-lbl">Litros mínimos</div><input class="inp" id="cf-min" type="number" placeholder="Ej: 100" min="1" inputmode="numeric" value="${f?f.min||'':''}"></div>
+      <div style="grid-column:1/-1"><div class="inp-lbl">Color de fondo</div><select class="inp" id="cf-grad">${gradOpts}</select></div>
+      <div style="grid-column:1/-1"><div class="inp-lbl">Descripción</div><textarea class="inp" id="cf-desc" placeholder="Comportamiento, cuidados, notas..." maxlength="200" rows="3" style="resize:none">${f?f.desc||'':''}</textarea></div>
+    </div>
+    <button class="btn" onclick="saveFishToCatalog('${fid||''}')">💾 ${f?'Guardar cambios':'Agregar al catálogo'}</button>
+    <button class="btn2" onclick="closeModal()">Cancelar</button>
+  </div>`);
+}
+
+function handleCatPhoto(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    _catPhotoData=e.target.result;
+    const area=document.getElementById('cat-photo-area');if(!area)return;
+    area.style.backgroundImage=`url(${_catPhotoData})`;
+    area.style.backgroundSize='contain';
+    area.style.backgroundPosition='center';
+    area.style.backgroundRepeat='no-repeat';
+    area.style.borderStyle='solid';
+    const ov=document.getElementById('cat-photo-overlay');
+    if(ov)ov.style.background='rgba(6,13,24,.38)';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveFishToCatalog(fid){
+  const name=document.getElementById('cf-name').value.trim();
+  if(!name){toast('⚠️ Escribe el nombre del pez');return}
+  const data={
+    id:fid||('cu'+Date.now()),
+    _custom:true,
+    name,
+    sci:document.getElementById('cf-sci').value.trim(),
+    emoji:document.getElementById('cf-emoji').value.trim()||'🐟',
+    size:document.getElementById('cf-size').value.trim(),
+    temp:document.getElementById('cf-temp').value.trim()||'—',
+    ph:document.getElementById('cf-ph').value.trim()||'—',
+    diet:document.getElementById('cf-diet').value,
+    diff:document.getElementById('cf-diff').value,
+    compat:document.getElementById('cf-compat').value,
+    min:parseInt(document.getElementById('cf-min').value)||null,
+    grad:document.getElementById('cf-grad').value,
+    desc:document.getElementById('cf-desc').value.trim(),
+    img:_catPhotoData||null,
+    customImg:_catPhotoData||null,
+  };
+  if(fid){
+    const idx=FISH_CATALOG.findIndex(f=>f.id===fid);
+    if(idx>=0){FISH_CATALOG[idx]={...FISH_CATALOG[idx],...data};toast('✅ Pez actualizado en catálogo');}
+    else{FISH_CATALOG.push(data);toast('✅ Pez agregado al catálogo');}
+  } else {
+    FISH_CATALOG.push(data);toast('✅ Pez agregado al catálogo');
+  }
+  _catPhotoData=null;
+  closeModal();
+  saveState();
+  filterInlineCatalog(_inlineCatQuery);
+}
+
+function deleteCatalogFish(fid){
+  const idx=FISH_CATALOG.findIndex(f=>f.id===fid);
+  if(idx>=0&&FISH_CATALOG[idx]._custom){FISH_CATALOG.splice(idx,1);saveState();toast('🗑 Pez eliminado del catálogo');filterInlineCatalog(_inlineCatQuery);}
+}
+
+function applyCatalogPhoto(input,fid){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const f=FISH_CATALOG.find(x=>x.id===fid);
+    if(f){f.customImg=e.target.result;f.img=e.target.result;saveState();toast('📷 Foto actualizada');filterInlineCatalog(_inlineCatQuery);}
+  };
+  reader.readAsDataURL(file);
+}
+
+function addFromInlineCatalog(fid){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
+  _selCatFish=FISH_CATALOG.find(f=>f.id===fid);
+  if(_selCatFish)openFromCatalog();
+}
+function uploadSpPhoto(i){document.getElementById('sp-file-'+i).click()}
+function applySpPhoto(input,i){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{species[i].customImg=e.target.result;species[i].img=e.target.result;saveState();toast('📷 Foto actualizada');renderSpecies()};
+  reader.readAsDataURL(file);
+}
+function confirmDelSp(i){
+  const s=species[i];
+  showModal(`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div class="modal-title">🗑 Eliminar especie</div>
+    <div style="font-size:13px;color:var(--muted)">¿Eliminar <strong style="color:var(--soft)">${s.emoji} ${s.name}</strong> (×${s.count}) de ${s.tank}?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn2" onclick="closeModal()">Cancelar</button>
+      <button class="btn-red" onclick="delSp(${i})">Sí, eliminar</button>
+    </div>
+  </div>`);
+}
+function delSp(i){species.splice(i,1);_spTankFilter='all';closeModal();saveState();renderSpecies();renderDash();toast('🗑 Especie eliminada')}
+
+// ─── DISEASE ADVICE DATA ───
+const DISEASE_ADVICE={
+  'Ich / Puntos blancos':{icon:'🔵',cause:'Parásito Ichthyophthirius multifiliis. Se activa con estrés, bajas de temperatura o peces nuevos.',steps:['Aísla los peces afectados en cuarentena inmediatamente','Sube temperatura gradualmente a 28–30°C (acelera el ciclo del parásito)','Añade Verde malaquita o Metileno azul según dosis del fabricante','Agrega sal de acuario: 1–3g por litro','Cambios de agua del 25% cada 2 días durante tratamiento','Aspira el fondo para eliminar quistes caídos','Trata mínimo 10–14 días aunque los puntos desaparezcan antes'],waterChange:'Cambio del 25% cada 2 días durante tratamiento. Añade medicamento proporcional al agua nueva.',params:'Temperatura 28–30°C. Sal 1–3 g/L. Sin carbón activo durante el tratamiento.',malachite:true},
+  'Fin rot / Podredumbre de aletas':{icon:'🟤',cause:'Bacterias (Aeromonas, Pseudomonas) que atacan aletas dañadas por peleas, agua sucia o estrés.',steps:['Mejora la calidad del agua inmediatamente','Realiza cambio de agua del 30%','Trata con antibiótico de amplio espectro o Metileno azul','Revisa si hay peces agresivos en el acuario','Mantén el agua bien oxigenada','El tejido de la aleta puede regenerarse si se trata a tiempo'],waterChange:'Cambio del 30% inmediato. Luego 20% cada 3 días. Agua limpia es el mejor medicamento.',params:'NH₃=0 ppm. Nitritos 0 ppm. pH estable. Temperatura constante sin fluctuaciones.',malachite:false},
+  'Hidropesía':{icon:'🟡',cause:'Acumulación de líquido en cavidad abdominal. Puede ser bacteriana, viral o renal.',steps:['Aísla el pez en cuarentena con agua limpia','Trata con antibiótico (Kanamicina o Maracyn)','Añade sal: 1 cucharadita por 4 litros para equilibrio osmótico','Evita el estrés al pez','Desinfecta el acuario principal después'],waterChange:'Cambio del 50% en cuarentena con agua tratada. Repite cada 2 días.',params:'NH₃=0, NO₂=0, pH estable. Sal al 0.1–0.3%.',malachite:false},
+  'Columnaris':{icon:'⚪',cause:'Bacteria Flavobacterium columnare. Lesiones blancas/grises en boca, aletas y cuerpo.',steps:['Aísla inmediatamente — muy contagioso','Trata con antibiótico (Kanamicina, Tetraciclina)','Temperatura a 25°C (no más — la bacteria prospera con calor)','Mejora oxigenación','Limpia el fondo con sifón','Desinfecta equipo compartido'],waterChange:'Cambio del 30% cada 2 días. Repón medicamento proporcional.',params:'NO subas temperatura. NH₃=0. Buena oxigenación es clave.',malachite:false},
+  'Velvet / Terciopelo':{icon:'🟠',cause:'Parásito Oodinium (dinoflagelado). Apariencia de polvo dorado/marrón en el cuerpo.',steps:['OSCURECE el acuario — el parásito necesita luz para su ciclo','Trata con Cobre sulfato o Verde malaquita','Sube temperatura a 28°C','Aísla peces afectados','Trata TODO el acuario','Mínimo 3 semanas de tratamiento'],waterChange:'Cambio del 20% cada 3 días con oscuridad mantenida. Repón medicamento.',params:'Apaga luces completamente. Temperatura 28°C. Cobre incompatible con invertebrados.',malachite:true},
+  'Anchor worm':{icon:'🔴',cause:'Parásito crustáceo Lernaea. Visible como hilos blancos/rojizos clavados en el cuerpo.',steps:['Extrae los parásitos manualmente con pinzas','Desinfecta la herida con yodo diluido o Metileno azul','Trata el agua con Antiparasitario (Dimilin)','Inspecciona TODOS los peces','Aspira fondo para eliminar huevos','Repite tratamiento a las 2 semanas'],waterChange:'Cambio del 30% antes de tratar. Repite a la semana.',params:'Temperatura normal. El antiparasitario actúa sobre larvas, no adultos visibles.',malachite:false},
+  'Bacterial infection':{icon:'🦠',cause:'Infección bacteriana general (Aeromonas, Streptococcus, etc). Muchos síntomas posibles.',steps:['Identifica síntomas específicos para elegir antibiótico correcto','Aísla peces afectados','Trata con antibiótico de amplio espectro','Cambio del 30% de agua','Eleva temperatura 1–2°C para reforzar sistema inmune','Vigila al resto del acuario'],waterChange:'Cambio del 30% inmediato y cada 3 días durante tratamiento.',params:'NH₃=0 indispensable. Temperatura constante. Sin carbón activo con antibióticos.',malachite:false},
+  'Fungal infection':{icon:'🍄',cause:'Hongo (Saprolegnia) que aparece como algodón blanco en heridas o huevos.',steps:['Trata con Metileno azul o Verde malaquita','Retira plantas muertas y materia orgánica','Mejora calidad del agua','En herida local: sal directa en zona afectada 30 segundos','Añade sal al acuario: 1–2g/L'],waterChange:'Cambio del 30% para eliminar esporas. Aspira fondo bien.',params:'Reduce materia orgánica. Retira carbón activo durante el tratamiento.',malachite:true},
+  'Parasitos externos':{icon:'🔺',cause:'Parásitos como flukes, Chilodonella, Trichodina u otros ectoparásitos.',steps:['Baño de sal: 10–15g/L por 5–10 minutos (no más)','Trata con Antiparasitario o Formol (dosis bajas)','Aspira fondo y filtra agua','Inspecciona todos los peces','Repite a los 7 días','Cuarentena para peces nuevos en el futuro'],waterChange:'Cambio del 30% antes del tratamiento. Repón medicamento proporcional.',params:'Temperatura estable. Formol reduce oxígeno — aumenta aireación.',malachite:false},
+  'Otra':{icon:'❓',cause:'Enfermedad no especificada. Observa síntomas para afinar el diagnóstico.',steps:['Documenta todos los síntomas con fotos','Realiza cambio de agua del 25%','Revisa todos los parámetros (pH, NH₃, NO₂, NO₃, temperatura)','Consulta especialista si es grave','Aísla el pez afectado','No mezcles tratamientos sin conocer la causa'],waterChange:'Cambio del 25% preventivo. Agua limpia siempre ayuda.',params:'Parámetros en rango óptimo como base.',malachite:false}
+};
+
+function openDiseaseAdvice(diseaseName,fishName,tankName,paramsTankId){
+  const adv=DISEASE_ADVICE[diseaseName]||DISEASE_ADVICE['Otra'];
+  let paramWarnings='';
+  if(paramsTankId){
+    const log=paramLog[paramsTankId]||[];const last=log.length?log[log.length-1]:null;
+    if(last){const warns=[];
+      if(last.nh3>0.1)warns.push('⚠️ NH₃ elevado ('+last.nh3+' ppm) — empeora cualquier enfermedad');
+      if((last.no2||0)>0.3)warns.push('⚠️ NO₂ alto ('+(last.no2||0)+' ppm) — realiza cambio de agua urgente');
+      if(last.no3>25)warns.push('⚠️ NO₃ alto ('+last.no3+' ppm) — cambia el 30% del agua');
+      if(last.temp<22||last.temp>30)warns.push('⚠️ Temperatura ('+last.temp+'°C) fuera de rango óptimo');
+      if(warns.length)paramWarnings='<div style="background:rgba(255,77,106,.08);border:1px solid rgba(255,77,106,.25);border-radius:14px;padding:13px"><div style="font-family:\'Space Mono\',monospace;font-size:9px;color:var(--coral);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">🚨 Alerta de parámetros actuales</div>'+warns.map(w=>'<div style="font-size:12px;color:var(--coral);margin-bottom:5px">'+w+'</div>').join('')+'</div>';
+    }
+  }
+  showModal('<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">'+adv.icon+' '+diseaseName+'</div><div style="font-size:11px;color:var(--muted)">🐟 '+fishName+' · '+tankName+'</div>'+paramWarnings+'<div style="background:rgba(0,196,224,.06);border:1px solid rgba(0,196,224,.15);border-radius:14px;padding:13px"><div style="font-family:\'Space Mono\',monospace;font-size:9px;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Causa</div><div style="font-size:12px;color:var(--soft);line-height:1.5">'+adv.cause+'</div></div>'+(adv.malachite?'<div style="background:rgba(47,238,160,.06);border:1px solid rgba(47,238,160,.25);border-radius:12px;padding:11px;display:flex;gap:10px;align-items:center"><span style="font-size:20px">🟢</span><div style="font-size:12px;color:var(--green)"><strong>Verde malaquita recomendado</strong> para este diagnóstico. Retira carbón activo del filtro.</div></div>':'')+'<div><div style="font-family:\'Space Mono\',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px">Tratamiento paso a paso</div>'+adv.steps.map((s,i)=>'<div style="display:flex;gap:10px;align-items:flex-start;padding:8px;background:var(--glass);border-radius:10px;margin-bottom:6px"><div style="min-width:22px;height:22px;border-radius:7px;background:rgba(255,77,106,.15);display:flex;align-items:center;justify-content:center;font-family:\'Space Mono\',monospace;font-size:9px;font-weight:700;color:var(--coral);flex-shrink:0">'+(i+1)+'</div><div style="font-size:12px;color:var(--soft);line-height:1.5">'+s+'</div></div>').join('')+'</div><div style="background:rgba(0,237,212,.06);border:1px solid rgba(0,237,212,.2);border-radius:14px;padding:13px"><div style="font-family:\'Space Mono\',monospace;font-size:9px;color:var(--aqua);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">💧 Cambios de agua</div><div style="font-size:12px;color:var(--soft);line-height:1.5">'+adv.waterChange+'</div></div><div style="background:rgba(157,126,255,.06);border:1px solid rgba(157,126,255,.2);border-radius:14px;padding:13px"><div style="font-family:\'Space Mono\',monospace;font-size:9px;color:var(--purple);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">📊 Parámetros objetivo</div><div style="font-size:12px;color:var(--soft);line-height:1.5">'+adv.params+'</div></div><button class="btn" onclick="openWaterChangeGuide()">💧 Guía de cambio de agua</button></div>');
+}
+
+let _wcPct=10;
+function openWaterChangeGuide(){
+  const litros=tanks.length?tanks[0].liters:100;
+  const tankOpts=tanks.length?'<div><div class="inp-lbl">Pecera</div><select class="inp" id="wc-tank" onchange="calcWaterChange()">'+tanks.map(t=>'<option value="'+t.liters+'" data-name="'+t.emoji+' '+t.name+'">'+t.emoji+' '+t.name+' ('+t.liters+'L)</option>').join('')+'</select></div>':'';
+  _wcPct=25;
+  showModal('<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">💧 Guía de Cambio de Agua</div><div style="background:rgba(0,196,224,.07);border:1px solid rgba(0,196,224,.18);border-radius:14px;padding:13px"><div style="font-family:\'Space Mono\',monospace;font-size:9px;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">¿Por qué es importante?</div><div style="font-size:12px;color:var(--muted);line-height:1.6">Los cambios regulares eliminan nitratos acumulados, reponen minerales y estabilizan el pH. Es la tarea más importante del mantenimiento.</div></div>'+tankOpts+'<div><div class="inp-lbl">¿Cuánto % cambiar?</div><div class="filt-grid" id="wc-pct-grid"><div class="filt-chip" onclick="selectWCPct(this,10)">10%<div style="font-size:8px;margin-top:2px">Mantenimiento</div></div><div class="filt-chip on" onclick="selectWCPct(this,25)">25%<div style="font-size:8px;margin-top:2px">Semanal</div></div><div class="filt-chip" onclick="selectWCPct(this,30)">30%<div style="font-size:8px;margin-top:2px">Tratamiento</div></div><div class="filt-chip" onclick="selectWCPct(this,50)">50%<div style="font-size:8px;margin-top:2px">Emergencia</div></div></div></div><div id="wc-result" style="background:rgba(0,237,212,.06);border:1px solid rgba(0,237,212,.2);border-radius:14px;padding:15px"><div style="font-family:\'Syne\',sans-serif;font-size:24px;font-weight:800;color:var(--aqua)" id="wc-liters-out">'+Math.round(litros*0.25)+' litros</div><div style="font-size:11px;color:var(--muted);margin-top:3px" id="wc-result-sub">a reemplazar · 25% de '+litros+'L</div></div><div id="wc-steps"></div><div style="background:rgba(255,185,64,.06);border:1px solid rgba(255,185,64,.2);border-radius:14px;padding:13px"><div style="font-family:\'Space Mono\',monospace;font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">⚠️ Consejos clave</div>'+['Iguala la temperatura del agua nueva (±1°C máximo)','Usa acondicionador de agua (dechlorinador) SIEMPRE','Nunca cambies más del 50% en una sola sesión','Aspira el sustrato mientras sacas el agua','Si usas medicamentos, repón la dosis proporcional al agua cambiada'].map(t=>'<div style="font-size:11px;color:var(--muted);display:flex;gap:7px;margin-bottom:4px"><span style="color:var(--gold);flex-shrink:0">·</span>'+t+'</div>').join('')+'</div><div style="background:rgba(157,126,255,.07);border:1px solid rgba(157,126,255,.2);border-radius:14px;padding:13px"><div style="font-family:\'Space Mono\',monospace;font-size:9px;color:var(--purple);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">📅 Frecuencia recomendada</div>'+[['10–15%','2x semana','Acuarios muy poblados'],['20–25%','Semanal','Mantenimiento estándar'],['30%','Semanal','Durante tratamiento'],['50%','Emergencia','NH₃ o NO₂ detectados']].map(([p,f,d])=>'<div style="display:flex;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(157,126,255,.1)"><div style="min-width:40px;font-family:\'Space Mono\',monospace;font-size:10px;font-weight:700;color:var(--purple)">'+p+'</div><div style="flex:1"><div style="font-size:12px;color:var(--soft)">'+f+'</div><div style="font-size:10px;color:var(--muted)">'+d+'</div></div></div>').join('')+'</div><button class="btn" onclick="logWaterChangeTask()">✅ Agregar a mis tareas</button></div>');
+  setTimeout(()=>calcWaterChange(),50);
+}
+function selectWCPct(el,pct){
+  _wcPct=pct;
+  document.querySelectorAll('#wc-pct-grid .filt-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  calcWaterChange();
+}
+function calcWaterChange(){
+  const sel=document.getElementById('wc-tank');
+  const litros=sel?parseInt(sel.value):(tanks.length?tanks[0].liters:100);
+  const vol=Math.round(litros*(_wcPct/100));
+  const lo=document.getElementById('wc-liters-out');const rs=document.getElementById('wc-result-sub');
+  if(lo)lo.textContent=vol+' litros';
+  if(rs)rs.textContent='a reemplazar · '+_wcPct+'% de '+litros+'L';
+  const stepsEl=document.getElementById('wc-steps');
+  if(stepsEl){
+    const steps=['Prepara '+vol+'L de agua nueva a la misma temperatura del acuario (±1°C)','Añade acondicionador de agua (dechlorinador) a los '+vol+'L y mezcla bien','Apaga el filtro y calentador durante el proceso','Extrae '+vol+'L con sifón aspirando el sustrato al mismo tiempo','Introduce el agua nueva lentamente junto al cristal para no asustar a los peces','Enciende filtro y calentador nuevamente','Si hay medicamentos, añade '+_wcPct+'% de la dosis original al agua nueva','Anota el cambio en tu historial de tareas'];
+    stepsEl.innerHTML='<div style="font-family:\'Space Mono\',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Procedimiento paso a paso</div>'+steps.map((s,i)=>'<div style="display:flex;gap:10px;align-items:flex-start;padding:8px;background:var(--glass);border-radius:10px;margin-bottom:6px"><div style="min-width:22px;height:22px;border-radius:7px;background:rgba(0,196,224,.15);display:flex;align-items:center;justify-content:center;font-family:\'Space Mono\',monospace;font-size:9px;font-weight:700;color:var(--cyan);flex-shrink:0">'+(i+1)+'</div><div style="font-size:12px;color:var(--soft);line-height:1.5">'+s+'</div></div>').join('');
+  }
+}
+function logWaterChangeTask(){
+  if(!tanks.length){closeModal();toast('⚠️ Agrega una pecera primero');return}
+  const sel=document.getElementById('wc-tank');
+  const tankName=sel?sel.options[sel.selectedIndex].getAttribute('data-name'):(tanks[0].emoji+' '+tanks[0].name);
+  routines.push({id:_rid++,tank:tankName,task:'💧 Cambio de agua '+_wcPct+'%',due:'Hoy',priority:'high',freq:'Semanal'});
+  closeModal();saveState();toast('💧 Cambio de agua agregado a tareas');renderRoutines();renderDash();
+}
+
+// ─── HEALTH / QUARANTINE ───
+function renderHealth(){
+  const el=document.getElementById('health-list'),empty=document.getElementById('health-empty');
+  if(!diseases.length){el.innerHTML='';empty.style.display='';return}
+  empty.style.display='none';
+  el.innerHTML=diseases.slice().reverse().map(d=>{
+    const isQ=d.status==='quarantine',isA=d.status==='active',isR=d.status==='resolved';
+    let qInfo='';
+    if(isQ&&d.qStartDate&&d.qEndDate){
+      const total=Math.max(1,daysBetween(d.qStartDate,d.qEndDate)),elapsed=Math.max(0,daysBetween(d.qStartDate,new Date())),rem=Math.max(0,daysBetween(new Date(),d.qEndDate)),pct=Math.min(100,Math.round((elapsed/total)*100));
+      qInfo=`<div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--gold)">🔒 Día ${elapsed} de ${total}</span><span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--gold)">Faltan ${rem}d</span></div><div class="qbar-wrap"><div class="qbar" style="width:${pct}%"></div></div></div>`;
+    }
+    const stBadge=isA?'<span class="badge b-bad">ACTIVO</span>':isQ?'<span class="badge b-warn">CUARENTENA</span>':'<span class="badge b-green">RESUELTO</span>';
+    const symptoms=(d.symptoms||[]).map(s=>`<span class="chip ch-red" style="font-size:9px">${s}</span>`).join('');
+    const treats=(d.treatments||[]).map(t=>`<span class="chip ch-purple" style="font-size:9px">💊 ${t}</span>`).join('');
+    const tankObj=tanks.find(t=>t.name&&d.tank&&d.tank.includes(t.name));
+    const ptid=tankObj?tankObj.id:null;
+    const advEsc=d.diseaseName.replace(/'/g,"\\'");
+    const fishEsc=d.fishName.replace(/'/g,"\\'");
+    const tankEsc=(d.tank||'—').replace(/'/g,"\\'");
+    return `<div class="dcrd ${isA?'active':isQ?'quarantine':isR?'resolved':''}">
+      <div class="dcrd-head"><div style="flex:1;min-width:0">
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--soft)">${d.diseaseName}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">🐟 ${d.fishName} · ${d.tank||'—'}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:1px">📅 ${new Date(d.startDate).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'})}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">${stBadge}
+        <div onclick="cycleStatus(${d.id})" style="font-family:'Space Mono',monospace;font-size:8px;color:var(--cyan);cursor:pointer;padding:3px 8px;border:1px solid rgba(0,196,224,.2);border-radius:7px;-webkit-user-select:none;user-select:none">Cambiar estado</div>
+      </div></div>
+      ${symptoms||treats||qInfo?`<div class="dcrd-body">
+        ${symptoms?`<div><div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Síntomas</div><div style="display:flex;gap:4px;flex-wrap:wrap">${symptoms}</div></div>`:''}
+        ${treats?`<div><div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Tratamiento</div><div style="display:flex;gap:4px;flex-wrap:wrap">${treats}</div></div>`:''}
+        ${d.notes?`<div style="font-size:11px;color:var(--muted);font-style:italic">${d.notes}</div>`:''}
+        ${qInfo}
+      </div>`:''}
+      <div style="padding:0 15px 12px;display:flex;justify-content:space-between;align-items:center">
+        <div onclick="openDiseaseAdvice('${advEsc}','${fishEsc}','${tankEsc}',${ptid})" style="font-family:'Space Mono',monospace;font-size:9px;color:var(--aqua);cursor:pointer;padding:5px 10px;border:1px solid rgba(0,237,212,.25);border-radius:8px;background:rgba(0,237,212,.06);-webkit-user-select:none;user-select:none">💡 Ver consejos</div>
+        <span onclick="delDisease(${d.id})" style="font-size:11px;color:rgba(255,77,106,.35);cursor:pointer">✕ eliminar</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+function cycleStatus(id){
+  const d=diseases.find(x=>x.id===id);if(!d)return;
+  const cycle={active:'quarantine',quarantine:'resolved',resolved:'active'};
+  d.status=cycle[d.status]||'active';
+  saveState();renderHealth();renderDash();updateAlertBadge();
+  toast(d.status==='quarantine'?'🔒 En cuarentena':d.status==='resolved'?'✅ Resuelto':'🦠 Activo');
+}
+function delDisease(id){if(!confirm('¿Eliminar este registro?'))return;diseases=diseases.filter(d=>d.id!==id);saveState();renderHealth();renderDash();updateAlertBadge();toast('🗑 Eliminado')}
+function openAddDisease(){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
+  _filtSel=new Set();_treatSel=new Set();
+  showModal(`<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">🦠 Registrar enfermedad</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="grid-column:1/-1"><div class="inp-lbl">Diagnóstico</div><select class="inp" id="d-dis">${DISEASES_LIST.map(d=>`<option>${d}</option>`).join('')}</select></div>
+      <div style="grid-column:1/-1"><div class="inp-lbl">Pez(ces) afectados</div><input class="inp" id="d-fish" placeholder="Ej: Neon Tetra 2, Guppy hembra" maxlength="60"></div>
+      <div style="grid-column:1/-1"><div class="inp-lbl">Pecera</div><select class="inp" id="d-tk">${tanks.map(t=>`<option>${t.emoji} ${t.name}</option>`).join('')}</select></div>
+    </div>
+    <div><div class="inp-lbl">Síntomas observados</div><div class="filt-grid" id="symp-grid">${SYMPTOMS_LIST.map(s=>`<div class="filt-chip" onclick="toggleFilt(this,'${s}')">${s}</div>`).join('')}</div></div>
+    <div><div class="inp-lbl">Tratamiento(s)</div><div class="filt-grid">${TREATMENTS.map(t=>`<div class="filt-chip" onclick="toggleTreat(this,'${t}')">${t}</div>`).join('')}</div></div>
+    <div><div class="inp-lbl">Fecha de inicio</div><input class="inp" id="d-date" type="date" value="${new Date().toISOString().split('T')[0]}"></div>
+    <div><div class="inp-lbl">Notas</div><input class="inp" id="d-notes" placeholder="Observaciones, evolución..." maxlength="100"></div>
+    <button class="btn-red" onclick="saveDisease()">Registrar enfermedad</button>
+  </div>`);
+}
+function toggleTreat(el,name){if(_treatSel.has(name)){_treatSel.delete(name);el.classList.remove('on')}else{_treatSel.add(name);el.classList.add('on')}}
+function saveDisease(){
+  const fishName=document.getElementById('d-fish').value.trim();
+  if(!fishName){toast('⚠️ Indica qué pez está afectado');return}
+  diseases.push({id:_did++,diseaseName:document.getElementById('d-dis').value,fishName,tank:document.getElementById('d-tk').value,symptoms:[..._filtSel],treatments:[..._treatSel],startDate:document.getElementById('d-date').value,notes:document.getElementById('d-notes').value.trim(),status:'active',qStartDate:null,qEndDate:null});
+  closeModal();saveState();toast('🦠 Enfermedad registrada');renderHealth();renderDash();updateAlertBadge();
+}
+function openAddQuarantine(){
+  if(!tanks.length){toast('⚠️ Agrega una pecera primero');return}
+  const today=new Date().toISOString().split('T')[0];
+  const end=new Date();end.setDate(end.getDate()+14);const endStr=end.toISOString().split('T')[0];
+  showModal(`<div class="modal" onclick="event.stopPropagation()"><div class="modal-close" onclick="closeModal()">✕</div><div class="modal-title">🔒 Iniciar cuarentena</div>
+    <div style="background:rgba(255,185,64,.06);border:1px solid rgba(255,185,64,.2);border-radius:14px;padding:13px"><div style="font-size:12px;color:var(--gold)">⚠️ La cuarentena aísla al pez para evitar contagio. Mínimo recomendado: 14 días.</div></div>
+    <div><div class="inp-lbl">Pez(ces) en cuarentena</div><input class="inp" id="q-fish" placeholder="Ej: Guppy macho, 3 Neon Tetra" maxlength="60"></div>
+    <div><div class="inp-lbl">Motivo</div><select class="inp" id="q-dis">${DISEASES_LIST.map(d=>`<option>${d}</option>`).join('')}</select></div>
+    <div><div class="inp-lbl">Pecera de origen</div><select class="inp" id="q-tk">${tanks.map(t=>`<option>${t.emoji} ${t.name}</option>`).join('')}</select></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><div class="inp-lbl">Inicio</div><input class="inp" id="q-start" type="date" value="${today}"></div>
+      <div><div class="inp-lbl">Fin estimado</div><input class="inp" id="q-end" type="date" value="${endStr}"></div>
+    </div>
+    <div><div class="inp-lbl">Notas</div><input class="inp" id="q-notes" placeholder="Medicamentos, observaciones..." maxlength="100"></div>
+    <button class="btn" style="background:linear-gradient(135deg,var(--gold),#805000)" onclick="saveQuarantine()">🔒 Iniciar cuarentena</button>
+  </div>`);
+}
+function saveQuarantine(){
+  const fishName=document.getElementById('q-fish').value.trim();
+  if(!fishName){toast('⚠️ Indica qué pez va a cuarentena');return}
+  const qStart=document.getElementById('q-start').value,qEnd=document.getElementById('q-end').value;
+  if(new Date(qEnd)<=new Date(qStart)){toast('⚠️ La fecha fin debe ser posterior');return}
+  diseases.push({id:_did++,diseaseName:document.getElementById('q-dis').value,fishName,tank:document.getElementById('q-tk').value,symptoms:[],treatments:[],startDate:qStart,notes:document.getElementById('q-notes').value.trim(),status:'quarantine',qStartDate:qStart,qEndDate:qEnd});
+  closeModal();saveState();toast('🔒 Cuarentena iniciada');renderHealth();renderDash();updateAlertBadge();
+}
+
+// ════════════════════════════════════════════════════
+//  PERSISTENCIA — localStorage
+// ════════════════════════════════════════════════════
+const STORAGE_KEY='aquacontrol_v1';
+
+function saveState(){
+  try{
+    // Guardar FISH_CATALOG solo los custom
+    const customFish=FISH_CATALOG.filter(f=>f._custom);
+    const state={
+      tanks,species,routines,feedSchedule,feedLog,diseases,
+      paramLog,routineDone,
+      selTank,
+      counters:{_tid,_rid,_sid,_fschid,_flogid,_did},
+      customFish,
+    };
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+  }catch(e){console.warn('AquaControl: No se pudo guardar',e);}
+}
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw)return;
+    const s=JSON.parse(raw);
+    if(s.tanks)tanks=s.tanks;
+    if(s.species)species=s.species;
+    if(s.routines)routines=s.routines;
+    if(s.feedSchedule)feedSchedule=s.feedSchedule;
+    if(s.feedLog)feedLog=s.feedLog;
+    if(s.diseases)diseases=s.diseases;
+    if(s.paramLog)paramLog=s.paramLog;
+    if(s.routineDone)routineDone=s.routineDone;
+    if(s.selTank)selTank=s.selTank;
+    if(s.counters){
+      _tid=s.counters._tid||1;_rid=s.counters._rid||1;_sid=s.counters._sid||1;
+      _fschid=s.counters._fschid||1;_flogid=s.counters._flogid||1;_did=s.counters._did||1;
+    }
+    // Restaurar peces custom al catálogo
+    if(s.customFish&&s.customFish.length){
+      s.customFish.forEach(f=>{
+        if(!FISH_CATALOG.find(x=>x.id===f.id))FISH_CATALOG.push(f);
+      });
+    }
+  }catch(e){console.warn('AquaControl: No se pudo cargar',e);}
+}
+
+// ════════════════════════════════════════════════════
+//  AI CHAT — AquaBot powered by Claude AI
+// ════════════════════════════════════════════════════
+let _aiHistory = [];
+let _aiTyping = false;
+
+const AI_SUGGESTIONS_DEFAULT = [
+  '🔍 Analiza mis parámetros',
+  '🐟 Compatibilidad de peces',
+  '💊 Ayuda con enfermedad',
+  '🌿 Plantas para mi acuario',
+  '💧 ¿Cuándo cambiar agua?',
+];
+
+function getAquariumContext() {
+  const ctx = [];
+  if (tanks.length) {
+    ctx.push(`PECERAS (${tanks.length}):`);
+    tanks.forEach(t => {
+      const log = paramLog[t.id] || [];
+      const last = log.length ? log[log.length - 1] : null;
+      const myFish = species.filter(s => s.tank === `${t.emoji} ${t.name}`);
+      ctx.push(`  • ${t.emoji} ${t.name} — ${t.liters}L, filtración: ${(t.filtration||[]).join(', ')||'sin filtro'}`);
+      if (last) ctx.push(`    Parámetros: pH ${last.ph}, Temp ${last.temp}°C, NH₃ ${last.nh3}ppm, NO₂ ${last.no2||0}ppm, NO₃ ${last.no3||0}ppm`);
+      if (myFish.length) ctx.push(`    Peces: ${myFish.map(s=>`${s.emoji} ${s.name} ×${s.count}`).join(', ')}`);
+    });
+  } else {
+    ctx.push('Sin peceras registradas.');
+  }
+  if (species.length) {
+    ctx.push(`\nESPECIES TOTALES: ${species.map(s=>`${s.name} ×${s.count} (${s.tank})`).join(', ')}`);
+  }
+  if (diseases.filter(d=>d.status!=='resolved').length) {
+    const active = diseases.filter(d=>d.status!=='resolved');
+    ctx.push(`\nSALUD — ${active.length} caso(s) activo(s):`);
+    active.forEach(d => ctx.push(`  • ${d.diseaseName} en ${d.fishName} [${d.status}]`));
+  }
+  const pending = routines.filter(r=>!routineDone[r.id]);
+  if (pending.length) ctx.push(`\nTAREAS PENDIENTES: ${pending.length} (${pending.map(r=>r.task).slice(0,3).join(', ')}${pending.length>3?'...':''})`);
+  return ctx.join('\n');
+}
+
+function buildSystemPrompt() {
+  const ctx = getAquariumContext();
+  return `Eres AquaBot, un experto acuarista virtual integrado en AquaControl Pro. Eres amigable, conciso y muy preciso en temas de acuarismo de agua dulce.
+
+DATOS ACTUALES DEL USUARIO:
+${ctx || 'El usuario aún no ha registrado datos en la app.'}
+
+INSTRUCCIONES:
+- Responde SIEMPRE en español, de forma conversacional y directa.
+- Usa los datos del acuario del usuario para personalizar tus respuestas.
+- Sé específico: menciona nombres de peceras, peces y valores reales cuando los tengas.
+- Para parámetros, indica rangos óptimos y si hay algo fuera de rango, priorízalo.
+- Máximo 200 palabras por respuesta, a menos que sea un plan detallado.
+- Usa emojis de forma moderada para hacer las respuestas más amigables.
+- Si el usuario no tiene datos, ayúdale a empezar.`;
+}
+
+function openAIChat() {
+  const panel = document.getElementById('ai-panel');
+  panel.classList.add('open');
+  const msgs = document.getElementById('ai-msgs');
+  if (!msgs.children.length) {
+    const ctx = getAquariumContext();
+    const hasData = tanks.length > 0;
+    const welcome = hasData
+      ? `¡Hola! 👋 Soy **AquaBot**, tu experto en acuarismo. Veo que tienes **${tanks.length} pecera${tanks.length>1?'s':''}** registrada${tanks.length>1?'s':''}. ¿En qué te puedo ayudar hoy?`
+      : `¡Hola! 👋 Soy **AquaBot**, tu asistente de acuarismo. Parece que aún no tienes peceras registradas. ¡Empieza agregando tu primera pecera y te ayudo a configurarla!`;
+    addAIMessage('ai', welcome);
+    showAISuggestions(AI_SUGGESTIONS_DEFAULT);
+  }
+  setTimeout(() => {
+    const input = document.getElementById('ai-input');
+    if (input) input.focus();
+  }, 350);
+}
+
+function closeAIChat() {
+  document.getElementById('ai-panel').classList.remove('open');
+}
+
+function addAIMessage(role, text) {
+  const msgs = document.getElementById('ai-msgs');
+  const div = document.createElement('div');
+  div.className = `ai-msg ${role}`;
+  const ico = role === 'ai' ? '🤖' : '👤';
+  const formatted = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+  div.innerHTML = `
+    <div class="ai-msg-ico">${ico}</div>
+    <div class="ai-bubble">${formatted}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('ai-msgs');
+  const div = document.createElement('div');
+  div.className = 'ai-msg ai';
+  div.id = 'ai-typing-indicator';
+  div.innerHTML = `<div class="ai-msg-ico">🤖</div><div class="ai-bubble"><div class="ai-typing"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('ai-typing-indicator');
+  if (t) t.remove();
+}
+
+function showAISuggestions(suggestions) {
+  const el = document.getElementById('ai-suggestions');
+  el.innerHTML = suggestions.map(s =>
+    `<div class="ai-sug" onclick="sendAISuggestion(this.textContent)">${s}</div>`
+  ).join('');
+}
+
+function sendAISuggestion(text) {
+  document.getElementById('ai-input').value = text;
+  sendAIMsg();
+}
+
+async function sendAIMsg() {
+  if (_aiTyping) return;
+  const input = document.getElementById('ai-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('ai-suggestions').innerHTML = '';
+
+  addAIMessage('user', text);
+  _aiHistory.push({ role: 'user', content: text });
+
+  _aiTyping = true;
+  const sendBtn = document.getElementById('ai-send');
+  sendBtn.disabled = true;
+  showTyping();
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: buildSystemPrompt(),
+        messages: _aiHistory,
+      }),
+    });
+
+    const data = await response.json();
+    removeTyping();
+
+    if (data.content && data.content[0] && data.content[0].text) {
+      const reply = data.content[0].text;
+      _aiHistory.push({ role: 'assistant', content: reply });
+      addAIMessage('ai', reply);
+
+      // Generate contextual suggestions
+      const sugs = generateFollowUpSuggestions(text, reply);
+      if (sugs.length) showAISuggestions(sugs);
+    } else {
+      addAIMessage('ai', 'Hubo un problema al procesar tu pregunta. Intenta de nuevo. 🙏');
+    }
+  } catch (err) {
+    removeTyping();
+    addAIMessage('ai', '⚠️ Sin conexión. Verifica tu internet e intenta de nuevo.');
+    console.error('AquaBot error:', err);
+  }
+
+  _aiTyping = false;
+  sendBtn.disabled = false;
+}
+
+function generateFollowUpSuggestions(userMsg, reply) {
+  const msg = (userMsg + reply).toLowerCase();
+  if (msg.includes('enfermedad') || msg.includes('ich') || msg.includes('parásito')) {
+    return ['💊 ¿Qué medicamento usar?', '🔒 ¿Cuándo hacer cuarentena?', '💧 ¿Cambio de agua urgente?'];
+  }
+  if (msg.includes('ph') || msg.includes('parámetro') || msg.includes('amoniaco') || msg.includes('nh3')) {
+    return ['💧 ¿Cómo bajar el pH?', '🔄 ¿Cuándo cambiar agua?', '📊 ¿Qué nivel es peligroso?'];
+  }
+  if (msg.includes('pez') || msg.includes('peces') || msg.includes('especie')) {
+    return ['🐟 ¿Son compatibles?', '🍽 ¿Cuánto alimentar?', '🌡 Temperatura ideal'];
+  }
+  if (msg.includes('planta') || msg.includes('alga')) {
+    return ['💡 ¿Cuántas horas de luz?', '🌿 Plantas fáciles para principiantes', '🧪 Fertilizante necesario'];
+  }
+  return ['🔍 Más detalles', '💧 Cuidado del agua', '🐟 Mis peces'];
+}
+
+function openAIRecommendations() {
+  openAIChat();
+  // Auto-send an analysis request if we have data
+  if (tanks.length > 0) {
+    setTimeout(() => {
+      const input = document.getElementById('ai-input');
+      if (input) {
+        input.value = '🔍 Analiza el estado de mis acuarios y dame recomendaciones personalizadas';
+        sendAIMsg();
+      }
+    }, 400);
+  }
+}
+
+renderDash();
+</script>
+</body>
+</html>
