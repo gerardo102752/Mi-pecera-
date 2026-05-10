@@ -231,6 +231,58 @@ select.inp{cursor:pointer}
 .tank-filter-row::-webkit-scrollbar{display:none}
 .tank-pill{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:7px 14px;border-radius:20px;cursor:pointer;border:1px solid rgba(0,196,224,.22);background:var(--glass);color:var(--muted);white-space:nowrap;transition:all .18s;-webkit-user-select:none;user-select:none;flex-shrink:0}
 .tank-pill.on{background:var(--cyan);color:#060D18;border-color:var(--cyan)}
+
+/* ── AI CHAT ── */
+#ai-fab{position:fixed;bottom:calc(72px + var(--safe-bot) + 12px);right:14px;width:52px;height:52px;border-radius:18px;background:linear-gradient(135deg,#7C3AED,#00C4E0);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 20px rgba(124,58,237,.45);z-index:100;transition:transform .15s;-webkit-user-select:none;user-select:none}
+#ai-fab:active{transform:scale(.9)}
+#ai-fab .ai-badge{position:absolute;top:-4px;right:-4px;background:var(--coral);border:2px solid var(--navy);border-radius:50%;width:16px;height:16px;font-size:8px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;color:#fff;display:none}
+
+#ai-panel{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;background:var(--navy);transform:translateY(100%);transition:transform .3s cubic-bezier(.2,0,0,1);pointer-events:none}
+#ai-panel.open{transform:translateY(0);pointer-events:all}
+
+#ai-header{padding:calc(var(--safe-top)+14px) 16px 14px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);background:rgba(9,23,38,.97);backdrop-filter:blur(12px);flex-shrink:0}
+#ai-avatar{width:38px;height:38px;border-radius:13px;background:linear-gradient(135deg,#7C3AED,#00C4E0);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+#ai-header-text{flex:1;min-width:0}
+#ai-header-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--soft)}
+#ai-header-sub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.08em}
+#ai-close{width:34px;height:34px;border-radius:11px;background:var(--glass);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--muted);flex-shrink:0;-webkit-user-select:none;user-select:none}
+#ai-close:active{background:var(--glassh)}
+
+#ai-msgs{flex:1;overflow-y:auto;padding:14px 14px 8px;display:flex;flex-direction:column;gap:10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#ai-msgs::-webkit-scrollbar{display:none}
+
+.ai-msg{display:flex;gap:10px;align-items:flex-start;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.ai-msg.user{flex-direction:row-reverse}
+.ai-bubble{max-width:82%;padding:11px 14px;border-radius:18px;font-size:13px;line-height:1.55;color:var(--soft)}
+.ai-msg.ai .ai-bubble{background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.22);border-bottom-left-radius:6px}
+.ai-msg.user .ai-bubble{background:rgba(0,196,224,.13);border:1px solid rgba(0,196,224,.25);border-bottom-right-radius:6px;color:var(--soft)}
+.ai-msg-ico{width:28px;height:28px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:2px}
+.ai-msg.ai .ai-msg-ico{background:linear-gradient(135deg,#7C3AED,#00C4E0)}
+.ai-msg.user .ai-msg-ico{background:rgba(0,196,224,.18)}
+.ai-typing{display:flex;gap:4px;padding:6px 2px;align-items:center}
+.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--purple);opacity:.4;animation:bounce .9s infinite}
+.ai-dot:nth-child(2){animation-delay:.15s}.ai-dot:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{opacity:.4;transform:none}30%{opacity:1;transform:translateY(-4px)}}
+
+#ai-suggestions{display:flex;gap:7px;padding:4px 14px 6px;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+#ai-suggestions::-webkit-scrollbar{display:none}
+.ai-sug{font-family:'Space Mono',monospace;font-size:10px;padding:8px 12px;border-radius:22px;border:1px solid rgba(124,58,237,.35);background:rgba(124,58,237,.08);color:var(--purple);white-space:nowrap;cursor:pointer;transition:all .18s;flex-shrink:0;-webkit-user-select:none;user-select:none}
+.ai-sug:active{background:rgba(124,58,237,.2)}
+
+#ai-input-row{padding:8px 12px calc(8px + var(--safe-bot));display:flex;gap:9px;align-items:flex-end;border-top:1px solid var(--border);flex-shrink:0;background:rgba(6,13,24,.98)}
+#ai-input{flex:1;background:var(--glass);border:1px solid rgba(124,58,237,.3);border-radius:16px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--soft);outline:none;resize:none;max-height:100px;min-height:42px;line-height:1.4;-webkit-appearance:none;appearance:none}
+#ai-input:focus{border-color:rgba(124,58,237,.6);background:var(--glassh)}
+#ai-input::placeholder{color:var(--muted)}
+#ai-send{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#7C3AED,#00C4E0);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;transition:opacity .2s;-webkit-user-select:none;user-select:none}
+#ai-send:active{opacity:.8}
+#ai-send:disabled{opacity:.4;cursor:default}
+
+.ai-quick-card{background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.22);border-radius:14px;padding:11px 13px;cursor:pointer;transition:all .18s;-webkit-user-select:none;user-select:none}
+.ai-quick-card:active{background:rgba(124,58,237,.18)}
+.ai-quick-card-ico{font-size:20px;margin-bottom:5px}
+.ai-quick-card-t{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--soft)}
+.ai-quick-card-s{font-size:10px;color:var(--muted);margin-top:2px}
 </style>
 </head>
 <body>
@@ -407,6 +459,29 @@ select.inp{cursor:pointer}
 
   <div class="toast" id="toast"></div>
   <div id="mroot"></div>
+
+  <!-- AI FAB -->
+  <button id="ai-fab" onclick="openAIChat()" title="Asistente IA">🤖</button>
+
+  <!-- AI PANEL -->
+  <div id="ai-panel">
+    <div id="ai-header">
+      <div id="ai-avatar">🤖</div>
+      <div id="ai-header-text">
+        <div id="ai-header-name">AquaBot IA</div>
+        <div id="ai-header-sub">Experto en acuarismo · Claude AI</div>
+      </div>
+      <div id="ai-close" onclick="closeAIChat()">✕</div>
+    </div>
+    <div id="ai-msgs"></div>
+    <div id="ai-suggestions"></div>
+    <div id="ai-input-row">
+      <textarea id="ai-input" placeholder="Pregúntame sobre tu acuario..." rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIMsg()}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'"></textarea>
+      <button id="ai-send" onclick="sendAIMsg()">➤</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1923,8 +1998,216 @@ function loadState(){
   }catch(e){console.warn('AquaControl: No se pudo cargar',e);}
 }
 
-// ─── Cargar datos al iniciar ───
-loadState();
+// ════════════════════════════════════════════════════
+//  AI CHAT — AquaBot powered by Claude AI
+// ════════════════════════════════════════════════════
+let _aiHistory = [];
+let _aiTyping = false;
+
+const AI_SUGGESTIONS_DEFAULT = [
+  '🔍 Analiza mis parámetros',
+  '🐟 Compatibilidad de peces',
+  '💊 Ayuda con enfermedad',
+  '🌿 Plantas para mi acuario',
+  '💧 ¿Cuándo cambiar agua?',
+];
+
+function getAquariumContext() {
+  const ctx = [];
+  if (tanks.length) {
+    ctx.push(`PECERAS (${tanks.length}):`);
+    tanks.forEach(t => {
+      const log = paramLog[t.id] || [];
+      const last = log.length ? log[log.length - 1] : null;
+      const myFish = species.filter(s => s.tank === `${t.emoji} ${t.name}`);
+      ctx.push(`  • ${t.emoji} ${t.name} — ${t.liters}L, filtración: ${(t.filtration||[]).join(', ')||'sin filtro'}`);
+      if (last) ctx.push(`    Parámetros: pH ${last.ph}, Temp ${last.temp}°C, NH₃ ${last.nh3}ppm, NO₂ ${last.no2||0}ppm, NO₃ ${last.no3||0}ppm`);
+      if (myFish.length) ctx.push(`    Peces: ${myFish.map(s=>`${s.emoji} ${s.name} ×${s.count}`).join(', ')}`);
+    });
+  } else {
+    ctx.push('Sin peceras registradas.');
+  }
+  if (species.length) {
+    ctx.push(`\nESPECIES TOTALES: ${species.map(s=>`${s.name} ×${s.count} (${s.tank})`).join(', ')}`);
+  }
+  if (diseases.filter(d=>d.status!=='resolved').length) {
+    const active = diseases.filter(d=>d.status!=='resolved');
+    ctx.push(`\nSALUD — ${active.length} caso(s) activo(s):`);
+    active.forEach(d => ctx.push(`  • ${d.diseaseName} en ${d.fishName} [${d.status}]`));
+  }
+  const pending = routines.filter(r=>!routineDone[r.id]);
+  if (pending.length) ctx.push(`\nTAREAS PENDIENTES: ${pending.length} (${pending.map(r=>r.task).slice(0,3).join(', ')}${pending.length>3?'...':''})`);
+  return ctx.join('\n');
+}
+
+function buildSystemPrompt() {
+  const ctx = getAquariumContext();
+  return `Eres AquaBot, un experto acuarista virtual integrado en AquaControl Pro. Eres amigable, conciso y muy preciso en temas de acuarismo de agua dulce.
+
+DATOS ACTUALES DEL USUARIO:
+${ctx || 'El usuario aún no ha registrado datos en la app.'}
+
+INSTRUCCIONES:
+- Responde SIEMPRE en español, de forma conversacional y directa.
+- Usa los datos del acuario del usuario para personalizar tus respuestas.
+- Sé específico: menciona nombres de peceras, peces y valores reales cuando los tengas.
+- Para parámetros, indica rangos óptimos y si hay algo fuera de rango, priorízalo.
+- Máximo 200 palabras por respuesta, a menos que sea un plan detallado.
+- Usa emojis de forma moderada para hacer las respuestas más amigables.
+- Si el usuario no tiene datos, ayúdale a empezar.`;
+}
+
+function openAIChat() {
+  const panel = document.getElementById('ai-panel');
+  panel.classList.add('open');
+  const msgs = document.getElementById('ai-msgs');
+  if (!msgs.children.length) {
+    const ctx = getAquariumContext();
+    const hasData = tanks.length > 0;
+    const welcome = hasData
+      ? `¡Hola! 👋 Soy **AquaBot**, tu experto en acuarismo. Veo que tienes **${tanks.length} pecera${tanks.length>1?'s':''}** registrada${tanks.length>1?'s':''}. ¿En qué te puedo ayudar hoy?`
+      : `¡Hola! 👋 Soy **AquaBot**, tu asistente de acuarismo. Parece que aún no tienes peceras registradas. ¡Empieza agregando tu primera pecera y te ayudo a configurarla!`;
+    addAIMessage('ai', welcome);
+    showAISuggestions(AI_SUGGESTIONS_DEFAULT);
+  }
+  setTimeout(() => {
+    const input = document.getElementById('ai-input');
+    if (input) input.focus();
+  }, 350);
+}
+
+function closeAIChat() {
+  document.getElementById('ai-panel').classList.remove('open');
+}
+
+function addAIMessage(role, text) {
+  const msgs = document.getElementById('ai-msgs');
+  const div = document.createElement('div');
+  div.className = `ai-msg ${role}`;
+  const ico = role === 'ai' ? '🤖' : '👤';
+  const formatted = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+  div.innerHTML = `
+    <div class="ai-msg-ico">${ico}</div>
+    <div class="ai-bubble">${formatted}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('ai-msgs');
+  const div = document.createElement('div');
+  div.className = 'ai-msg ai';
+  div.id = 'ai-typing-indicator';
+  div.innerHTML = `<div class="ai-msg-ico">🤖</div><div class="ai-bubble"><div class="ai-typing"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('ai-typing-indicator');
+  if (t) t.remove();
+}
+
+function showAISuggestions(suggestions) {
+  const el = document.getElementById('ai-suggestions');
+  el.innerHTML = suggestions.map(s =>
+    `<div class="ai-sug" onclick="sendAISuggestion(this.textContent)">${s}</div>`
+  ).join('');
+}
+
+function sendAISuggestion(text) {
+  document.getElementById('ai-input').value = text;
+  sendAIMsg();
+}
+
+async function sendAIMsg() {
+  if (_aiTyping) return;
+  const input = document.getElementById('ai-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('ai-suggestions').innerHTML = '';
+
+  addAIMessage('user', text);
+  _aiHistory.push({ role: 'user', content: text });
+
+  _aiTyping = true;
+  const sendBtn = document.getElementById('ai-send');
+  sendBtn.disabled = true;
+  showTyping();
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: buildSystemPrompt(),
+        messages: _aiHistory,
+      }),
+    });
+
+    const data = await response.json();
+    removeTyping();
+
+    if (data.content && data.content[0] && data.content[0].text) {
+      const reply = data.content[0].text;
+      _aiHistory.push({ role: 'assistant', content: reply });
+      addAIMessage('ai', reply);
+
+      // Generate contextual suggestions
+      const sugs = generateFollowUpSuggestions(text, reply);
+      if (sugs.length) showAISuggestions(sugs);
+    } else {
+      addAIMessage('ai', 'Hubo un problema al procesar tu pregunta. Intenta de nuevo. 🙏');
+    }
+  } catch (err) {
+    removeTyping();
+    addAIMessage('ai', '⚠️ Sin conexión. Verifica tu internet e intenta de nuevo.');
+    console.error('AquaBot error:', err);
+  }
+
+  _aiTyping = false;
+  sendBtn.disabled = false;
+}
+
+function generateFollowUpSuggestions(userMsg, reply) {
+  const msg = (userMsg + reply).toLowerCase();
+  if (msg.includes('enfermedad') || msg.includes('ich') || msg.includes('parásito')) {
+    return ['💊 ¿Qué medicamento usar?', '🔒 ¿Cuándo hacer cuarentena?', '💧 ¿Cambio de agua urgente?'];
+  }
+  if (msg.includes('ph') || msg.includes('parámetro') || msg.includes('amoniaco') || msg.includes('nh3')) {
+    return ['💧 ¿Cómo bajar el pH?', '🔄 ¿Cuándo cambiar agua?', '📊 ¿Qué nivel es peligroso?'];
+  }
+  if (msg.includes('pez') || msg.includes('peces') || msg.includes('especie')) {
+    return ['🐟 ¿Son compatibles?', '🍽 ¿Cuánto alimentar?', '🌡 Temperatura ideal'];
+  }
+  if (msg.includes('planta') || msg.includes('alga')) {
+    return ['💡 ¿Cuántas horas de luz?', '🌿 Plantas fáciles para principiantes', '🧪 Fertilizante necesario'];
+  }
+  return ['🔍 Más detalles', '💧 Cuidado del agua', '🐟 Mis peces'];
+}
+
+function openAIRecommendations() {
+  openAIChat();
+  // Auto-send an analysis request if we have data
+  if (tanks.length > 0) {
+    setTimeout(() => {
+      const input = document.getElementById('ai-input');
+      if (input) {
+        input.value = '🔍 Analiza el estado de mis acuarios y dame recomendaciones personalizadas';
+        sendAIMsg();
+      }
+    }, 400);
+  }
+}
+
 renderDash();
 </script>
 </body>
