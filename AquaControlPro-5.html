@@ -111,8 +111,8 @@ select.inp{cursor:pointer}
 .fish-card{background:var(--glass);border:1.5px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .18s;-webkit-user-select:none;user-select:none}
 .fish-card:active{border-color:var(--cyan);transform:scale(.97)}
 .fish-card.sel{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(0,196,224,.2)}
-.fish-img-wrap{position:relative;height:100px;overflow:hidden}
-.fish-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.fish-img-wrap{position:relative;height:110px;overflow:hidden;background:#060D18}
+.fish-img-wrap img{width:100%;height:100%;object-fit:contain;display:block}
 .fish-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:42px}
 .fish-diff{position:absolute;top:6px;right:6px}
 .fish-info{padding:9px 10px 10px}
@@ -123,7 +123,7 @@ select.inp{cursor:pointer}
 
 /* SELECTED FISH PREVIEW */
 .fish-preview{background:var(--glassh);border:1px solid rgba(0,196,224,.28);border-radius:16px;overflow:hidden}
-.fish-preview-img{width:100%;height:150px;object-fit:cover;display:block}
+.fish-preview-img{width:100%;height:180px;object-fit:contain;display:block;background:#060D18}
 .fish-preview-body{padding:13px}
 
 /* PARAM CARDS */
@@ -204,15 +204,15 @@ select.inp{cursor:pointer}
 
 /* SPECIES CARD — with catalog photo */
 .sp-card{background:var(--glass);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:10px}
-.sp-card-img-wrap{width:100%;height:140px;overflow:hidden;position:relative;flex-shrink:0}
-.sp-card-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.sp-card-img-wrap{width:100%;height:160px;overflow:hidden;position:relative;flex-shrink:0;background:#060D18}
+.sp-card-img-wrap img{width:100%;height:100%;object-fit:contain;display:block}
 .sp-card-img-wrap .sp-fb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px}
 .sp-card-body{padding:13px}
 .sp-photo-btn{position:absolute;bottom:7px;right:7px;background:rgba(6,13,24,.78);border:1px solid rgba(0,196,224,.35);border-radius:9px;padding:5px 9px;font-family:'Space Mono',monospace;font-size:9px;color:var(--cyan);cursor:pointer;-webkit-user-select:none;user-select:none}
 /* GALLERY CARD */
 .sp-gcard{background:var(--glass);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .18s}
 .sp-gcard:active{border-color:rgba(0,196,224,.3)}
-.sp-gcard-img{width:100%;height:110px;background:#091726 center/contain no-repeat}
+.sp-gcard-img{width:100%;height:120px;background:#060D18 center/contain no-repeat}
 .sp-gcard-body{padding:10px 10px 12px}
 .sp-gcard-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sp-gcard-sub{font-size:10px;color:var(--muted);margin-top:2px}
@@ -221,7 +221,8 @@ select.inp{cursor:pointer}
 .search-inp:focus{border-color:rgba(0,196,224,.5)}
 .inline-cat-card{background:var(--glass);border:1px solid var(--border);border-radius:15px;overflow:hidden;cursor:pointer;transition:all .18s;-webkit-user-select:none;user-select:none}
 .inline-cat-card:active{border-color:var(--cyan);transform:scale(.97)}
-.inline-cat-card-img{width:100%;height:90px;position:relative;overflow:hidden}
+.inline-cat-card-img{width:100%;height:100px;position:relative;overflow:hidden;background:#060D18}
+.inline-cat-card-img img{width:100%;height:100%;object-fit:contain;display:block}
 .inline-cat-card-body{padding:8px 10px 10px}
 .inline-cat-card-name{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--soft)}
 .inline-cat-card-sci{font-size:9px;color:var(--muted);font-style:italic;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -337,6 +338,8 @@ select.inp{cursor:pointer}
           Exporta antes de actualizar el archivo · Importa para restaurar todo
         </div>
       </div>
+
+    </div><!-- /s-dash -->
 
     <!-- TANKS -->
     <div class="sec" id="s-tanks">
@@ -502,9 +505,53 @@ select.inp{cursor:pointer}
 
 <script>
 // ════════════════════════════════════════════════════
-//  FISH CATALOG — 26 peces de agua dulce
+//  WIKI IMAGE LOADER — bypasses Wikimedia 403 hotlink
+//  Uses fetch() with referrerPolicy:'no-referrer' and
+//  caches blob URLs so each image is fetched once.
+// ════════════════════════════════════════════════════
+const _wikiCache = new Map(); // url → blobURL | 'err'
+
+async function _fetchWiki(url) {
+  if (_wikiCache.has(url)) return _wikiCache.get(url);
+  try {
+    const res = await fetch(url, { referrerPolicy: 'no-referrer' });
+    if (!res.ok) throw new Error(res.status);
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    _wikiCache.set(url, blobUrl);
+    return blobUrl;
+  } catch {
+    _wikiCache.set(url, 'err');
+    return 'err';
+  }
+}
+
+// Sets <img> src using no-referrer fetch; shows fallback on error.
+// fallbackFn: optional function(imgEl) called on error.
+function loadWikiImg(imgEl, url, fallbackFn) {
+  if (!url) { if (fallbackFn) fallbackFn(imgEl); return; }
+  _fetchWiki(url).then(blobUrl => {
+    if (blobUrl === 'err') { if (fallbackFn) fallbackFn(imgEl); return; }
+    imgEl.src = blobUrl;
+  });
+}
+
+// Sets CSS background-image on an element using no-referrer fetch.
+// fallbackStyle: string to apply if fetch fails (e.g. gradient only)
+function loadWikiBg(el, url, fallbackStyle) {
+  if (!url) { if (fallbackStyle) el.style.cssText += fallbackStyle; return; }
+  _fetchWiki(url).then(blobUrl => {
+    if (blobUrl === 'err') { if (fallbackStyle !== undefined) el.setAttribute('data-bg-err','1'); return; }
+    el.style.backgroundImage = `url(${blobUrl})`;
+  });
+}
+
+// ════════════════════════════════════════════════════
+//  FISH CATALOG — 100 especies con fotos reales
+//  Agua dulce · Cíclidos · Tetras · Marinos · Exóticos
 // ════════════════════════════════════════════════════
 const FISH_CATALOG = [
+  // ── AGUA DULCE POPULARES ──
   {id:'f01',name:'Neon Tetra',sci:'Paracheirodon innesi',emoji:'🐟',
    img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Neontetra.jpg/320px-Neontetra.jpg',
    grad:'linear-gradient(135deg,#001A40,#003080)',
@@ -571,7 +618,7 @@ const FISH_CATALOG = [
    temp:'22–28°C',ph:'7.0–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'10–12 cm',min:50,
    desc:'Macho con prolongación caudal en forma de espada. Vivo y activo.'},
 
-  {id:'f12',name:'Pez Cebra',sci:'Danio rerio',emoji:'🐟',
+  {id:'f12',name:'Pez Cebra / Danio',sci:'Danio rerio',emoji:'🐟',
    img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Zebrafish.jpg/320px-Zebrafish.jpg',
    grad:'linear-gradient(135deg,#001030,#003060)',
    temp:'18–26°C',ph:'6.5–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'4–5 cm',min:30,
@@ -613,7 +660,7 @@ const FISH_CATALOG = [
    temp:'25–29°C',ph:'5.5–7.0',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'5–7 cm',min:60,
    desc:'Cíclido enano muy colorido. Aguas blandas. Pareja estable.'},
 
-  {id:'f19',name:'Pez Arco Iris',sci:'Melanotaenia boesemani',emoji:'🐠',
+  {id:'f19',name:'Pez Arco Iris Boeseman',sci:'Melanotaenia boesemani',emoji:'🐠',
    img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Melanotaenia_boesemani.jpg/320px-Melanotaenia_boesemani.jpg',
    grad:'linear-gradient(135deg,#001A20,#005050)',
    temp:'24–28°C',ph:'7.0–8.0',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'9–12 cm',min:100,
@@ -660,6 +707,463 @@ const FISH_CATALOG = [
    grad:'linear-gradient(135deg,#200A00,#800020)',
    temp:'16–26°C',ph:'6.0–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Semi-agresivo',size:'8–10 cm',min:60,
    desc:'Tolerante al frío. Agresivo con peces de aletas largas. Laberíntico.'},
+
+  // ── CÍCLIDOS ──
+  {id:'f27',name:'Cíclido Convicto',sci:'Amatitlania nigrofasciata',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/AmatitlaniaNigrofasciata.jpg/320px-AmatitlaniaNigrofasciata.jpg',
+   grad:'linear-gradient(135deg,#101010,#303030)',
+   temp:'20–29°C',ph:'6.5–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Agresivo',size:'10–12 cm',min:100,
+   desc:'Rayas negras y blancas como un convicto. Muy resistente. Cuida su cría.'},
+
+  {id:'f28',name:'Cíclido Firemouth',sci:'Thorichthys meeki',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Thorichthys_meeki_-_Firemouth_cichlid.jpg/320px-Thorichthys_meeki_-_Firemouth_cichlid.jpg',
+   grad:'linear-gradient(135deg,#400000,#A00020)',
+   temp:'22–28°C',ph:'6.5–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Semi-agresivo',size:'15–17 cm',min:150,
+   desc:'Garganta roja llamativa. Impresionante en exhibición. Cuida su nido.'},
+
+  {id:'f29',name:'Cíclido Flowerhorn',sci:'Hybrid cichlid',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Flowerhorn_cichlid.jpg/320px-Flowerhorn_cichlid.jpg',
+   grad:'linear-gradient(135deg,#300020,#900050)',
+   temp:'26–30°C',ph:'7.0–8.0',diet:'Carnívoro',diff:'Medio',compat:'Agresivo',size:'25–30 cm',min:350,
+   desc:'Híbrido con joroba prominente. Solo o con su pareja. Muy inteligente.'},
+
+  {id:'f30',name:'Cíclido Joya / Jewel',sci:'Hemichromis bimaculatus',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Hemichromis_bimaculatus.jpg/320px-Hemichromis_bimaculatus.jpg',
+   grad:'linear-gradient(135deg,#400000,#C00020)',
+   temp:'22–26°C',ph:'6.5–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Agresivo',size:'12–15 cm',min:120,
+   desc:'Rojo brillante con manchas azules. Muy territorial. Forma pareja fiel.'},
+
+  {id:'f31',name:'Cíclido Africano Auratus',sci:'Melanochromis auratus',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Melanochromis_auratus.jpg/320px-Melanochromis_auratus.jpg',
+   grad:'linear-gradient(135deg,#201000,#806000)',
+   temp:'24–28°C',ph:'7.8–8.5',diet:'Herbívoro',diff:'Medio',compat:'Agresivo',size:'10–12 cm',min:120,
+   desc:'Lago Malawi. Macho negro/amarillo, hembra amarilla. Muy territorial.'},
+
+  {id:'f32',name:'Cíclido Eléctrico Amarillo',sci:'Labidochromis caeruleus',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Labidochromis_caeruleus.jpg/320px-Labidochromis_caeruleus.jpg',
+   grad:'linear-gradient(135deg,#302000,#A08000)',
+   temp:'24–28°C',ph:'7.6–8.8',diet:'Omnívoro',diff:'Medio',compat:'Semi-agresivo',size:'8–10 cm',min:100,
+   desc:'Amarillo brillante. Mbuna del lago Malawi. Uno de los más populares.'},
+
+  {id:'f33',name:'Peacock / Pavo Real Africano',sci:'Aulonocara nyassae',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Aulonocara_nyassae.jpg/320px-Aulonocara_nyassae.jpg',
+   grad:'linear-gradient(135deg,#000040,#0000C0)',
+   temp:'24–28°C',ph:'7.5–8.5',diet:'Carnívoro',diff:'Medio',compat:'Semi-agresivo',size:'12–15 cm',min:150,
+   desc:'Colores espectaculares en el macho. Lago Malawi. Cíclido de arena.'},
+
+  {id:'f34',name:'Frontosa',sci:'Cyphotilapia frontosa',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Cyphotilapia_frontosa.jpg/320px-Cyphotilapia_frontosa.jpg',
+   grad:'linear-gradient(135deg,#000020,#000060)',
+   temp:'24–27°C',ph:'7.8–9.0',diet:'Carnívoro',diff:'Difícil',compat:'Semi-agresivo',size:'30–40 cm',min:500,
+   desc:'Lago Tanganica. Joroba frontal imponente. De aguas profundas.'},
+
+  // ── TETRAS ──
+  {id:'f35',name:'Tetra Cardenal',sci:'Paracheirodon axelrodi',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Cardinal_tetra.jpg/320px-Cardinal_tetra.jpg',
+   grad:'linear-gradient(135deg,#001A40,#A00020)',
+   temp:'23–29°C',ph:'4.5–7.0',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'4–5 cm',min:40,
+   desc:'Línea roja más extensa que el neon. Prefiere aguas blandas y ácidas.'},
+
+  {id:'f36',name:'Tetra Fantasma Negro',sci:'Hyphessobrycon megalopterus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Black_Phantom_Tetra.jpg/320px-Black_Phantom_Tetra.jpg',
+   grad:'linear-gradient(135deg,#101010,#202020)',
+   temp:'22–28°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'3–4 cm',min:40,
+   desc:'Aleta dorsal extendida en el macho. Color plateado con mancha negra.'},
+
+  {id:'f37',name:'Tetra Llama / Flame Tetra',sci:'Hyphessobrycon flammeus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Hyphessobrycon_flammeus.jpg/320px-Hyphessobrycon_flammeus.jpg',
+   grad:'linear-gradient(135deg,#400000,#900000)',
+   temp:'20–28°C',ph:'5.8–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'3–4 cm',min:30,
+   desc:'Rojo intenso en la parte posterior. Robusto y fácil de cuidar.'},
+
+  {id:'f38',name:'Tetra Limón',sci:'Hyphessobrycon pulchripinnis',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Lemon_tetra.jpg/320px-Lemon_tetra.jpg',
+   grad:'linear-gradient(135deg,#303000,#808000)',
+   temp:'22–28°C',ph:'5.5–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'4–5 cm',min:40,
+   desc:'Semitransparente con destellos amarillos. Aleta anal con borde negro.'},
+
+  {id:'f39',name:'Tetra Congo',sci:'Phenacogrammus interruptus',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Congo_tetra.jpg/320px-Congo_tetra.jpg',
+   grad:'linear-gradient(135deg,#001830,#004080)',
+   temp:'23–27°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'7–8 cm',min:80,
+   desc:'Iridiscente azul-naranja. El macho tiene aleta caudal con filamentos.'},
+
+  {id:'f40',name:'Tetra Sangre de Buey',sci:'Hyphessobrycon erythrostigma',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Bleeding_heart_tetra.jpg/320px-Bleeding_heart_tetra.jpg',
+   grad:'linear-gradient(135deg,#300010,#700030)',
+   temp:'22–28°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'6–8 cm',min:60,
+   desc:'Mancha roja en el pecho simula un corazón. Aletas largas y elegantes.'},
+
+  // ── RAYAS Y PECES ESPECIALES ──
+  {id:'f41',name:'Raya de Río',sci:'Potamotrygon motoro',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Potamotrygon_motoro.jpg/320px-Potamotrygon_motoro.jpg',
+   grad:'linear-gradient(135deg,#201000,#604020)',
+   temp:'24–28°C',ph:'6.0–7.0',diet:'Carnívoro',diff:'Difícil',compat:'Semi-agresivo',size:'40–50 cm',min:600,
+   desc:'Raya de agua dulce con manchas en forma de ojo. Espina venenosa. Solo expertos.'},
+
+  {id:'f42',name:'Pez Arowana Plateado',sci:'Osteoglossum bicirrhosum',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Silver_Arowana.jpg/320px-Silver_Arowana.jpg',
+   grad:'linear-gradient(135deg,#101820,#304060)',
+   temp:'24–30°C',ph:'6.0–7.0',diet:'Carnívoro',diff:'Difícil',compat:'Agresivo',size:'60–120 cm',min:1000,
+   desc:'Prehistórico y majestuoso. Salta fuera del agua. Solo para estanques grandes.'},
+
+  {id:'f43',name:'Pez Hacha',sci:'Carnegiella strigata',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Marbled_hatchetfish.jpg/320px-Marbled_hatchetfish.jpg',
+   grad:'linear-gradient(135deg,#101520,#203040)',
+   temp:'23–27°C',ph:'6.0–7.0',diet:'Carnívoro',diff:'Medio',compat:'Pacífico',size:'3–4 cm',min:50,
+   desc:'Nada en la superficie. Salta, necesita tapa. Insectívoro superficial.'},
+
+  {id:'f44',name:'Pez Cuchillo Negro',sci:'Apteronotus albifrons',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Black_ghost_knifefish.jpg/320px-Black_ghost_knifefish.jpg',
+   grad:'linear-gradient(135deg,#000000,#101010)',
+   temp:'23–28°C',ph:'6.0–8.0',diet:'Carnívoro',diff:'Medio',compat:'Semi-agresivo',size:'40–50 cm',min:250,
+   desc:'Nada al revés. Genera campo eléctrico. Nocturno y misterioso.'},
+
+  {id:'f45',name:'Pez Elefante',sci:'Gnathonemus petersii',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Gnathonemus_petersii.jpg/320px-Gnathonemus_petersii.jpg',
+   grad:'linear-gradient(135deg,#101010,#202020)',
+   temp:'22–28°C',ph:'6.5–7.0',diet:'Carnívoro',diff:'Difícil',compat:'Semi-agresivo',size:'20–25 cm',min:200,
+   desc:'Hocico largo en forma de trompa. Genera pulsos eléctricos. Nocturno.'},
+
+  {id:'f46',name:'Pez Globo Tetraodon',sci:'Tetraodon nigroviridis',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Tetraodon_nigroviridis.jpg/320px-Tetraodon_nigroviridis.jpg',
+   grad:'linear-gradient(135deg,#002010,#006030)',
+   temp:'24–28°C',ph:'7.0–8.0',diet:'Carnívoro',diff:'Medio',compat:'Agresivo',size:'15–18 cm',min:120,
+   desc:'Verde con puntos negros. Devora caracoles y mejillones. Muy inteligente.'},
+
+  // ── BAGRES Y FONDO ──
+  {id:'f47',name:'Bagre Vidrio',sci:'Kryptopterus vitreolus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Kryptopterus_bicirrhis.jpg/320px-Kryptopterus_bicirrhis.jpg',
+   grad:'linear-gradient(135deg,#001020,#002040)',
+   temp:'22–26°C',ph:'6.5–7.0',diet:'Carnívoro',diff:'Medio',compat:'Pacífico',size:'8–10 cm',min:80,
+   desc:'Cuerpo completamente transparente. Órganos visibles. En cardumen.'},
+
+  {id:'f48',name:'Corydoras Trilineatus',sci:'Corydoras trilineatus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Corydoras_trilineatus.jpg/320px-Corydoras_trilineatus.jpg',
+   grad:'linear-gradient(135deg,#181410,#403020)',
+   temp:'22–27°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'5–6 cm',min:50,
+   desc:'Tres líneas horizontales. Limpiador eficaz. Vive en grupos de 6+.'},
+
+  {id:'f49',name:'Corydoras Panda',sci:'Corydoras panda',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Corydoras_panda.jpg/320px-Corydoras_panda.jpg',
+   grad:'linear-gradient(135deg,#101010,#303030)',
+   temp:'22–26°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'4–5 cm',min:40,
+   desc:'Mancha negra en ojo y aleta dorsal. Muy popular. En grupos de 6+.'},
+
+  {id:'f50',name:'Plecos Royal',sci:'Panaque nigrolineatus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Royal_pleco.jpg/320px-Royal_pleco.jpg',
+   grad:'linear-gradient(135deg,#101010,#202020)',
+   temp:'22–30°C',ph:'6.5–7.5',diet:'Herbívoro',diff:'Medio',compat:'Pacífico',size:'40–50 cm',min:300,
+   desc:'Rayas blancas sobre negro. Madera en el acuario es indispensable.'},
+
+  // ── GURAMI Y LABERÍNTICOS ──
+  {id:'f51',name:'Gurami Beso',sci:'Helostoma temminkii',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Kissing_gourami.jpg/320px-Kissing_gourami.jpg',
+   grad:'linear-gradient(135deg,#201000,#604020)',
+   temp:'22–28°C',ph:'6.0–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'20–30 cm',min:150,
+   desc:'Los "besos" son en realidad luchas territoriales. Raspa algas.'},
+
+  {id:'f52',name:'Gurami Luna',sci:'Trichopodus microlepis',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Moonlight_gourami.jpg/320px-Moonlight_gourami.jpg',
+   grad:'linear-gradient(135deg,#001020,#103050)',
+   temp:'24–30°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'12–15 cm',min:100,
+   desc:'Plateado con reflejos nacarados. Tranquilo. Laberíntico.'},
+
+  {id:'f53',name:'Gurami Azul',sci:'Trichopodus trichopterus',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Three_spot_gourami.jpg/320px-Three_spot_gourami.jpg',
+   grad:'linear-gradient(135deg,#001A30,#003080)',
+   temp:'22–28°C',ph:'6.0–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Semi-agresivo',size:'12–15 cm',min:100,
+   desc:'Dos manchas negras y una en el ojo. Resistente y popular. Laberíntico.'},
+
+  {id:'f54',name:'Gurami Enano',sci:'Trichogaster lalius',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Trichogaster_lalius.jpg/320px-Trichogaster_lalius.jpg',
+   grad:'linear-gradient(135deg,#200A00,#800030)',
+   temp:'22–28°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'5–7 cm',min:40,
+   desc:'Rayas rojas y azules. El macho es muy colorido. Ideal para peceras medianas.'},
+
+  {id:'f55',name:'Paradisefish / Pez Paraíso Macropodus',sci:'Macropodus ocellatus',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Macropodus_ocellatus.jpg/320px-Macropodus_ocellatus.jpg',
+   grad:'linear-gradient(135deg,#001A00,#005000)',
+   temp:'15–22°C',ph:'6.0–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Semi-agresivo',size:'6–9 cm',min:60,
+   desc:'Tolera temperaturas bajas. Mancha ocular en la cola. Aguas frías.'},
+
+  // ── RASBORAS Y DANIOS ──
+  {id:'f56',name:'Rasbora Espada',sci:'Trigonostigma espei',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Trigonostigma_espei.jpg/320px-Trigonostigma_espei.jpg',
+   grad:'linear-gradient(135deg,#201000,#703000)',
+   temp:'22–27°C',ph:'5.5–7.0',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'3–4 cm',min:30,
+   desc:'Similar al harlequin pero más pequeña. Mancha triangular más angulosa. Cardumen.'},
+
+  {id:'f57',name:'Danio Gigante',sci:'Devario aequipinnatus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Giant_danio.jpg/320px-Giant_danio.jpg',
+   grad:'linear-gradient(135deg,#001030,#104060)',
+   temp:'18–24°C',ph:'6.0–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'10–12 cm',min:80,
+   desc:'Versión grande del danio. Activo nadador. Ideal con peces grandes.'},
+
+  {id:'f58',name:'Danio Leopardo',sci:'Danio frankei',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Danio_frankei.jpg/320px-Danio_frankei.jpg',
+   grad:'linear-gradient(135deg,#102010,#306030)',
+   temp:'18–26°C',ph:'6.5–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'5–6 cm',min:30,
+   desc:'Patrón de manchas en lugar de rayas. Resistente como el danio cebra.'},
+
+  {id:'f59',name:'Rasbora de Fuego',sci:'Rasboroides vaterifloris',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Rasbora_vaterifloris.jpg/320px-Rasbora_vaterifloris.jpg',
+   grad:'linear-gradient(135deg,#300000,#900000)',
+   temp:'22–26°C',ph:'5.5–7.0',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'2–3 cm',min:30,
+   desc:'Miniatura con rojo intenso. Muy delicada. Aguas blandas y ácidas.'},
+
+  // ── LOACHES ──
+  {id:'f60',name:'Loach Dojo / Pez Clima',sci:'Misgurnus anguillicaudatus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Misgurnus_anguillicaudatus.jpg/320px-Misgurnus_anguillicaudatus.jpg',
+   grad:'linear-gradient(135deg,#201000,#604000)',
+   temp:'10–22°C',ph:'6.0–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'20–30 cm',min:100,
+   desc:'Predice el tiempo con su comportamiento. Tolera aguas frías. Robusto.'},
+
+  {id:'f61',name:'Loach Cebra',sci:'Botia striata',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Botia_striata.jpg/320px-Botia_striata.jpg',
+   grad:'linear-gradient(135deg,#201500,#605000)',
+   temp:'23–26°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'8–10 cm',min:80,
+   desc:'Rayas verticales negras y amarillas. Devora caracoles. En grupos.'},
+
+  {id:'f62',name:'Kuhli Loach',sci:'Pangio kuhlii',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Pangio_kuhlii.jpg/320px-Pangio_kuhlii.jpg',
+   grad:'linear-gradient(135deg,#201000,#603000)',
+   temp:'24–30°C',ph:'5.5–7.0',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'8–12 cm',min:60,
+   desc:'Cuerpo serpentiforme. Se entierra en sustrato. Nocturno y discreto.'},
+
+  // ── PECES DE AGUA FRÍA ──
+  {id:'f63',name:'Goldfish Oranda',sci:'Carassius auratus (var.)',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Oranda_Goldfish.jpg/320px-Oranda_Goldfish.jpg',
+   grad:'linear-gradient(135deg,#402000,#D07000)',
+   temp:'16–22°C',ph:'6.5–7.5',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'20–30 cm',min:150,
+   desc:'Crecimiento céfalo esponjoso en la cabeza. Requiere agua limpia.'},
+
+  {id:'f64',name:'Goldfish Telescopio',sci:'Carassius auratus (var.)',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Telescope_goldfish.jpg/320px-Telescope_goldfish.jpg',
+   grad:'linear-gradient(135deg,#200000,#700010)',
+   temp:'16–22°C',ph:'6.5–7.5',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'15–20 cm',min:120,
+   desc:'Ojos prominentes. Visión limitada. Evitar decoraciones puntiagudas.'},
+
+  {id:'f65',name:'Goldfish Ryukin',sci:'Carassius auratus (var.)',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Ryukin_goldfish.jpg/320px-Ryukin_goldfish.jpg',
+   grad:'linear-gradient(135deg,#402000,#C06000)',
+   temp:'15–22°C',ph:'6.5–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'15–25 cm',min:150,
+   desc:'Joroba pronunciada detrás de la cabeza. Muy colorido. Robusto.'},
+
+  // ── PECES MARINOS / SALADOS ──
+  {id:'f66',name:'Pez Payaso / Nemo',sci:'Amphiprioninae sp.',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Amphiprion_ocellaris_clownfish_SC29.jpg/320px-Amphiprion_ocellaris_clownfish_SC29.jpg',
+   grad:'linear-gradient(135deg,#400000,#C04000)',
+   temp:'24–27°C',ph:'8.1–8.4',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'8–11 cm',min:100,
+   desc:'Icónico pez marino. Vive en anémonas. Agua salada. Colores naranja y blanco.'},
+
+  {id:'f67',name:'Pez Cirujano Azul / Dory',sci:'Paracanthurus hepatus',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Blue_Tang_-_Paracanthurus_hepatus.jpg/320px-Blue_Tang_-_Paracanthurus_hepatus.jpg',
+   grad:'linear-gradient(135deg,#001060,#0020C0)',
+   temp:'24–26°C',ph:'8.1–8.4',diet:'Herbívoro',diff:'Difícil',compat:'Semi-agresivo',size:'25–31 cm',min:400,
+   desc:'Azul vibrante con amarillo. Nada largo. Espina caudal afilada. Agua marina.'},
+
+  {id:'f68',name:'Pez Mariposa',sci:'Chaetodon lunula',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Chaetodon_lunula.jpg/320px-Chaetodon_lunula.jpg',
+   grad:'linear-gradient(135deg,#302000,#A08000)',
+   temp:'24–27°C',ph:'8.1–8.4',diet:'Carnívoro',diff:'Difícil',compat:'Semi-agresivo',size:'15–20 cm',min:300,
+   desc:'Disco plano y colorido. Come corales. Solo para acuarios marinos grandes.'},
+
+  {id:'f69',name:'Pez León',sci:'Pterois volitans',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Pterois_volitans_Manado-e.jpg/320px-Pterois_volitans_Manado-e.jpg',
+   grad:'linear-gradient(135deg,#300010,#800020)',
+   temp:'22–26°C',ph:'8.1–8.4',diet:'Carnívoro',diff:'Difícil',compat:'Agresivo',size:'25–38 cm',min:350,
+   desc:'Espinas venenosas. Come peces pequeños. Espectacular pero peligroso.'},
+
+  {id:'f70',name:'Mandarin Fish',sci:'Synchiropus splendidus',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Synchiropus_splendidus_2_Luc_Viatour.jpg/320px-Synchiropus_splendidus_2_Luc_Viatour.jpg',
+   grad:'linear-gradient(135deg,#001A00,#004000)',
+   temp:'24–28°C',ph:'8.1–8.4',diet:'Carnívoro',diff:'Muy difícil',compat:'Pacífico',size:'6–8 cm',min:200,
+   desc:'El pez más colorido del mundo. Come copépodos vivos. Solo expertos marinos.'},
+
+  {id:'f71',name:'Doncella / Chromis Azul',sci:'Chromis cyanea',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Chromis_cyanea.jpg/320px-Chromis_cyanea.jpg',
+   grad:'linear-gradient(135deg,#001040,#0030A0)',
+   temp:'24–28°C',ph:'8.1–8.4',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'10–13 cm',min:150,
+   desc:'Azul eléctrico. Uno de los marinos más fáciles. En cardumen.'},
+
+  {id:'f72',name:'Pez Ángel Marino Koran',sci:'Pomacanthus semicirculatus',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Pomacanthus_semicirculatus_-_pone.0010676.g123.png/320px-Pomacanthus_semicirculatus_-_pone.0010676.g123.png',
+   grad:'linear-gradient(135deg,#001A30,#004060)',
+   temp:'22–27°C',ph:'8.1–8.4',diet:'Omnívoro',diff:'Difícil',compat:'Semi-agresivo',size:'35–40 cm',min:500,
+   desc:'Juvenil con rayas azules y blancas. Adulto cambia completamente. Majestuoso.'},
+
+  // ── PECES RAROS Y ESPECIALES ──
+  {id:'f73',name:'Polipterus / Dinosaurio',sci:'Polypterus senegalus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Polypterus_senegalus.jpg/320px-Polypterus_senegalus.jpg',
+   grad:'linear-gradient(135deg,#101000,#302000)',
+   temp:'25–30°C',ph:'6.5–8.0',diet:'Carnívoro',diff:'Medio',compat:'Semi-agresivo',size:'30–45 cm',min:250,
+   desc:'Pez prehistórico con aletas en forma de remo. Come peces pequeños. Nocturno.'},
+
+  {id:'f74',name:'Pez Leopardo de las Nieves',sci:'Botia kubotai',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Botia_kubotai.jpg/320px-Botia_kubotai.jpg',
+   grad:'linear-gradient(135deg,#101010,#303030)',
+   temp:'24–28°C',ph:'6.5–7.5',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'8–10 cm',min:100,
+   desc:'Patrón de redes negras sobre crema. Come caracoles. Social.'},
+
+  {id:'f75',name:'Pez Payaso Loach',sci:'Botia macracanthus',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Chromobotia_macracanthus.jpg/320px-Chromobotia_macracanthus.jpg',
+   grad:'linear-gradient(135deg,#201000,#604000)',
+   temp:'24–30°C',ph:'5.5–7.0',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'20–30 cm',min:200,
+   desc:'Rayas anaranjadas y negras. Elimina caracoles. Necesita grupo de 3+.'},
+
+  {id:'f76',name:'Pez Aguja / Needle fish',sci:'Xenentodon cancila',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Xenentodon_cancila.jpg/320px-Xenentodon_cancila.jpg',
+   grad:'linear-gradient(135deg,#001020,#003040)',
+   temp:'22–28°C',ph:'6.5–7.5',diet:'Carnívoro',diff:'Difícil',compat:'Agresivo',size:'25–30 cm',min:200,
+   desc:'Mandíbula larga como aguja. Carnívoro estricto. Nada en la superficie.'},
+
+  {id:'f77',name:'Pez Globo Fahaka',sci:'Tetraodon lineatus',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Fahaka_pufferfish.jpg/320px-Fahaka_pufferfish.jpg',
+   grad:'linear-gradient(135deg,#002010,#006030)',
+   temp:'24–28°C',ph:'7.0–8.0',diet:'Carnívoro',diff:'Difícil',compat:'Agresivo',size:'40–45 cm',min:500,
+   desc:'Pez globo africano. Solo o con su pareja. Muerde. Para expertos únicamente.'},
+
+  {id:'f78',name:'Piraña Roja',sci:'Pygocentrus nattereri',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Piranha_roja.jpg/320px-Piranha_roja.jpg',
+   grad:'linear-gradient(135deg,#400000,#A00000)',
+   temp:'23–27°C',ph:'5.5–7.5',diet:'Carnívoro',diff:'Medio',compat:'Agresivo',size:'25–35 cm',min:300,
+   desc:'La piraña más conocida. En cardumen de 6+. Verificar legalidad local.'},
+
+  {id:'f79',name:'Alligator Gar / Gar Cocodrilo',sci:'Atractosteus spatula',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Alligator_gar.jpg/320px-Alligator_gar.jpg',
+   grad:'linear-gradient(135deg,#101000,#303000)',
+   temp:'20–28°C',ph:'6.5–8.0',diet:'Carnívoro',diff:'Muy difícil',compat:'Agresivo',size:'150–300 cm',min:3000,
+   desc:'Prehistórico. Puede respirar aire. Solo para estanques enormes o profesionales.'},
+
+  {id:'f80',name:'Cíclido Venustus',sci:'Nimbochromis venustus',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Nimbochromis_venustus.jpg/320px-Nimbochromis_venustus.jpg',
+   grad:'linear-gradient(135deg,#001020,#003060)',
+   temp:'24–28°C',ph:'7.5–8.5',diet:'Carnívoro',diff:'Medio',compat:'Agresivo',size:'25–30 cm',min:400,
+   desc:'Macho azul con manchas jirafa. Depredador de emboscada en Malawi.'},
+
+  // ── PECES PLANTADOS ──
+  {id:'f81',name:'Otocinclus',sci:'Otocinclus affinis',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Otocinclus_affinis.jpg/320px-Otocinclus_affinis.jpg',
+   grad:'linear-gradient(135deg,#101000,#303000)',
+   temp:'20–26°C',ph:'6.0–7.5',diet:'Herbívoro',diff:'Medio',compat:'Pacífico',size:'3–5 cm',min:40,
+   desc:'Miniatura limpiadora de algas. Ideal para plantados. En grupos de 6+.'},
+
+  {id:'f82',name:'SAE / Alga Eater Siamés',sci:'Crossocheilus oblongus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Siamese_algae_eater.jpg/320px-Siamese_algae_eater.jpg',
+   grad:'linear-gradient(135deg,#181400,#484000)',
+   temp:'24–27°C',ph:'6.0–8.0',diet:'Herbívoro',diff:'Fácil',compat:'Pacífico',size:'12–14 cm',min:80,
+   desc:'Come algas barba negra. El más efectivo contra algas problemáticas.'},
+
+  {id:'f83',name:'Amano Camarón',sci:'Caridina multidentata',emoji:'🦐',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Caridina_multidentata1.jpg/320px-Caridina_multidentata1.jpg',
+   grad:'linear-gradient(135deg,#001020,#003040)',
+   temp:'20–25°C',ph:'6.5–7.5',diet:'Herbívoro',diff:'Fácil',compat:'Pacífico',size:'3–5 cm',min:20,
+   desc:'No es pez pero esencial en plantados. Mejor limpiador de algas. Transparente.'},
+
+  {id:'f84',name:'Camarón Cherry',sci:'Neocaridina davidi',emoji:'🦐',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Neocaridina_davidi_var._red_-_front.jpg/320px-Neocaridina_davidi_var._red_-_front.jpg',
+   grad:'linear-gradient(135deg,#400000,#A00000)',
+   temp:'16–26°C',ph:'6.5–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'2–3 cm',min:10,
+   desc:'Rojo intenso. Ideal para plantados. Se reproduce con facilidad.'},
+
+  // ── MÁS TETRAS Y CARÁCIDOS ──
+  {id:'f85',name:'Tetra Plata',sci:'Hemigrammus nanus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Silvertip_tetra.jpg/320px-Silvertip_tetra.jpg',
+   grad:'linear-gradient(135deg,#102020,#304040)',
+   temp:'22–28°C',ph:'6.0–8.0',diet:'Omnívoro',diff:'Fácil',compat:'Semi-agresivo',size:'4–5 cm',min:40,
+   desc:'Punta de aleta plateada. Activo. Puede molestar aletas largas.'},
+
+  {id:'f86',name:'Tetra Penguin',sci:'Thayeria boehlkei',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Thayeria_boehlkei.jpg/320px-Thayeria_boehlkei.jpg',
+   grad:'linear-gradient(135deg,#101010,#303030)',
+   temp:'22–28°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'5–6 cm',min:50,
+   desc:'Línea negra diagonal. Nada en ángulo como un pingüino. Cardumen de 6+.'},
+
+  {id:'f87',name:'Tetra Diamond',sci:'Moenkhausia pittieri',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Diamond_tetra_Moenkhausia_pittieri.jpg/320px-Diamond_tetra_Moenkhausia_pittieri.jpg',
+   grad:'linear-gradient(135deg,#001820,#004060)',
+   temp:'22–28°C',ph:'5.5–7.0',diet:'Omnívoro',diff:'Fácil',compat:'Pacífico',size:'5–6 cm',min:60,
+   desc:'Escamas iridiscentes como diamantes. Espectacular bajo luz LED.'},
+
+  {id:'f88',name:'Piranha Pacú',sci:'Colossoma macropomum',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Colossoma_macropomum.jpg/320px-Colossoma_macropomum.jpg',
+   grad:'linear-gradient(135deg,#101010,#303030)',
+   temp:'24–28°C',ph:'6.0–7.5',diet:'Omnívoro',diff:'Difícil',compat:'Semi-agresivo',size:'60–100 cm',min:2000,
+   desc:'Pariente vegetariano de la piraña. Come frutas y nueces. Crece enormemente.'},
+
+  // ── PECES ENDÉMICOS Y EXÓTICOS ──
+  {id:'f89',name:'Pez Eléctrico de Vidrio',sci:'Eigenmannia virescens',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Glass_knifefish.jpg/320px-Glass_knifefish.jpg',
+   grad:'linear-gradient(135deg,#001020,#002040)',
+   temp:'23–28°C',ph:'6.0–7.5',diet:'Carnívoro',diff:'Medio',compat:'Pacífico',size:'35–45 cm',min:250,
+   desc:'Transparente con rayas. Genera campo eléctrico. Nocturno. Vive en grupos.'},
+
+  {id:'f90',name:'Talapia Mossambica',sci:'Oreochromis mossambicus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Mozambique_tilapia.jpg/320px-Mozambique_tilapia.jpg',
+   grad:'linear-gradient(135deg,#101010,#303030)',
+   temp:'20–30°C',ph:'6.5–8.5',diet:'Omnívoro',diff:'Fácil',compat:'Agresivo',size:'30–40 cm',min:300,
+   desc:'Muy resistente. Incuba en la boca. Territorial en época de cría.'},
+
+  {id:'f91',name:'Pez Muralla / Sidat',sci:'Monopterus albus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Asian_swamp_eel.jpg/320px-Asian_swamp_eel.jpg',
+   grad:'linear-gradient(135deg,#101000,#302000)',
+   temp:'20–28°C',ph:'6.0–8.0',diet:'Carnívoro',diff:'Medio',compat:'Agresivo',size:'60–100 cm',min:300,
+   desc:'Anguila de pantano asiática. Respira aire. Escapa de acuarios sin tapa.'},
+
+  {id:'f92',name:'Pez Flecha / Archer Fish',sci:'Toxotes jaculatrix',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Toxotes_jaculatrix.jpg/320px-Toxotes_jaculatrix.jpg',
+   grad:'linear-gradient(135deg,#001A10,#004030)',
+   temp:'25–30°C',ph:'7.0–8.0',diet:'Carnívoro',diff:'Difícil',compat:'Semi-agresivo',size:'20–30 cm',min:200,
+   desc:'Escupe agua para cazar insectos fuera del agua. Agua ligeramente salobre.'},
+
+  {id:'f93',name:'Cíclido Salvini',sci:'Trichromis salvini',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Trichromis_salvini.jpg/320px-Trichromis_salvini.jpg',
+   grad:'linear-gradient(135deg,#201000,#805000)',
+   temp:'22–30°C',ph:'6.5–8.0',diet:'Omnívoro',diff:'Medio',compat:'Agresivo',size:'15–20 cm',min:200,
+   desc:'Amarillo con manchas negras y rojo vientre. Centroamericano muy territorial.'},
+
+  {id:'f94',name:'Cíclido Midas',sci:'Amphilophus citrinellus',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Amphilophus_citrinellus.jpg/320px-Amphilophus_citrinellus.jpg',
+   grad:'linear-gradient(135deg,#402000,#C07000)',
+   temp:'22–30°C',ph:'7.0–8.0',diet:'Omnívoro',diff:'Medio',compat:'Agresivo',size:'25–35 cm',min:400,
+   desc:'Naranja vibrante. Joroba frontal en adultos. Padre del Flowerhorn.'},
+
+  {id:'f95',name:'Pez Saltador / Mudskipper',sci:'Periophthalmus barbarus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Mudskipper_at_mangrove.jpg/320px-Mudskipper_at_mangrove.jpg',
+   grad:'linear-gradient(135deg,#101000,#303000)',
+   temp:'24–28°C',ph:'7.5–8.5',diet:'Carnívoro',diff:'Muy difícil',compat:'Agresivo',size:'15–25 cm',min:200,
+   desc:'Sale del agua y "camina". Necesita zona terrestre. Agua salobre.'},
+
+  {id:'f96',name:'Pez Payaso Ocellaris',sci:'Amphiprion ocellaris',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Amphiprion_ocellaris_clownfish_SC29.jpg/320px-Amphiprion_ocellaris_clownfish_SC29.jpg',
+   grad:'linear-gradient(135deg,#400000,#C03000)',
+   temp:'24–28°C',ph:'8.1–8.4',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'8–11 cm',min:100,
+   desc:'El clásico pez payaso marino. Naranja con blanco. Vive en anémonas.'},
+
+  {id:'f97',name:'Seahorse / Caballito de Mar',sci:'Hippocampus kuda',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Hippocampus_kuda.jpg/320px-Hippocampus_kuda.jpg',
+   grad:'linear-gradient(135deg,#201000,#806000)',
+   temp:'21–25°C',ph:'8.1–8.4',diet:'Carnívoro',diff:'Muy difícil',compat:'Pacífico',size:'15–20 cm',min:200,
+   desc:'El macho gestiona el embarazo. Come camarones vivos. Solo para expertos marinos.'},
+
+  {id:'f98',name:'Betta Imbellis / Betta Crescent',sci:'Betta imbellis',emoji:'🐡',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Betta_imbellis_male.jpg/320px-Betta_imbellis_male.jpg',
+   grad:'linear-gradient(135deg,#001A30,#004080)',
+   temp:'22–28°C',ph:'5.5–7.0',diet:'Carnívoro',diff:'Fácil',compat:'Semi-agresivo',size:'5–6 cm',min:20,
+   desc:'Más tranquilo que el Betta splendens. Puede convivir en parejas. Silvestre.'},
+
+  {id:'f99',name:'Gurami Chocolate',sci:'Sphaerichthys osphromenoides',emoji:'🐠',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Chocolate_gourami.jpg/320px-Chocolate_gourami.jpg',
+   grad:'linear-gradient(135deg,#200A00,#603010)',
+   temp:'25–30°C',ph:'4.0–6.5',diet:'Omnívoro',diff:'Muy difícil',compat:'Pacífico',size:'5–6 cm',min:60,
+   desc:'Marrón chocolate con rayas crema. Necesita agua muy blanda y ácida. Expertos.'},
+
+  {id:'f100',name:'Tetra Rummy Nose',sci:'Hemigrammus rhodostomus',emoji:'🐟',
+   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Rummy_nose_tetra.jpg/320px-Rummy_nose_tetra.jpg',
+   grad:'linear-gradient(135deg,#300010,#900030)',
+   temp:'22–28°C',ph:'5.5–7.0',diet:'Omnívoro',diff:'Medio',compat:'Pacífico',size:'4–5 cm',min:50,
+   desc:'Hocico rojo brillante. Aleta caudal a rayas. Excelente indicador de calidad de agua.'},
 ];
 
 // ════════════════════════════════════════════════════
@@ -849,7 +1353,7 @@ function openTankDetail(id){
     ?mySpecies.map(s=>{
       const img=s.customImg||s.img;
       return `<div style="display:flex;align-items:center;gap:11px;background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:11px;margin-bottom:8px">
-        <div style="width:52px;height:52px;border-radius:11px;overflow:hidden;flex-shrink:0;background:${s.grad||'rgba(0,196,224,.08)'} center/contain no-repeat;${img?`background-image:url(${img})`:''}">${!img?`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:26px">${s.emoji}</div>`:''}</div>
+        <div style="width:52px;height:52px;border-radius:11px;overflow:hidden;flex-shrink:0;background:${s.grad||'rgba(0,196,224,.08)'} center/contain no-repeat" ${img?`data-wiki="${img}"`:''}>${!img?`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:26px">${s.emoji}</div>`:''}</div>
         <div style="flex:1;min-width:0">
           <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--soft)">${s.emoji} ${s.name}</div>
           ${s.sci?`<div style="font-size:10px;color:var(--muted);font-style:italic">${s.sci}</div>`:''}
@@ -927,6 +1431,17 @@ function openTankDetail(id){
 
     </div>
   </div>`);
+  // Load Wikimedia fish thumbnails in the modal
+  document.querySelectorAll('#mroot [data-wiki]').forEach(el => {
+    const url = el.dataset.wiki;
+    if(!url) return;
+    loadWikiBg(el, url);
+    _fetchWiki(url).then(blobUrl=>{
+      if(blobUrl!=='err'&&el){
+        el.style.backgroundSize='contain';el.style.backgroundPosition='center';el.style.backgroundRepeat='no-repeat';
+      }
+    });
+  });
 }
 function delTank(id){if(!confirm('¿Eliminar esta pecera y sus datos?'))return;tanks=tanks.filter(t=>t.id!==id);delete paramLog[id];if(selTank===id)selTank=tanks.length?tanks[0].id:null;saveState();renderTankList();renderDash();toast('🗑 Pecera eliminada')}
 function openAddTank(){
@@ -1154,8 +1669,10 @@ function renderCatalogGrid(list){
   if(!list.length){el.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);font-size:13px">Sin resultados para "${_catQuery}"</div>`;return}
   const diffColor={Fácil:'var(--green)',Medio:'var(--gold)',Difícil:'var(--coral)'};
   el.innerHTML=list.map(f=>`<div class="fish-card ${_selCatFish&&_selCatFish.id===f.id?'sel':''}" onclick="selectCatFish('${f.id}')">
-    <div class="fish-img-wrap" style="background:${f.grad} url(${f.img}) center/contain no-repeat">
-      <div class="fish-diff"><span class="badge" style="font-size:7px;padding:2px 6px;background:rgba(0,0,0,.5);border:1px solid ${diffColor[f.diff]};color:${diffColor[f.diff]}">${f.diff}</span></div>
+    <div class="fish-img-wrap">
+      <img data-wiki="${f.customImg||f.img||''}" alt="${f.name}" loading="lazy" style="opacity:0;transition:opacity .3s">
+      <div class="fish-fallback" style="display:none">${f.emoji}</div>
+      <div class="fish-diff"><span class="badge" style="font-size:7px;padding:2px 6px;background:rgba(0,0,0,.6);border:1px solid ${diffColor[f.diff]};color:${diffColor[f.diff]}">${f.diff}</span></div>
     </div>
     <div class="fish-info">
       <div class="fish-name">${f.name}</div>
@@ -1167,6 +1684,13 @@ function renderCatalogGrid(list){
       </div>
     </div>
   </div>`).join('');
+  // Load images via no-referrer fetch to bypass Wikimedia 403
+  el.querySelectorAll('img[data-wiki]').forEach(img => {
+    const url = img.dataset.wiki;
+    const fallback = img.nextElementSibling; // .fish-fallback
+    loadWikiImg(img, url, () => { img.style.display='none'; if(fallback)fallback.style.display='flex'; });
+    if (url) img.onload = () => { img.style.opacity='1'; };
+  });
 }
 
 function selectCatFish(id){
@@ -1188,7 +1712,7 @@ function openFromCatalog(){
 
     <!-- FISH PREVIEW -->
     <div class="fish-preview">
-      <div style="height:150px;background:${f.grad} url(${f.img}) center/contain no-repeat;border-radius:16px 16px 0 0;flex-shrink:0"></div>
+      <div id="fish-preview-bg" style="height:150px;background:${f.grad};border-radius:16px 16px 0 0;flex-shrink:0" ${f.img?`data-wiki="${f.img}" data-grad="${f.grad}"`:''}></div>
       <div class="fish-preview-body">
         <div style="font-size:11px;color:var(--muted);font-style:italic;margin-bottom:8px">${f.sci}</div>
         <div style="font-size:12px;color:var(--soft);line-height:1.5;margin-bottom:10px">${f.desc}</div>
@@ -1214,6 +1738,18 @@ function openFromCatalog(){
     <button class="btn" onclick="saveCatalogFish()">+ Agregar ${f.name} a mi pecera</button>
     <button class="btn2" onclick="openCatalog()">← Volver al catálogo</button>
   </div>`);
+  // Load fish preview background via no-referrer fetch
+  if(f.img){
+    const bgEl=document.getElementById('fish-preview-bg');
+    if(bgEl){
+      loadWikiBg(bgEl, f.img);
+      _fetchWiki(f.img).then(blobUrl=>{
+        if(blobUrl!=='err'&&bgEl){
+          bgEl.style.backgroundSize='contain';bgEl.style.backgroundPosition='center';bgEl.style.backgroundRepeat='no-repeat';
+        }
+      });
+    }
+  }
 }
 
 function saveCatalogFish(){
@@ -1311,11 +1847,12 @@ function renderSpecies(){
     const displayImg=s.customImg||s.img;
     const gradBg=s.grad||'linear-gradient(135deg,rgba(0,196,224,.08),rgba(0,237,212,.04))';
     const photoHtml=displayImg
-      ?`<div class="sp-card-img-wrap" style="background:${gradBg} url(${displayImg}) center/contain no-repeat">
+      ?`<div class="sp-card-img-wrap" style="background:#060D18">
+          <img data-wiki="${displayImg}" alt="${s.name}" style="width:100%;height:100%;object-fit:contain;display:block;opacity:0;transition:opacity .3s" loading="lazy">
           <div class="sp-photo-btn" onclick="event.stopPropagation();uploadSpPhoto(${i})">📷 Cambiar</div>
         </div>`
       :`<div class="sp-card-img-wrap" style="background:${gradBg}">
-          <div class="sp-fb" style="background:${gradBg};flex-direction:column;gap:8px">${s.emoji}<div class="sp-photo-btn" onclick="event.stopPropagation();uploadSpPhoto(${i})" style="position:relative;bottom:auto;right:auto">📷 Agregar foto</div></div>
+          <div class="sp-fb" style="flex-direction:column;gap:8px">${s.emoji}<div class="sp-photo-btn" onclick="event.stopPropagation();uploadSpPhoto(${i})" style="position:relative;bottom:auto;right:auto">📷 Agregar foto</div></div>
         </div>`;
     return `<div class="sp-card">
       ${photoHtml}
@@ -1352,6 +1889,13 @@ function renderSpecies(){
       </div>
     </div>`;
   }).join('');
+  // Load Wikimedia images via no-referrer fetch
+  el.querySelectorAll('img[data-wiki]').forEach(img => {
+    const url = img.dataset.wiki;
+    if(!url) return;
+    loadWikiImg(img, url, () => { img.style.display='none'; });
+    img.onload = () => { img.style.opacity='1'; };
+  });
 }
 function openManualSpeciesForTank(tankName){
   openManualSpecies(null);
@@ -1603,9 +2147,9 @@ function renderSpGallery(){
   grid.style.display='grid';empty.style.display='none';
   grid.innerHTML=species.map((s,i)=>{
     const img=s.customImg||s.img;
-    const bgStyle=img?`background:${s.grad||'#091726'} url(${img}) center/contain no-repeat`:`background:${s.grad||'#091726'}`;
+    const grad=s.grad||'#091726';
     return `<div class="sp-gcard">
-      <div class="sp-gcard-img" style="${bgStyle}"></div>
+      <div class="sp-gcard-img" style="background:${grad}" ${img?`data-wiki="${img}" data-grad="${grad}"`:''}>${!img?`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:38px">${s.emoji}</div>`:''}</div>
       <div class="sp-gcard-body">
         <div class="sp-gcard-name">${s.emoji} ${s.name}</div>
         <div class="sp-gcard-sub">×${s.count} · ${s.tank||'—'}</div>
@@ -1618,6 +2162,21 @@ function renderSpGallery(){
       </div>
     </div>`;
   }).join('');
+  // Load Wikimedia backgrounds via no-referrer fetch
+  grid.querySelectorAll('[data-wiki]').forEach(el => {
+    const url = el.dataset.wiki;
+    const grad = el.dataset.grad || '#091726';
+    if(!url) return;
+    loadWikiBg(el, url);
+    // Set background-size/position/repeat after blob is ready
+    _fetchWiki(url).then(blobUrl => {
+      if(blobUrl !== 'err') {
+        el.style.backgroundSize='contain';
+        el.style.backgroundPosition='center';
+        el.style.backgroundRepeat='no-repeat';
+      }
+    });
+  });
 }
 
 function applySpPhotoGallery(input,i){
@@ -1640,8 +2199,8 @@ function filterInlineCatalog(q){
     const img=f.customImg||f.img;
     const isCustom=!!f._custom;
     return `<div class="inline-cat-card">
-      <div class="inline-cat-card-img" style="background:${f.grad};position:relative;overflow:hidden">
-        ${img?`<img src="${img}" alt="${f.name}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;display:block">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px">'+f.emoji+'</div>'}
+      <div class="inline-cat-card-img" style="background:#060D18;position:relative;overflow:hidden">
+        ${img?`<img data-wiki="${img}" alt="${f.name}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;display:block;opacity:0;transition:opacity .3s" data-emoji="${f.emoji}">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px">'+f.emoji+'</div>'}
       </div>
       <div class="inline-cat-card-body">
         <div class="inline-cat-card-name">${f.emoji} ${f.name}</div>
@@ -1659,6 +2218,19 @@ function filterInlineCatalog(q){
       </div>
     </div>`;
   }).join('');
+  // Load Wikimedia images via no-referrer fetch
+  grid.querySelectorAll('img[data-wiki]').forEach(img => {
+    const url = img.dataset.wiki;
+    const emoji = img.dataset.emoji || '🐟';
+    loadWikiImg(img, url, () => {
+      img.style.display='none';
+      const fb=document.createElement('div');
+      fb.style.cssText='width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px';
+      fb.textContent=emoji;
+      img.parentElement.appendChild(fb);
+    });
+    if(url) img.onload=()=>{img.style.opacity='1';};
+  });
 }
 
 function openAddToCatalog(fid){
